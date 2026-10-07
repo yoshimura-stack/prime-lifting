@@ -2,29 +2,56 @@
 <html lang="ja">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PRIME / Lifting Lab</title><link rel="stylesheet" href="style.css"></head>
 <body>
-<main>
- <header><a class="brand" href="index.html">PRIME<span> / LIFTING LAB</span></a><span class="version">FULLSCREEN BUILD <b>V0.3.2</b></span></header>
- <section class="intro"><div><p class="eyebrow">ONE BALL. SIXTY SECONDS.</p><h1>つなぐのは、自分のタイミング。</h1></div><p>軌道を読む。身体を合わせる。<br>その一瞬に、クリック。</p></section>
- <section class="game-shell" aria-label="リフティングゲーム">
-  <div id="kit-select" class="kit-select" aria-label="ユニフォーム選択">
-   <div class="kit-panel">
-    <p class="eyebrow">SELECT YOUR KIT</p><h2>ユニフォームを選ぶ。</h2>
-    <p class="kit-copy">世界のフットボールカルチャーをイメージした、オリジナルカラー。</p>
-    <div id="kit-tabs" class="kit-tabs"></div><div id="kit-grid" class="kit-grid"></div>
-    <div class="kit-actions"><span id="kit-current">JAPAN 01</span><button id="kit-confirm" class="primary">このユニフォームで決定 <span>↗</span></button></div>
+<main class="game-app">
+ <aside class="side-panel controls-panel" aria-label="操作ガイド">
+  <div class="side-brand">PRIME <span>/ LIFTING LAB</span></div>
+  <div class="panel-block">
+   <p class="panel-kicker">CONTROLS</p><h2>操作</h2>
+   <div class="control-stack">
+    <div class="control-row"><div class="key-pair"><kbd>A</kbd><kbd>D</kbd></div><div><strong>左右移動</strong><small>細かく位置を合わせる</small></div></div>
+    <div class="control-row"><kbd>SPACE</kbd><div><strong>ジャンプ</strong><small>空中タッチでAIR BONUS</small></div></div>
+    <div class="control-row"><kbd>L CLICK</kbd><div><strong>ボールアクション</strong><small>足・膝・胸・ヘッド</small></div></div>
+    <div class="control-row"><kbd>R CLICK</kbd><div><strong>スピン</strong><small>次の成功タッチでBONUS</small></div></div>
    </div>
   </div>
-  <div class="scorebar"><div><small>SCORE</small><strong id="score">000000</strong></div><div class="chain"><small>KEEP UPS</small><strong id="combo">0</strong></div><div><small>TIME LEFT</small><strong id="time">60<span>.0</span></strong></div></div>
-  <canvas id="scene" width="1000" height="620" aria-hidden="true"></canvas>
-  <canvas id="game" width="1000" height="620" tabindex="0" aria-label="AとDで移動、スペースでジャンプ、左クリックで打球、右クリックで回転"></canvas>
-  <div id="overlay" class="overlay"><p class="eyebrow" id="overlay-label">THE LIFTING CHALLENGE</p><h2 id="overlay-title">ボールを、落とすな。</h2><p id="overlay-copy">移動も、打球も、あなたの操作で。<br>60秒間のリフティング・スコアアタック。</p><div id="score-entry" hidden><form id="score-form"><label for="player-name">ランキングに表示する名前</label><div><input id="player-name" name="name" maxlength="16" autocomplete="nickname" placeholder="ニックネーム" required><button id="save-score" type="submit">スコアを登録</button></div><small>同じ名前の記録は、最高得点にまとめます。</small></form><p id="save-feedback" role="status" aria-live="polite"></p></div><button id="start" class="primary">プレイする <span>↗</span></button><small id="overlay-note">打球はゲーム画面内でクリック</small></div>
-  <div class="field-bottom"><span><i></i> MANUAL CONTROL ONLY</span><span id="status">READY TO PLAY</span></div>
+  <div class="panel-block utility-block">
+   <p class="panel-kicker">GAME MENU</p>
+   <button id="pause">一時停止 <em>ESC</em></button><button id="sound" aria-pressed="true">音 ON</button><button id="debug" aria-pressed="false">判定表示 <em>F2</em></button><button id="kit-change">ユニフォーム</button><button id="tune" aria-expanded="false">調整パネル</button>
+  </div>
+ </aside>
+
+ <section class="center-stage">
+  <section class="game-shell" aria-label="リフティングゲーム">
+   <div id="kit-select" class="kit-select" aria-label="ユニフォーム選択">
+    <div class="kit-panel">
+     <p class="eyebrow">SELECT YOUR KIT</p><h2>ユニフォームを選ぶ。</h2>
+     <p class="kit-copy">世界のフットボールカルチャーをイメージした、オリジナルカラー。</p>
+     <div id="kit-tabs" class="kit-tabs"></div><div id="kit-grid" class="kit-grid"></div>
+     <div class="kit-actions"><span id="kit-current">JAPAN 01</span><button id="kit-confirm" class="primary">このユニフォームで決定 <span>↗</span></button></div>
+    </div>
+   </div>
+   <div class="scorebar"><div><small>SCORE</small><strong id="score">000000</strong></div><div class="chain"><small>KEEP UPS</small><strong id="combo">0</strong></div><div><small>TIME LEFT</small><strong id="time">60<span>.0</span></strong></div></div>
+   <canvas id="scene" width="1000" height="620" aria-hidden="true"></canvas>
+   <canvas id="game" width="1000" height="620" tabindex="0" aria-label="AとDで移動、スペースでジャンプ、左クリックで打球、右クリックで回転"></canvas>
+   <div id="overlay" class="overlay"><p class="eyebrow" id="overlay-label">THE LIFTING CHALLENGE</p><h2 id="overlay-title">ボールを、落とすな。</h2><p id="overlay-copy">移動も、打球も、あなたの操作で。<br>60秒間のリフティング・スコアアタック。</p><div id="score-entry" hidden><form id="score-form"><label for="player-name">ランキングに表示する名前</label><div><input id="player-name" name="name" maxlength="16" autocomplete="nickname" placeholder="ニックネーム" required><button id="save-score" type="submit">スコアを登録</button></div><small>同じ名前の記録は、最高得点にまとめます。</small></form><p id="save-feedback" role="status" aria-live="polite"></p></div><button id="start" class="primary">プレイする <span>↗</span></button><small id="overlay-note">打球はゲーム画面内でクリック</small></div>
+   <div class="field-bottom"><span><i></i> MANUAL CONTROL ONLY</span><span id="status">READY TO PLAY</span></div>
+  </section>
  </section>
- <section class="controls"><div><kbd>A</kbd><kbd>D</kbd><span>左右へ移動</span></div><div><kbd>SPACE</kbd><span>ジャンプ</span></div><div><kbd>L CLICK</kbd><span>ボールアクション</span></div><div><kbd>R CLICK</kbd><span>回転</span></div></section>
- <footer><p>ジャンプだけでは打球しません。回転ボーナスは、次の打球成功で確定。</p><div><button id="pause">一時停止 <em>ESC</em></button><button id="sound" aria-pressed="true">音 ON</button><button id="debug" aria-pressed="false">判定表示 <em>F2</em></button><button id="kit-change">ユニフォーム</button><button id="tune" aria-expanded="false">調整パネル</button></div></footer>
+
+ <aside class="side-panel score-guide" aria-label="得点ガイド">
+  <div class="build-label">FULLSCREEN BUILD <b>V0.3.3</b></div>
+  <div class="panel-block">
+   <p class="panel-kicker">SCORE GUIDE</p><h2>得点</h2>
+   <div class="score-list">
+    <div><span>FOOT</span><strong>+100</strong></div><div><span>KNEE</span><strong>+150</strong></div><div><span>CHEST</span><strong>+200</strong></div><div><span>HEADER</span><strong>+250</strong></div><div class="featured"><span>JUMP HEADER</span><strong>+500</strong></div>
+   </div>
+  </div>
+  <div class="bonus-card"><p class="panel-kicker">AIR STREAK</p><strong>+150 × STREAK</strong><small>空中でタッチ成功。最大 ×5 = +750<br>ジャンプだけでは加点されません。</small></div>
+  <div class="bonus-card"><p class="panel-kicker">SPIN STREAK</p><strong>+100 × STREAK</strong><small>タッチ間にスピン成功。最大 ×5 = +500<br>毎回挟むほどスコアが伸びます。</small></div>
+ </aside>
+
  <section class="leaderboard" aria-labelledby="rank-title"><div class="rank-heading"><div><p class="eyebrow">TEAM HIGH SCORES</p><h2 id="rank-title">チームランキング</h2></div><button id="rank-refresh">更新</button></div><p id="rank-message" role="status">ランキングを読み込んでいます…</p><table><thead><tr><th>順位</th><th>プレイヤー</th><th>最高得点</th><th>連続成功</th></tr></thead><tbody id="rank-rows"></tbody></table><p class="rank-note">標準設定の60秒プレイが対象。同点は先に記録した人が上位になります。</p></section>
  <section id="tuning" hidden><div class="tuning-heading"><div><p class="eyebrow">GAME FEEL LAB</p><h2>感覚を、調整する。</h2><p>調整中は一時停止します。数値はこのブラウザに保存されます。</p></div><button id="reset-config">初期値に戻す</button></div><div id="sliders"></div></section>
- <p class="fine-print">オリジナル素材による非公式プロトタイプ。参考映像の構図を確認済み。速度・判定・得点は暫定値です。ゲーム値は js/config.js で変更できます。</p>
 </main>
 <script src="js/config.js"></script><script src="js/kits.js"></script><script src="js/engine.js"></script><script src="vendor/three.min.js"></script><script src="js/renderer3d.js"></script><script src="js/ranking.js"></script><script src="game.js"></script>
 </body></html>
