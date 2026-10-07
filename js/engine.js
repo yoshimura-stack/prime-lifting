@@ -24,6 +24,8 @@ class LiftingGame{
   this.hits=0;
   this.pendingSpins=0;
   this.eligibleSpin=false;
+  this.spinStreak=0;
+  this.airStreak=0;
   this.respawn=0;
   this.elapsed=0;
   this.cooldown=0;
@@ -118,7 +120,20 @@ class LiftingGame{
    return null;
   }
 
-  const a=this.c.ACTIONS[hit.name],bonus=this.pendingSpins*this.c.SPIN_BONUS;
+  const a=this.c.ACTIONS[hit.name];
+  const spinCount=this.pendingSpins;
+  const airborne=p.y<this.c.GROUND_Y-0.5;
+
+  // Skill streaks reward players who keep adding a spin or an airborne touch
+  // on every successful contact. Missing the condition on the next touch resets
+  // that streak, while dropping the ball resets both.
+  if(spinCount>0)this.spinStreak++;else this.spinStreak=0;
+  if(airborne)this.airStreak++;else this.airStreak=0;
+  const spinLevel=Math.min(this.spinStreak,this.c.MAX_STREAK_LEVEL);
+  const airLevel=Math.min(this.airStreak,this.c.MAX_STREAK_LEVEL);
+  const spinBonus=spinCount>0?spinLevel*this.c.SPIN_BONUS*spinCount:0;
+  const airBonus=airborne?airLevel*this.c.AIR_STREAK_BONUS:0;
+  const bonus=spinBonus+airBonus;
 
   // Signed contact offset controls direction; edge contacts trade some height for width.
   const contactOffset=b.x-hit.x,edge=Math.min(1,Math.abs(contactOffset)/hit.r);
@@ -147,6 +162,11 @@ class LiftingGame{
    side:hit.side,
    points:a.score,
    bonus,
+   spinBonus,
+   airBonus,
+   spinStreak:this.spinStreak,
+   airStreak:this.airStreak,
+   airborne,
    x:b.x,
    y:b.y,
    quality:hit.ratio<0.4?'PERFECT':'GOOD'
@@ -232,6 +252,8 @@ class LiftingGame{
     this.combo=0;
     this.pendingSpins=0;
     this.eligibleSpin=false;
+    this.spinStreak=0;
+    this.airStreak=0;
     p.spinEligible=false;
     this.drops++;
     this.respawn=c.RESPAWN_DELAY;
