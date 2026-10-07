@@ -59,3 +59,65 @@ main.game-app{width:100vw;height:100dvh;max-width:none;margin:0;padding:12px 14p
 .kit-card{display:flex;flex-direction:column;align-items:center;text-align:left;padding:7px 8px}.kit-card strong,.kit-card small{align-self:stretch}.kit-shirt{width:clamp(72px,6.2vw,112px);height:clamp(72px,9dvh,106px);margin:2px auto 3px;border-radius:0;clip-path:polygon(21% 0,36% 0,42% 8%,58% 8%,64% 0,79% 0,100% 18%,86% 39%,76% 31%,76% 100%,24% 100%,24% 31%,14% 39%,0 18%);box-shadow:0 8px 18px #0005}.kit-shirt:after{top:42%;height:7px}.kit-shirt.solid:after{height:4px}.kit-card.active .kit-shirt{filter:drop-shadow(0 0 7px #dcff6a99);transform:scale(1.04)}
 @media(max-width:1100px){main.game-app{grid-template-columns:150px minmax(0,1fr) 160px;gap:8px;padding:8px}.control-row{grid-template-columns:60px 1fr;gap:6px}.control-row small{display:none}.utility-block{grid-template-columns:1fr}.utility-block button:nth-of-type(3),.utility-block button:nth-of-type(5){display:none}.bonus-card small{font-size:8px}.kit-shirt{width:70px;height:72px}}
 @media(max-width:760px){html,body{overflow:auto}main.game-app{height:auto;min-height:100dvh;display:block;padding:8px}.controls-panel,.score-guide{display:none}.center-stage{height:auto}.center-stage .game-shell{width:100%;max-height:none;aspect-ratio:1000/620}.kit-panel{overflow:auto;height:96dvh}.kit-grid{grid-template-columns:repeat(2,1fr);overflow:visible}.kit-shirt{width:82px;height:88px}.kit-actions{position:sticky;bottom:0;background:#10241f;padding-bottom:4px}}
+
+/* V0.3.4 — responsive kit selector + Japanese score guide ---------------- */
+/* The selector is a flex column so low-height notebook displays never let
+   headings/tabs collide with the 5x4 kit grid. */
+.kit-panel{display:flex;flex-direction:column;align-content:initial}
+.kit-panel>.eyebrow{flex:0 0 auto;margin:0 0 5px}
+.kit-panel>h2{flex:0 0 auto}
+.kit-copy,.kit-tabs,.kit-actions{flex:0 0 auto}
+.kit-grid{flex:1 1 auto;grid-template-rows:repeat(4,minmax(0,1fr));grid-auto-rows:unset;min-height:0}
+.kit-card{justify-content:center;overflow:hidden}
+.kit-shirt{flex:0 0 auto;width:clamp(68px,5.7vw,104px);height:auto;aspect-ratio:1/1.06}
+
+/* Score guide is gameplay information, not fine print. */
+.score-guide{gap:clamp(7px,1.05dvh,12px)}
+.score-guide .panel-block{padding-top:clamp(12px,1.7dvh,22px)}
+.score-guide .panel-block h2{margin-bottom:clamp(10px,1.3dvh,16px)}
+.score-list>div{padding:clamp(6px,1dvh,10px) 3px}
+.score-list span{font-size:clamp(10px,.78vw,13px);font-weight:800;letter-spacing:.3px;color:#f0f5f1}
+.score-list strong{font-size:clamp(13px,1vw,18px)}
+.bonus-card{padding:clamp(10px,1.25dvh,14px)}
+.bonus-card .panel-kicker{font-size:clamp(9px,.66vw,11px);letter-spacing:.8px;color:var(--lime)}
+.bonus-card>strong{font-size:clamp(14px,1.02vw,18px);margin:3px 0 7px}
+.bonus-copy{margin:0;color:#f2f6f3;font-size:clamp(10px,.72vw,12px);font-weight:700;line-height:1.55}
+.bonus-copy b{color:#fff;font-weight:900}
+.record-card{margin-top:auto;border:1px solid #53684f;border-radius:8px;padding:clamp(10px,1.35dvh,15px);background:linear-gradient(145deg,#172a21,#10231d);box-shadow:inset 0 0 0 1px #dcff6a0c}
+.record-card .panel-kicker{margin-bottom:5px;color:#e7cf78;letter-spacing:1px}
+.record-card>strong{display:block;font:900 clamp(17px,1.25vw,22px) Consolas,monospace;color:var(--lime);line-height:1.1}
+.record-card>span{display:block;margin-top:5px;color:#e7eee9;font-size:clamp(9px,.66vw,11px);font-weight:700;line-height:1.35}
+
+/* Notebook / low-height displays: scale the selector proportionally instead
+   of crushing the shirt silhouette or overlapping the tabs. */
+@media (max-height:820px) and (min-width:761px){
+ .kit-select{padding:8px 14px}
+ .kit-panel{height:calc(100dvh - 16px);width:min(1320px,97vw);padding:10px 18px 10px}
+ .kit-panel>.eyebrow{font-size:8px;margin-bottom:2px}
+ .kit-panel h2{font-size:20px;margin:1px 0}
+ .kit-copy{font-size:9px;margin:0 0 5px}
+ .kit-tabs{padding-bottom:5px;gap:4px}
+ .kit-tabs button{padding:5px 8px;font-size:8px}
+ .kit-grid{gap:6px;margin-top:6px}
+ .kit-card{padding:4px 7px}
+ .kit-shirt{width:clamp(52px,4.6vw,70px);aspect-ratio:1/1.06;margin:0 auto 1px}
+ .kit-card strong{font-size:8px;margin-top:2px}
+ .kit-card small{font-size:6.5px;margin-top:0}
+ .kit-actions{margin-top:6px;padding-top:6px}
+ .kit-actions>span{font-size:10px}
+ .kit-actions .primary{width:220px;padding:8px 12px;font-size:11px}
+}
+@media (max-height:700px) and (min-width:761px){
+ .kit-panel>.eyebrow,.kit-copy,.kit-card small{display:none}
+ .kit-panel h2{font-size:17px}
+ .kit-shirt{width:48px}
+ .kit-tabs button{padding:4px 7px}
+ .kit-grid{gap:4px;margin-top:4px}
+ .kit-actions{margin-top:4px;padding-top:4px}
+}
+
+@media(max-width:1100px) and (min-width:761px){
+ .bonus-card small{font-size:inherit}
+ .bonus-copy{font-size:9px;line-height:1.45}
+ .record-card>span{font-size:8px}
+}

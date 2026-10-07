@@ -39,15 +39,16 @@
  </section>
 
  <aside class="side-panel score-guide" aria-label="得点ガイド">
-  <div class="build-label">FULLSCREEN BUILD <b>V0.3.3</b></div>
+  <div class="build-label">FULLSCREEN BUILD <b>V0.3.4</b></div>
   <div class="panel-block">
    <p class="panel-kicker">SCORE GUIDE</p><h2>得点</h2>
    <div class="score-list">
-    <div><span>FOOT</span><strong>+100</strong></div><div><span>KNEE</span><strong>+150</strong></div><div><span>CHEST</span><strong>+200</strong></div><div><span>HEADER</span><strong>+250</strong></div><div class="featured"><span>JUMP HEADER</span><strong>+500</strong></div>
+    <div><span>キック</span><strong>+100</strong></div><div><span>ひざ</span><strong>+150</strong></div><div><span>むね</span><strong>+200</strong></div><div><span>ヘディング</span><strong>+250</strong></div><div class="featured"><span>ジャンプヘッド</span><strong>+500</strong></div>
    </div>
   </div>
-  <div class="bonus-card"><p class="panel-kicker">AIR STREAK</p><strong>+150 × STREAK</strong><small>空中でタッチ成功。最大 ×5 = +750<br>ジャンプだけでは加点されません。</small></div>
-  <div class="bonus-card"><p class="panel-kicker">SPIN STREAK</p><strong>+100 × STREAK</strong><small>タッチ間にスピン成功。最大 ×5 = +500<br>毎回挟むほどスコアが伸びます。</small></div>
+  <div class="bonus-card air-card"><p class="panel-kicker">ジャンプ連続ボーナス</p><strong>+150 × 連続回数</strong><p class="bonus-copy">ジャンプ中のタッチ成功で加点！<br><b>キック・ひざ・むね・ヘディング</b>すべて対象。<br>連続成功でアップ ／ 最大5連続 <b>+750</b></p></div>
+  <div class="bonus-card"><p class="panel-kicker">スピン連続ボーナス</p><strong>+100 × 連続回数</strong><p class="bonus-copy">タッチの間にスピン成功で加点！<br>毎回スピンを挟むほどアップ。<br>最大5連続 <b>+500</b></p></div>
+  <div class="record-card" aria-label="現在の最高記録"><p class="panel-kicker">現在の最高記録</p><strong id="leader-best-score">--- PTS</strong><span id="leader-best-name">ランキング接続後に表示</span></div>
  </aside>
 
  <section class="leaderboard" aria-labelledby="rank-title"><div class="rank-heading"><div><p class="eyebrow">TEAM HIGH SCORES</p><h2 id="rank-title">チームランキング</h2></div><button id="rank-refresh">更新</button></div><p id="rank-message" role="status">ランキングを読み込んでいます…</p><table><thead><tr><th>順位</th><th>プレイヤー</th><th>最高得点</th><th>連続成功</th></tr></thead><tbody id="rank-rows"></tbody></table><p class="rank-note">標準設定の60秒プレイが対象。同点は先に記録した人が上位になります。</p></section>
