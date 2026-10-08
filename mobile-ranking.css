@@ -36,3 +36,106 @@
 .touch-landscape .game-shell{position:relative}
 .touch-landscape #touch-controls:not([hidden]){z-index:30!important}
 .touch-landscape #touch-controls button{position:relative;z-index:31;-webkit-tap-highlight-color:transparent}
+
+/* V0.5.3: mobile landscape controller sits in dedicated viewport gutters. */
+:root{--mobile-gutter:clamp(92px,13vw,148px)}
+.touch-landscape main.game-app{padding:0!important}
+.touch-landscape .center-stage{width:100%;height:100dvh;min-height:0}
+.touch-landscape .center-stage .game-shell{
+ width:min(calc(100vw - 2 * var(--mobile-gutter)),161.29dvh)!important;
+ max-width:calc(100vw - 2 * var(--mobile-gutter))!important;
+ height:auto!important;max-height:100dvh!important;
+ flex-shrink:0;
+}
+.touch-landscape #touch-controls:not([hidden]){
+ position:fixed!important;inset:0!important;z-index:100!important;
+ pointer-events:none!important;transform:none!important;
+}
+.touch-landscape .touch-move,.touch-landscape .touch-actions{
+ position:fixed!important;bottom:max(20px,env(safe-area-inset-bottom))!important;
+ display:flex;align-items:flex-end;gap:7px;
+}
+.touch-landscape .touch-move{left:max(9px,env(safe-area-inset-left))!important}
+.touch-landscape .touch-actions{right:max(9px,env(safe-area-inset-right))!important}
+.touch-landscape #touch-controls button{
+ display:flex;align-items:center;justify-content:center;
+ width:clamp(38px,6.9dvh,58px);height:clamp(38px,6.9dvh,58px);
+ border-radius:50%;border:1.5px solid #ffffff8a;
+ background:rgba(27,49,44,.48);color:#fff;
+ font:800 clamp(11px,2.2dvh,15px)/1 Arial,sans-serif;
+ backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
+ text-shadow:0 1px 2px #000b;box-shadow:0 2px 8px #0003;
+ flex-shrink:0;touch-action:none;-webkit-tap-highlight-color:transparent;
+}
+.touch-landscape .touch-move button span{display:block;line-height:1;font-size:19px;transform:none}
+.touch-landscape .touch-actions>div{display:flex;flex-direction:column;gap:7px}
+.touch-landscape #touch-controls .touch-kick{
+ width:clamp(55px,10dvh,78px);height:clamp(55px,10dvh,78px);
+ background:rgba(191,230,65,.7);border-color:#ecffa8;color:#17331e;
+ text-shadow:none;font-size:clamp(12px,2.6dvh,17px);
+}
+.touch-landscape #touch-controls .pressed{background:rgba(203,255,99,.88);color:#16331f;box-shadow:0 0 20px #d6ff68aa}
+.account-help{width:min(100%,620px);display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:7px auto 10px;text-align:left}
+.account-help>div{border:1px solid #8ea76c55;border-radius:7px;background:#102b24aa;padding:9px 11px;display:flex;flex-direction:column;gap:4px}
+.account-help b{font-size:13px;color:#e5ffac}.account-help span{font-size:12px;color:#fff;line-height:1.45;font-weight:600}
+.account-help>small{grid-column:1/-1;color:#e3ebdf;font-size:11px;line-height:1.5;text-align:center}
+.overlay:not(.intro-overlay) .account-help{display:none}
+.touch-landscape .account-help{gap:5px;margin:3px auto 5px}
+.touch-landscape .account-help>div{padding:5px 8px}
+.touch-landscape .account-help b{font-size:11px}
+.touch-landscape .account-help span{font-size:10px}
+.touch-landscape .account-help>small{font-size:9px}
+@media (max-height:420px) and (orientation:landscape){
+ .touch-landscape .overlay{padding:5px 14px}
+ .touch-landscape .account-help>div{padding:3px 7px}
+ .touch-landscape .account-help span{font-size:9px}
+}
+
+/* V0.5.4: landscape HUD, safe long-press interactions */
+.touch-landscape,.touch-landscape .game-app,.touch-landscape .center-stage,
+.touch-landscape .game-shell,.touch-landscape canvas,
+.touch-landscape #touch-controls,.touch-landscape #touch-controls *{
+ -webkit-user-select:none!important;user-select:none!important;
+ -webkit-touch-callout:none!important;-webkit-tap-highlight-color:transparent;
+}
+.touch-landscape canvas,.touch-landscape #touch-controls,
+.touch-landscape #touch-controls *{touch-action:none!important}
+.touch-landscape img{-webkit-user-drag:none}
+.touch-landscape input,.touch-landscape textarea{
+ -webkit-user-select:text!important;user-select:text!important;
+ -webkit-touch-callout:default!important;touch-action:auto!important;
+}
+.mobile-score-panel{display:none}
+.touch-landscape .mobile-score-panel{
+ position:fixed;top:max(4px,env(safe-area-inset-top));z-index:29;
+ display:flex;flex-direction:column;gap:3px;
+ width:clamp(86px,12vw,140px);padding:5px 7px;
+ background:rgba(10,30,24,.58);border-radius:8px;
+ pointer-events:none;color:white;font:700 clamp(9px,1.75dvh,13px)/1.2 Arial,sans-serif;
+ text-shadow:0 1px 3px #000;
+}
+.touch-landscape #mobile-score-left{left:max(4px,env(safe-area-inset-left))}
+.touch-landscape #mobile-score-right{right:max(4px,env(safe-area-inset-right))}
+.mobile-score-panel b{color:#d9ff6c;font-size:1.1em;margin-bottom:2px}
+.mobile-score-panel span{display:flex;justify-content:space-between;gap:2px}
+.mobile-score-panel strong{color:#d9ff6c}
+.mobile-score-panel small{color:#fff;font-size:.85em}
+.touch-landscape .center-stage .game-shell{
+ width:min(100vw,161.29dvh)!important;
+ max-width:100vw!important;
+}
+.touch-landscape .touch-move,.touch-landscape .touch-actions{
+ bottom:max(9px,env(safe-area-inset-bottom))!important;
+}
+.touch-landscape #touch-controls button{
+ width:clamp(52px,11dvh,64px);height:clamp(52px,11dvh,64px);
+}
+.touch-landscape #touch-controls .touch-kick{
+ width:clamp(68px,14dvh,82px);height:clamp(68px,14dvh,82px);
+}
+.touch-landscape .touch-move{gap:9px}
+@media(max-height:390px) and (orientation:landscape){
+ .touch-landscape .mobile-score-panel{gap:1px;padding:3px 5px}
+ .touch-landscape #touch-controls button{width:clamp(45px,10dvh,56px);height:clamp(45px,10dvh,56px)}
+ .touch-landscape #touch-controls .touch-kick{width:clamp(60px,13dvh,75px);height:clamp(60px,13dvh,75px)}
+}

@@ -18,7 +18,7 @@ function renderKitGrid(){const grid=$('kit-grid');grid.replaceChildren();for(con
 function openKitSelect(){touch.clear();pause(true);kitGroup=selectedKit.group;renderKitTabs();renderKitGrid();$('kit-current').textContent=selectedKit.name;$('kit-select').hidden=false;}
 $('kit-confirm').onclick=()=>{$('kit-select').hidden=true;$('overlay').hidden=false;canvas.focus();};
 $('kit-change').onclick=openKitSelect;
-applyKit(selectedKit);renderKitTabs();renderKitGrid();
+applyKit(selectedKit);renderKitTabs();renderKitGrid();$('overlay').classList.add('intro-overlay');
 let rankTick=0,rankEvents=[],rankDirection=0,rankStandard=true;
 function standardRules(){return JSON.stringify(c)===JSON.stringify(PRIME_DEFAULTS);}
 function rankedInput(name){if(['countdown','playing'].includes(g.phase))rankEvents.push({t:rankTick,n:name});return g[name]();}
@@ -32,7 +32,7 @@ function syncMobile(){touch.clear();document.body.classList.toggle('touch-landsc
 mobileQuery.addEventListener('change',syncMobile);touchQuery.addEventListener('change',syncMobile);window.addEventListener('resize',refreshMobile);syncMobile();
 $('mobile-pause').onclick=()=>pause(true);
 function sound(type){if(muted)return;try{audioContext??=new (window.AudioContext||window.webkitAudioContext)();if(audioContext.state==='suspended')audioContext.resume();const t=audioContext.currentTime,osc=audioContext.createOscillator(),gain=audioContext.createGain();const tone={hit:270,CHEST:120,HEADER:370,JUMP_HEADER:480,spin:650,miss:110,drop:80,start:740,end:220}[type]||270;osc.type=type==='spin'?'sine':'triangle';osc.frequency.setValueAtTime(tone,t);osc.frequency.exponentialRampToValueAtTime(Math.max(40,tone*(type==='start'?1.5:0.45)),t+0.13);gain.gain.setValueAtTime(0.065,t);gain.gain.exponentialRampToValueAtTime(0.001,t+0.17);osc.connect(gain);gain.connect(audioContext.destination);osc.start(t);osc.stop(t+0.18);}catch{}}
-function showOverlay(label,title,copy,button){$('overlay').hidden=false;$('overlay-label').textContent=label;$('overlay-title').textContent=title;$('overlay-copy').textContent=copy;$('start').innerHTML=button+' <span>↗</span>';}
+function showOverlay(label,title,copy,button){$('overlay').classList.remove('intro-overlay');$('overlay').hidden=false;$('overlay-label').textContent=label;$('overlay-title').textContent=title;$('overlay-copy').textContent=copy;$('start').innerHTML=button+' <span>↗</span>';}
 function pause(value){if(!['playing','countdown'].includes(g.phase))return;paused=value;keys.clear();touch.clear();accumulator=0;if(value)showOverlay('TAKE A BREATH','一時停止','続きは、あなたのタイミングで。','再開する');else $('overlay').hidden=true;$('pause').innerHTML=value?'再開 <em>ESC</em>':'一時停止 <em>ESC</em>';}
 $('start').onclick=()=>{if(paused){$('tuning').hidden=true;$('tune').setAttribute('aria-expanded','false');pause(false);}else{g.reset();keys.clear();touch.clear();rankTick=0;rankEvents=[];rankDirection=0;rankStandard=standardRules();window.PRIME_RANKING.begin(rankStandard);effects=[];message='';messageTime=0;$('overlay').hidden=true;sound('start');}canvas.focus();};
 $('pause').onclick=()=>{pause(!paused);if(!paused)canvas.focus();};
@@ -41,6 +41,19 @@ function toggleDebug(){debug=!debug;$('debug').setAttribute('aria-pressed',Strin
 $('debug').onclick=toggleDebug;
 window.addEventListener('keydown',e=>{if(e.code==='F2'){e.preventDefault();if(!e.repeat)toggleDebug();return;}if(e.code==='Escape'){if(!e.repeat)pause(!paused);return;}if(e.target.matches('input,button'))return;if(['KeyA','KeyD','Space'].includes(e.code)){e.preventDefault();if(!paused){keys.add(e.code);if(e.code==='Space'&&!e.repeat)rankedInput('jump');}}});
 window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',()=>{keys.clear();touch.clear();pause(true);});document.addEventListener('visibilitychange',()=>{if(document.hidden)pause(true);});
+// Keep native selection in login inputs, but disable it on the live game surface.
+for(const eventName of ['selectstart','dragstart','contextmenu']){
+ document.addEventListener(eventName,e=>{
+  if(!isMobile())return;
+  if(e.target.closest('input,textarea,[contenteditable="true"]'))return;
+  if(e.target.closest('.game-shell,#touch-controls,.mobile-score-panel'))e.preventDefault();
+ },{capture:true});
+}
+document.addEventListener('touchmove',e=>{
+ if(!isMobile()||!e.cancelable)return;
+ if(e.target.closest('input,textarea,[contenteditable="true"]'))return;
+ if(e.target.closest('.game-shell,#touch-controls'))e.preventDefault();
+},{passive:false});
 canvas.addEventListener('contextmenu',e=>e.preventDefault());canvas.addEventListener('pointerdown',e=>{e.preventDefault();canvas.focus();if(paused||isMobile())return;if(e.button===0)rankedInput('act');if(e.button===2)rankedInput('spin');processEvents();draw();});
 $('tune').onclick=()=>{$('tuning').hidden=!$('tuning').hidden;$('tune').setAttribute('aria-expanded',String(!$('tuning').hidden));if(!$('tuning').hidden)pause(true);};
 function buildSliders(){$('sliders').replaceChildren();for(const [label,path,min,max,step] of controls){const el=document.createElement('label'),out=document.createElement('output'),input=document.createElement('input');el.append(document.createTextNode(label),out,input);input.type='range';input.setAttribute('aria-label',label);input.min=min;input.max=max;input.step=step;input.value=get(c,path);out.value=input.value;input.oninput=()=>{if(['countdown','playing'].includes(g.phase))rankStandard=false;set(c,path,Number(input.value));out.value=input.value;const saved={};for(const [,key]of controls)saved[key]=get(c,key);try{localStorage.setItem(settingsKey,JSON.stringify(saved));}catch{}};$('sliders').append(el);}}
