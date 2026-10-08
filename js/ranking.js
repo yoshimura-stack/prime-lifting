@@ -1,11 +1,65 @@
 (function(){
-'use strict';const $=id=>document.getElementById(id);let ticket=null,pending=null,saving=false,generation=0;
-async function api(path,body){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),9000);try{const r=await fetch(path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,signal:controller.signal,cache:'no-store'});const data=await r.json();if(!r.ok)throw new Error(data.error||'接続できませんでした。');return data;}catch(e){throw new Error(e.name==='AbortError'?'接続に時間がかかっています。再試行してください。':e.message==='Failed to fetch'?'保存先に接続できません。再試行してください。':e.message);}finally{clearTimeout(timer);}}
-function status(text){$('rank-message').textContent=text;}
-async function refresh(){const button=$('rank-refresh');button.disabled=true;try{const data=await api('/api/leaderboard');$('rank-rows').replaceChildren();if(!data.entries.length){status('まだ記録がありません。最初のスコアを残しましょう。');}else{status(data.players+'人が参加・1人につき最高得点を表示');for(const e of data.entries){const tr=document.createElement('tr');if(e.rank<=3)tr.className='rank-top rank-'+e.rank;for(const val of [String(e.rank).padStart(2,'0'),e.name,e.score.toLocaleString(),e.combo+'回']){const td=document.createElement('td');td.textContent=val;tr.append(td);}$('rank-rows').append(tr);}}}catch{status('ランキングに接続できません。「更新」で再試行できます。');}finally{button.disabled=false;}}
-rootInit();function rootInit(){window.PRIME_RANKING={
- async begin(standard){generation++;const current=generation;ticket=null;pending=null;$('score-entry').hidden=true;if(!standard){status('練習モード：設定を初期値に戻すとランキングに参加できます。');return;}try{const t=await api('/api/game/start',{ruleset:PRIME_DEFAULTS.RULESET});if(current===generation){ticket=t;status('ランキング対象のプレイです。');}}catch{status('今回は保存先につながらないため練習プレイになります。');}},
- finish(result,events,standard){if(!standard||!ticket){$('save-feedback').textContent=standard?'今回はオンライン記録を開始できなかったため、登録できません。':'設定を変更したプレイはランキング対象外です。';$('score-entry').hidden=false;$('score-form').hidden=true;return;}pending={...ticket,events};$('score-entry').hidden=false;$('score-form').hidden=false;$('save-score').disabled=false;$('save-feedback').textContent='このプレイの '+result.score.toLocaleString()+' 点を登録できます。';try{$('player-name').value=localStorage.getItem('prime-player-name')||'';}catch{}},
- refresh
- };$('rank-refresh').onclick=refresh;$('score-form').onsubmit=async e=>{e.preventDefault();if(!pending||saving)return;saving=true;$('save-score').disabled=true;$('save-feedback').textContent='スコアを確認して保存しています…';try{const data=await api('/api/scores',{...pending,name:$('player-name').value});try{localStorage.setItem('prime-player-name',data.name);}catch{}$('save-feedback').textContent=(data.personalBest?'自己ベスト！ ':'登録しました。 ')+data.rank+'位 / 最高 '+data.best.toLocaleString()+'点';pending=null;await refresh();}catch(err){$('save-feedback').textContent=err.message;$('save-score').disabled=false;}finally{saving=false;}};refresh();document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});}
+'use strict';
+const $=id=>document.getElementById(id);
+let player=null,ticket=null,pending=null,generation=0,saving=false,authBusy=false;
+async function api(path,body){
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
+ try{const response=await fetch(path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,signal:controller.signal,cache:'no-store',credentials:'same-origin'});
+ const data=await response.json();if(!response.ok)throw new Error(data.error||'接続できませんでした。');return data;
+ }catch(e){throw new Error(e.name==='AbortError'?'接続がタイムアウトしました。再試行できます。':e instanceof SyntaxError?'ランキングAPIが利用できません。':e.message==='Failed to fetch'?'通信できません。再試行してください。':e.message);}finally{clearTimeout(timer);}
+}
+function account(){
+ $('account-status').textContent=player?`${player.name} ／ BEST ${player.best.toLocaleString()} PTS`:'ゲストプレイ（保存なし）';
+ $('account-form').hidden=!!player;$('logout').hidden=!player;
+}
+function champion(entry){
+ $('leader-best-score').textContent=entry?entry.score.toLocaleString()+' PTS':'--- PTS';
+ $('leader-best-name').textContent=entry?entry.name:'最高記録：未取得';
+ $('mobile-best').textContent=entry?`🏆 ${entry.score.toLocaleString()} PTS · ${entry.name}`:'最高記録：未取得';
+}
+let refreshGeneration=0;
+async function refresh(){
+ const current=++refreshGeneration;$('rank-message').textContent='ランキングを取得中…';
+ try{const data=await api('/api/leaderboard');if(current!==refreshGeneration)return;
+ $('rank-rows').replaceChildren();
+ for(const e of data.entries){const li=document.createElement('li'),name=document.createElement('span'),score=document.createElement('strong');name.textContent=`${e.rank}. ${e.name}`;score.textContent=e.score.toLocaleString()+' PTS';li.append(name,score);$('rank-rows').append(li);}
+ champion(data.entries[0]);$('rank-message').textContent=data.entries.length?'':'まだ記録がありません。';
+ }catch(e){if(current!==refreshGeneration)return;champion(null);$('rank-rows').replaceChildren();$('rank-message').textContent=e.message;}
+}
+async function save(){
+ if(!pending||saving)return;const submission=pending,current=generation;saving=true;
+ $('save-retry').hidden=true;$('save-feedback').textContent='プレイを確認して保存しています…';
+ try{const data=await api('/api/scores',submission);
+ if(current!==generation)return;player=data.player;pending=null;account();
+ $('personal-result').textContent=`今回 ${data.score.toLocaleString()} PTS ／ BEST ${player.best.toLocaleString()} PTS ／ 全体 ${player.rank??'—'}位`;
+ $('record-banner').textContent=data.newChampion?'NEW CHAMPION!':data.personalBest?'NEW RECORD!':'';
+ $('save-feedback').textContent='記録を保存しました。';await refresh();
+ }catch(e){if(current!==generation)return;$('save-feedback').textContent=e.message;$('save-retry').hidden=false;}
+ finally{saving=false;if(current!==generation&&pending)save();}
+}
+window.PRIME_RANKING={
+ async begin(standard){
+  const current=++generation;ticket=null;pending=null;$('result-ranking').hidden=true;$('account-panel').hidden=false;
+  if(!standard||!player)return;
+  try{const data=await api('/api/game/start',{});if(current===generation)ticket=data;}catch{}
+ },
+ finish(result,events,standard){
+  $('result-ranking').hidden=false;$('record-banner').textContent='';$('save-retry').hidden=true;
+  $('personal-result').textContent=`今回 ${result.score.toLocaleString()} PTS ／ BEST ${player?player.best.toLocaleString():'—'} PTS ／ 全体 ${player?.rank??'—'}位`;
+  refresh();
+  if(standard&&ticket&&player){pending={...ticket,events:structuredClone(events),kit:result.kit,device:result.device};save();}
+  else $('save-feedback').textContent=!standard?'調整設定でのプレイはランキング対象外です。':!player?'ログインすると次のプレイから記録を保存できます。':'オンライン記録を開始できなかったため、今回は保存できません。';
+ },refresh
+};
+$('account-form').onsubmit=async e=>{
+ e.preventDefault();if(authBusy)return;authBusy=true;$('account-status').textContent='確認しています…';
+ const pin=$('player-pin').value;$('player-pin').value='';
+ try{const data=await api('/api/'+(e.submitter?.value==='register'?'register':'login'),{name:$('player-name').value,pin});player=data.player;account();}
+ catch(error){$('account-status').textContent=error.message;}finally{authBusy=false;}
+};
+$('logout').onclick=async()=>{try{await api('/api/logout',{});generation++;player=null;ticket=null;pending=null;account();}catch(e){$('account-status').textContent=e.message;}};
+$('save-retry').onclick=save;$('rank-refresh').onclick=refresh;
+api('/api/me').then(data=>{if(!authBusy&&!player){player=data.player;account();}}).catch(()=>{});
+refresh();document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
+setInterval(()=>{if(!document.hidden)refresh();},60000);
 })();
