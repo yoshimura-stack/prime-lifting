@@ -230,3 +230,15 @@
 #ranking-dialog-list li strong{white-space:nowrap;font-family:Consolas,monospace}
 #ranking-dialog-refresh{align-self:center;border:1px solid #809b5f;background:#2b4534;color:#eaffc6;font-weight:700}
 @media (max-height:450px){.ranking-dialog-card{max-height:95dvh;padding:10px 18px}.ranking-dialog-head h2{margin:1px 0 4px}#ranking-dialog-list li{padding:6px 8px}}
+
+/* V0.5.14: protected host-only ranking reset dialog */
+.admin-dialog-card{width:min(460px,94vw);gap:12px}
+#admin-login-form{display:flex;flex-direction:column;gap:10px}
+#admin-login-form label{display:flex;flex-direction:column;gap:5px;font-size:13px}
+#admin-login-form input{width:100%;box-sizing:border-box;padding:12px;color:#fff;background:#0a241c;border:1px solid #799269;border-radius:5px;font-size:16px}
+#admin-login-form button{padding:12px;background:#dfff78;color:#102219;font-weight:800}
+#admin-actions{border-top:1px solid #63755e;padding-top:10px}
+#admin-actions p{font-size:13px;line-height:1.6}
+.admin-danger{width:100%;padding:12px;background:#822c31;color:#fff;border:1px solid #f49b9b;font-weight:800}
+#admin-status{font-size:13px;min-height:1.3em;color:#e8eebd}
+#admin-login-form[hidden],#admin-actions[hidden]{display:none!important}

@@ -49,3 +49,20 @@ test('server replay matches unchanged engine on real timed input',()=>{
  }
  assert.ok(game.score>0);assert.deepEqual(replay(events),{score:game.score,hits:game.hits,combo:game.bestCombo,drops:game.drops});assert.equal(RULESET,'cockpit-v42');
 });
+test('admin login requires configured password and reset needs valid short-lived token and confirmation',async()=>{
+ let time=100000,resets=0;
+ const worker=createWorker({now:()=>time,database:()=>({resetAllPlayers:async()=>{resets++;}})});
+ const configured={...env,ADMIN_PASSWORD:'strong-private-password-for-test'};
+ assert.equal((await worker.fetch(request('/api/admin/login',{username:'host',password:'anything'}),env)).status,503);
+ assert.equal((await worker.fetch(request('/api/admin/login',{username:'host',password:'wrong-password'}),configured)).status,401);
+ assert.equal((await worker.fetch(request('/api/admin/login',{username:'someone',password:configured.ADMIN_PASSWORD}),configured)).status,401);
+ const login=await worker.fetch(request('/api/admin/login',{username:'host',password:configured.ADMIN_PASSWORD}),configured);
+ assert.equal(login.status,200);const {token}=await login.json();
+ assert.equal((await worker.fetch(request('/api/admin/reset',{token,confirm:'WRONG'}),configured)).status,400);
+ assert.equal(resets,0);
+ assert.equal((await worker.fetch(request('/api/admin/reset',{token,confirm:'DELETE ALL PLAYERS'}),configured)).status,200);
+ assert.equal(resets,1);
+ time+=301000;
+ assert.equal((await worker.fetch(request('/api/admin/reset',{token,confirm:'DELETE ALL PLAYERS'}),configured)).status,401);
+ assert.equal(resets,1);
+});

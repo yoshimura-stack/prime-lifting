@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>PRIME / Lifting Lab</title><link rel="stylesheet" href="style.css?v=0513"><link rel="stylesheet" href="mobile-ranking.css?v=0513"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>PRIME / Lifting Lab</title><link rel="stylesheet" href="style.css?v=0513"><link rel="stylesheet" href="mobile-ranking.css?v=0514"></head>
 <body>
 <main class="game-app">
  <aside class="side-panel controls-panel" aria-label="操作ガイド">
@@ -16,7 +16,7 @@
   </div>
   <div class="panel-block utility-block">
    <p class="panel-kicker">GAME MENU</p>
-   <button id="pause">一時停止 <em>ESC</em></button><button id="sound" aria-pressed="true">音 ON</button><button id="debug" aria-pressed="false">判定表示 <em>F2</em></button><button id="kit-change">ユニフォーム</button><button id="tune" aria-expanded="false">調整パネル</button>
+   <button id="pause">一時停止 <em>ESC</em></button><button id="sound" aria-pressed="true">音 ON</button><button id="debug" aria-pressed="false">判定表示 <em>F2</em></button><button id="kit-change">ユニフォーム</button><button id="tune" aria-expanded="false">調整パネル</button><button type="button" id="admin-open">管理者</button>
   </div>
  </aside>
 
@@ -39,7 +39,7 @@
  </section>
 
  <aside class="side-panel score-guide" aria-label="得点ガイド">
-  <div class="build-label">FULLSCREEN BUILD <b>V0.5.13</b></div>
+  <div class="build-label">FULLSCREEN BUILD <b>V0.5.14</b></div>
   <div class="panel-block">
    <p class="panel-kicker">SCORE GUIDE</p><h2>得点</h2>
    <div class="score-list">
@@ -51,8 +51,9 @@
   <div class="record-card" aria-label="現在の最高記録"><p class="panel-kicker">現在の最高記録</p><strong id="leader-best-score">--- PTS</strong><span id="leader-best-name">ランキング接続後に表示</span><button type="button" id="view-ranking" class="view-ranking-btn">現在のランキングを見る ↗</button></div>
  </aside>
 
+ <div id="admin-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="admin-title"><div class="ranking-dialog-card admin-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">HOST ONLY</p><h2 id="admin-title">管理者メニュー</h2></div><button type="button" id="admin-close">✕ 閉じる</button></div><form id="admin-login-form"><label>管理者ID<input id="admin-username" autocomplete="off" value="host" required></label><label>パスワード<input id="admin-password" type="password" autocomplete="off" required></label><button type="submit">管理者認証</button></form><div id="admin-actions" hidden><p>全プレイヤーのアカウント・PIN情報・最高スコアを完全に削除します。</p><button type="button" id="admin-reset" class="admin-danger">ランキングを全削除</button></div><p id="admin-status" role="status"></p></div></div>
  <div id="ranking-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="ranking-dialog-title"><div class="ranking-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">ONLINE LEADERBOARD</p><h2 id="ranking-dialog-title">現在のランキング</h2></div><button type="button" id="close-ranking" aria-label="ランキングを閉じる">✕ 閉じる</button></div><p id="ranking-dialog-status" role="status"></p><ol id="ranking-dialog-list"></ol><button type="button" id="ranking-dialog-refresh">ランキングを更新 ↻</button></div></div>
  <section id="tuning" hidden><div class="tuning-heading"><div><p class="eyebrow">GAME FEEL LAB</p><h2>感覚を、調整する。</h2><p>調整中は一時停止します。数値はこのブラウザに保存されます。</p></div><button id="reset-config">初期値に戻す</button></div><div id="sliders"></div></section>
 </main>
-<script src="js/config.js"></script><script src="js/kits.js"></script><script src="js/engine.js?v=059"></script><script src="vendor/three.min.js"></script><script src="js/renderer3d.js"></script><script src="js/ranking.js?v=0513"></script><script src="js/touch.js?v=056"></script><script src="game.js?v=0512"></script>
+<script src="js/config.js"></script><script src="js/kits.js"></script><script src="js/engine.js?v=059"></script><script src="vendor/three.min.js"></script><script src="js/renderer3d.js"></script><script src="js/ranking.js?v=0513"></script><script src="js/touch.js?v=056"></script><script src="game.js?v=0512"></script><script src="js/admin.js?v=0514"></script>
 </body></html>

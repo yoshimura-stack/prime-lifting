@@ -27,12 +27,36 @@ export function createWorker({database=createDatabase,now=()=>Date.now()}={}){re
  try{
   if(!['GET','POST'].includes(request.method))throw new ApiError(405,'この操作には対応していません。');
   if(request.method==='POST'&&request.headers.get('origin')!==url.origin)throw new ApiError(403,'同じサイトから操作してください。');
-  const auth=path==='/api/register'||path==='/api/login';
+  const adminLogin=path==='/api/admin/login';
+  const adminReset=path==='/api/admin/reset';
+  const auth=path==='/api/register'||path==='/api/login'||adminLogin;
   const limiter=auth?env.AUTH_LIMITER:env.API_LIMITER;
   if(!limiter)throw new ApiError(503,'ランキング設定を確認中です。');
   const ip=request.headers.get('CF-Connecting-IP')||'local';
   if(!(await limiter.limit({key:ip})).success)throw new ApiError(429,'少し待ってから再試行してください。');
   const db=database(env),time=now(),post=request.method==='POST';
+  if(adminLogin||adminReset){
+   if(!post)throw new ApiError(405,'この操作には対応していません。');
+   const body=await readBody(request);
+   if(adminLogin){
+    if(typeof env.ADMIN_PASSWORD!=='string'||env.ADMIN_PASSWORD.length<12)throw new ApiError(503,'管理者パスワードが未設定です。');
+    if(typeof body.password!=='string'||body.password.length>256||body.username!=='host')throw new ApiError(401,'管理者IDまたはパスワードが違います。');
+    const candidate=encoder.encode(body.password),expected=encoder.encode(env.ADMIN_PASSWORD);
+    // Constant-time compare using HMAC digest rather than a raw string equality check.
+    const compareKey=await key(env.SESSION_SECRET);
+    const a=new Uint8Array(await crypto.subtle.sign('HMAC',compareKey,candidate));
+    const b=new Uint8Array(await crypto.subtle.sign('HMAC',compareKey,expected));
+    if(!crypto.subtle.timingSafeEqual){let diff=0;for(let i=0;i<a.length;i++)diff|=a[i]^b[i];if(diff)throw new ApiError(401,'管理者IDまたはパスワードが違います。');}
+    else if(!crypto.subtle.timingSafeEqual(a,b))throw new ApiError(401,'管理者IDまたはパスワードが違います。');
+    const token=await sign({kind:'admin',sub:'host',exp:time+5*60000},env.SESSION_SECRET);
+    return json({ok:true,token,expiresIn:300});
+   }
+   const session=await verify(body.token,env.SESSION_SECRET,'admin',time);
+   if(session.sub!=='host'||body.confirm!=='DELETE ALL PLAYERS')throw new ApiError(400,'削除確認が一致しません。');
+   if(typeof env.ADMIN_PASSWORD!=='string'||env.ADMIN_PASSWORD.length<12)throw new ApiError(503,'管理者パスワードが未設定です。');
+   await db.resetAllPlayers();
+   return json({ok:true});
+  }
   if(auth&&post){
    const body=await readBody(request),{name,key:nameKey}=normalizeName(body.name);
    if(typeof body.pin!=='string'||!/^\d{6,12}$/.test(body.pin))throw new ApiError(400,'PINは6〜12桁の数字にしてください。');
