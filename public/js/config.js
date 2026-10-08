@@ -10,7 +10,7 @@ const CONFIG={
  KNEE_ANIMATION:{duration:0.34,holdFraction:0.28,contactOffset:12,forward:26,shinDrop:30,shinBack:18,toeAngle:0.85},
  BALL_GRAVITY:700, BALL_RADIUS:11, BALL_MAX_HORIZONTAL_SPEED:210, CONTACT_EDGE_LIFT_LOSS:0.12,
  BALL_SPAWN_HEIGHT:290, BALL_SPAWN_VX:38, RESPAWN_DELAY:0.85,
- SPIN_BONUS:100, AIR_STREAK_BONUS:150, MAX_STREAK_LEVEL:5, MAX_SPIN_BONUSES:2,
+ SPIN_BONUS:100, AIR_STREAK_BONUS:150, MAX_STREAK_LEVEL:5, MAX_SPIN_BONUSES:12,
  ACTIONS:{
   FOOT:{height:18,offsetX:19,contactRadius:25,verticalVelocity:620,horizontalInfluence:6.5,moveInfluence:0.14,score:100},
   KNEE:{height:72,offsetX:13,contactRadius:23,verticalVelocity:550,horizontalInfluence:6.0,moveInfluence:0.12,score:150},

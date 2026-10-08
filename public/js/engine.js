@@ -131,7 +131,12 @@ class LiftingGame{
   if(airborne)this.airStreak++;else this.airStreak=0;
   const spinLevel=Math.min(this.spinStreak,this.c.MAX_STREAK_LEVEL);
   const airLevel=Math.min(this.airStreak,this.c.MAX_STREAK_LEVEL);
-  const spinBonus=spinCount>0?spinLevel*this.c.SPIN_BONUS*spinCount:0;
+  // Rotation score: 100 per completed spin, plus a 600-point QUAD milestone.
+  // The consecutive successful-touch streak remains a separate bonus.
+  const quadSpin=spinCount>=4;
+  const rotationBonus=spinCount*this.c.SPIN_BONUS+(quadSpin?600:0);
+  const spinStreakBonus=spinCount>0?(spinLevel-1)*this.c.SPIN_BONUS:0;
+  const spinBonus=rotationBonus+spinStreakBonus;
   const airBonus=airborne?airLevel*this.c.AIR_STREAK_BONUS:0;
   const bonus=spinBonus+airBonus;
 
@@ -163,6 +168,10 @@ class LiftingGame{
    points:a.score,
    bonus,
    spinBonus,
+   spinCount,
+   quadSpin,
+   rotationBonus,
+   spinStreakBonus,
    airBonus,
    spinStreak:this.spinStreak,
    airStreak:this.airStreak,
