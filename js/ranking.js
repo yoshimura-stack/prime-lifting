@@ -18,6 +18,53 @@ function champion(entry){
  $('mobile-best').textContent=entry?`🏆 ${entry.score.toLocaleString()} PTS · ${entry.name}`:'最高記録：未取得';
 }
 let refreshGeneration=0;
+const rankDialog=$('ranking-dialog');
+const rankOpen=$('view-ranking');
+const rankClose=$('close-ranking');
+let rankDialogGeneration=0,previousFocus=null;
+function closeRankDialog(){
+ if(rankDialog.hidden)return;
+ rankDialog.hidden=true;rankDialogGeneration++;
+ (previousFocus?.isConnected?previousFocus:rankOpen).focus();
+}
+async function showRankDialog(){
+ previousFocus=document.activeElement;
+ rankDialog.hidden=false;rankClose.focus();
+ await updateRankDialog();
+}
+async function updateRankDialog(){
+ const current=++rankDialogGeneration;
+ $('ranking-dialog-status').textContent='ランキングを取得中…';
+ try{
+  const data=await api('/api/leaderboard');
+  if(current!==rankDialogGeneration||rankDialog.hidden)return;
+  const list=$('ranking-dialog-list');list.replaceChildren();
+  for(const e of data.entries){
+   const li=document.createElement('li'),name=document.createElement('span'),score=document.createElement('strong');
+   name.textContent=`${e.rank}. ${e.name}`;score.textContent=e.score.toLocaleString()+' PTS';
+   li.append(name,score);list.append(li);
+  }
+  $('ranking-dialog-status').textContent=data.entries.length?'': 'まだ記録がありません。';
+  champion(data.entries[0]);
+ }catch(e){
+  if(current!==rankDialogGeneration||rankDialog.hidden)return;
+  $('ranking-dialog-status').textContent=e.message;
+ }
+}
+rankOpen.addEventListener('click',showRankDialog);
+rankClose.addEventListener('click',closeRankDialog);
+$('ranking-dialog-refresh').addEventListener('click',updateRankDialog);
+rankDialog.addEventListener('click',e=>{if(e.target===rankDialog)closeRankDialog();});
+document.addEventListener('keydown',e=>{
+ if(rankDialog.hidden)return;
+ if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();closeRankDialog();}
+ if(e.key==='Tab'){
+  const controls=[rankClose,$('ranking-dialog-refresh')];
+  if(e.shiftKey&&document.activeElement===controls[0]){e.preventDefault();controls[1].focus();}
+  else if(!e.shiftKey&&document.activeElement===controls[1]){e.preventDefault();controls[0].focus();}
+ }
+},true);
+
 async function refresh(){
  const current=++refreshGeneration;$('rank-message').textContent='ランキングを取得中…';
  try{const data=await api('/api/leaderboard');if(current!==refreshGeneration)return;

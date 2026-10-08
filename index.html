@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>PRIME / Lifting Lab</title><link rel="stylesheet" href="style.css?v=0510"><link rel="stylesheet" href="mobile-ranking.css?v=0510"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>PRIME / Lifting Lab</title><link rel="stylesheet" href="style.css?v=0513"><link rel="stylesheet" href="mobile-ranking.css?v=0513"></head>
 <body>
 <main class="game-app">
  <aside class="side-panel controls-panel" aria-label="操作ガイド">
@@ -39,7 +39,7 @@
  </section>
 
  <aside class="side-panel score-guide" aria-label="得点ガイド">
-  <div class="build-label">FULLSCREEN BUILD <b>V0.5.9</b></div>
+  <div class="build-label">FULLSCREEN BUILD <b>V0.5.13</b></div>
   <div class="panel-block">
    <p class="panel-kicker">SCORE GUIDE</p><h2>得点</h2>
    <div class="score-list">
@@ -48,10 +48,11 @@
   </div>
   <div class="bonus-card air-card"><p class="panel-kicker">ジャンプ連続ボーナス</p><strong>+150 × 連続回数</strong><p class="bonus-copy">ジャンプ中のタッチ成功で加点！<br><b>キック・ひざ・むね・ヘディング</b>すべて対象。<br>連続成功でアップ ／ 最大5連続 <b>+750</b></p></div>
   <div class="bonus-card"><p class="panel-kicker">スピン連続ボーナス</p><strong>1回転 +100 / 4回転 +1000</strong><p class="bonus-copy">次の成功タッチまでの回転数で加点。<br>5回転は+1100、以降+100ずつ。<br>連続タッチ成功でも追加ボーナス！<br><b>AIR BONUSと同時加点OK</b></p></div>
-  <div class="record-card" aria-label="現在の最高記録"><p class="panel-kicker">現在の最高記録</p><strong id="leader-best-score">--- PTS</strong><span id="leader-best-name">ランキング接続後に表示</span></div>
+  <div class="record-card" aria-label="現在の最高記録"><p class="panel-kicker">現在の最高記録</p><strong id="leader-best-score">--- PTS</strong><span id="leader-best-name">ランキング接続後に表示</span><button type="button" id="view-ranking" class="view-ranking-btn">現在のランキングを見る ↗</button></div>
  </aside>
 
+ <div id="ranking-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="ranking-dialog-title"><div class="ranking-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">ONLINE LEADERBOARD</p><h2 id="ranking-dialog-title">現在のランキング</h2></div><button type="button" id="close-ranking" aria-label="ランキングを閉じる">✕ 閉じる</button></div><p id="ranking-dialog-status" role="status"></p><ol id="ranking-dialog-list"></ol><button type="button" id="ranking-dialog-refresh">ランキングを更新 ↻</button></div></div>
  <section id="tuning" hidden><div class="tuning-heading"><div><p class="eyebrow">GAME FEEL LAB</p><h2>感覚を、調整する。</h2><p>調整中は一時停止します。数値はこのブラウザに保存されます。</p></div><button id="reset-config">初期値に戻す</button></div><div id="sliders"></div></section>
 </main>
-<script src="js/config.js"></script><script src="js/kits.js"></script><script src="js/engine.js?v=059"></script><script src="vendor/three.min.js"></script><script src="js/renderer3d.js"></script><script src="js/ranking.js"></script><script src="js/touch.js?v=056"></script><script src="game.js?v=0512"></script>
+<script src="js/config.js"></script><script src="js/kits.js"></script><script src="js/engine.js?v=059"></script><script src="vendor/three.min.js"></script><script src="js/renderer3d.js"></script><script src="js/ranking.js?v=0513"></script><script src="js/touch.js?v=056"></script><script src="game.js?v=0512"></script>
 </body></html>
