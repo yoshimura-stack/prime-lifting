@@ -178,3 +178,38 @@
  .touch-landscape #touch-controls button{width:60px!important;height:60px!important}
  .touch-landscape #touch-controls .touch-kick{width:78px!important;height:78px!important}
 }
+
+/* V0.5.10 — keep Replay visible in mobile landscape result overlay. */
+.touch-landscape #overlay:has(#result-ranking:not([hidden])){
+  display:flex!important;
+  flex-direction:column;
+  justify-content:flex-start;
+  overflow:hidden!important;
+  padding:8px 12px max(7px,env(safe-area-inset-bottom))!important;
+  min-height:0;
+}
+.touch-landscape #overlay:has(#result-ranking:not([hidden])) > .eyebrow,
+.touch-landscape #overlay:has(#result-ranking:not([hidden])) > h2,
+.touch-landscape #overlay:has(#result-ranking:not([hidden])) > #overlay-copy,
+.touch-landscape #overlay:has(#result-ranking:not([hidden])) > #account-panel{
+  flex:0 0 auto;
+}
+.touch-landscape #overlay:has(#result-ranking:not([hidden])) #result-ranking{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+.touch-landscape #overlay:has(#result-ranking:not([hidden])) #start{
+  position:relative;
+  z-index:4;
+  flex:0 0 auto;
+  margin:7px auto 0!important;
+  min-height:44px;
+  width:min(250px,90%);
+  box-shadow:0 0 0 4px #102a24;
+}
+.touch-landscape #overlay:has(#result-ranking:not([hidden])) #overlay-note{
+  display:none;
+}
