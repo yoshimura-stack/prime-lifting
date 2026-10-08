@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ja">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>PRIME / Lifting Lab</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="mobile-ranking.css"></head>
+<body>
+<main class="game-app">
+ <aside class="side-panel controls-panel" aria-label="操作ガイド">
+  <div class="side-brand">PRIME <span>/ LIFTING LAB</span></div>
+  <div class="panel-block">
+   <p class="panel-kicker">CONTROLS</p><h2>操作</h2>
+   <div class="control-stack">
+    <div class="control-row"><div class="key-pair"><kbd>A</kbd><kbd>D</kbd></div><div><strong>左右移動</strong><small>細かく位置を合わせる</small></div></div>
+    <div class="control-row"><kbd>SPACE</kbd><div><strong>ジャンプ</strong><small>空中タッチでAIR BONUS</small></div></div>
+    <div class="control-row"><kbd>L CLICK</kbd><div><strong>ボールアクション</strong><small>足・膝・胸・ヘッド</small></div></div>
+    <div class="control-row"><kbd>R CLICK</kbd><div><strong>スピン</strong><small>次の成功タッチでBONUS</small></div></div>
+   </div>
+  </div>
+  <div class="panel-block utility-block">
+   <p class="panel-kicker">GAME MENU</p>
+   <button id="pause">一時停止 <em>ESC</em></button><button id="sound" aria-pressed="true">音 ON</button><button id="debug" aria-pressed="false">判定表示 <em>F2</em></button><button id="kit-change">ユニフォーム</button><button id="tune" aria-expanded="false">調整パネル</button>
+  </div>
+ </aside>
+
+ <section class="center-stage">
+  <section class="game-shell" aria-label="リフティングゲーム">
+   <div id="kit-select" class="kit-select" aria-label="ユニフォーム選択">
+    <div class="kit-panel">
+     <p class="eyebrow">SELECT YOUR KIT</p><h2>ユニフォームを選ぶ。</h2>
+     <p class="kit-copy">世界のフットボールカルチャーをイメージした、オリジナルカラー。</p>
+     <div id="kit-tabs" class="kit-tabs"></div><div id="kit-grid" class="kit-grid"></div>
+     <div class="kit-actions"><span id="kit-current">JAPAN 01</span><button id="kit-confirm" class="primary">このユニフォームで決定 <span>↗</span></button></div>
+    </div>
+   </div>
+   <div class="scorebar"><div><small>SCORE</small><strong id="score">000000</strong></div><div class="chain"><small>KEEP UPS</small><strong id="combo">0</strong></div><div><small>TIME LEFT</small><strong id="time">60<span>.0</span></strong></div></div>
+   <canvas id="scene" width="1000" height="620" aria-hidden="true"></canvas>
+   <canvas id="game" width="1000" height="620" tabindex="0" aria-label="AとDで移動、スペースでジャンプ、左クリックで打球、右クリックで回転"></canvas>
+   <div id="overlay" class="overlay"><p class="eyebrow" id="overlay-label">THE LIFTING CHALLENGE</p><h2 id="overlay-title">ボールを、落とすな。</h2><p id="overlay-copy">移動も、打球も、あなたの操作で。<br>60秒間のリフティング・スコアアタック。</p><section id="account-panel"><p id="account-status" role="status">ゲストプレイ（保存なし）</p><form id="account-form"><input id="player-name" aria-label="プレイヤー名" maxlength="16" autocomplete="username" placeholder="プレイヤー名" required><input id="player-pin" aria-label="PIN（6〜12桁）" type="password" inputmode="numeric" pattern="[0-9]{6,12}" minlength="6" maxlength="12" autocomplete="current-password" placeholder="PIN（6〜12桁）" required><button name="mode" value="login">ログイン</button><button name="mode" value="register">新規登録</button></form><button id="logout" hidden>ログアウト</button></section><section id="result-ranking" hidden><strong id="record-banner"></strong><p id="personal-result"></p><p id="save-feedback" role="status"></p><button id="save-retry" hidden>保存を再試行</button><div id="result-top"><h3>TOP 10</h3><p id="rank-message" role="status"></p><button id="rank-refresh">ランキングを再取得</button><ol id="rank-rows"></ol></div></section><button id="start" class="primary">プレイする <span>↗</span></button><small id="overlay-note">打球はゲーム画面内でクリック</small></div>
+   <div id="mobile-record"><span id="mobile-best">最高記録：未取得</span><button id="mobile-pause" aria-label="一時停止">Ⅱ</button></div><div id="touch-controls" hidden aria-label="タッチコントローラー"><div class="touch-move"><button data-action="left" aria-label="左へ移動">◀</button><button data-action="right" aria-label="右へ移動">▶</button></div><div class="touch-actions"><div><button data-action="jump">JUMP</button><button data-action="spin">SPIN</button></div><button class="touch-kick" data-action="act">KICK</button></div></div><div class="field-bottom"><span><i></i> MANUAL CONTROL ONLY</span><span id="status">READY TO PLAY</span></div>
+  </section>
+ </section>
+
+ <aside class="side-panel score-guide" aria-label="得点ガイド">
+  <div class="build-label">FULLSCREEN BUILD <b>V0.5</b></div>
+  <div class="panel-block">
+   <p class="panel-kicker">SCORE GUIDE</p><h2>得点</h2>
+   <div class="score-list">
+    <div><span>キック</span><strong>+100</strong></div><div><span>ひざ</span><strong>+150</strong></div><div><span>むね</span><strong>+200</strong></div><div><span>ヘディング</span><strong>+250</strong></div><div class="featured"><span>ジャンプヘッド</span><strong>+500</strong></div>
+   </div>
+  </div>
+  <div class="bonus-card air-card"><p class="panel-kicker">ジャンプ連続ボーナス</p><strong>+150 × 連続回数</strong><p class="bonus-copy">ジャンプ中のタッチ成功で加点！<br><b>キック・ひざ・むね・ヘディング</b>すべて対象。<br>連続成功でアップ ／ 最大5連続 <b>+750</b></p></div>
+  <div class="bonus-card"><p class="panel-kicker">スピン連続ボーナス</p><strong>+100 × 連続回数</strong><p class="bonus-copy">タッチの間にスピン成功で加点！<br>毎回スピンを挟むほどアップ。<br>最大5連続 <b>+500</b></p></div>
+  <div class="record-card" aria-label="現在の最高記録"><p class="panel-kicker">現在の最高記録</p><strong id="leader-best-score">--- PTS</strong><span id="leader-best-name">ランキング接続後に表示</span></div>
+ </aside>
+
+ <section id="tuning" hidden><div class="tuning-heading"><div><p class="eyebrow">GAME FEEL LAB</p><h2>感覚を、調整する。</h2><p>調整中は一時停止します。数値はこのブラウザに保存されます。</p></div><button id="reset-config">初期値に戻す</button></div><div id="sliders"></div></section>
+</main>
+<script src="js/config.js"></script><script src="js/kits.js"></script><script src="js/engine.js"></script><script src="vendor/three.min.js"></script><script src="js/renderer3d.js"></script><script src="js/ranking.js"></script><script src="js/touch.js"></script><script src="game.js"></script>
+</body></html>

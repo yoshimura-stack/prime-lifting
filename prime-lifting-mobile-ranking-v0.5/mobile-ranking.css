@@ -1,0 +1,33 @@
+#touch-controls,#mobile-record{display:none}
+#account-form[hidden],#logout[hidden],#result-ranking[hidden],#save-retry[hidden],#touch-controls[hidden]{display:none!important}
+#account-panel{max-width:540px;width:100%;font-size:12px}
+#account-form{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+#account-form input{min-width:100px;width:140px;background:#102a23;color:white;border:1px solid #69835c;padding:9px;border-radius:5px}
+#account-form button,#logout,#rank-refresh,#save-retry{background:#284032;color:white;border:1px solid #6d8752;border-radius:5px;padding:8px;font-weight:bold;cursor:pointer}
+#result-ranking{max-width:540px;width:100%;font-size:13px}
+#result-ranking h3{margin:8px 0}#record-banner{color:#dcff6a}#rank-rows{padding:0;list-style:none;text-align:left;margin:8px 0}
+#rank-rows li{display:flex;justify-content:space-between;gap:12px;padding:5px 10px;border-bottom:1px solid #ffffff18}
+#result-top{max-height:170px;overflow:auto;overscroll-behavior:contain}
+.overlay:has(#result-ranking:not([hidden])){justify-content:flex-start;overflow:auto;padding:16px 24px;overscroll-behavior:contain}
+.overlay:has(#result-ranking:not([hidden])) h2{font-size:26px;margin:8px}
+.overlay #start{flex-shrink:0;margin-top:10px}.overlay #account-status{margin:7px 0}
+.touch-landscape{overflow:hidden}
+.touch-landscape main.game-app{display:block;height:100dvh;min-height:0;padding:0 max(0px,env(safe-area-inset-right)) 0 max(0px,env(safe-area-inset-left));overflow:hidden}
+.touch-landscape .controls-panel,.touch-landscape .score-guide{display:none}
+.touch-landscape .center-stage{height:100%;display:flex;justify-content:center;align-items:center}
+.touch-landscape .center-stage .game-shell{width:min(100%,161.29dvh);height:auto;max-height:100dvh;aspect-ratio:1000/620}
+.touch-landscape #game{touch-action:none}
+.touch-landscape #touch-controls:not([hidden]){display:block;position:absolute;inset:0;z-index:2;pointer-events:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.touch-move,.touch-actions{position:absolute;bottom:max(26px,env(safe-area-inset-bottom));display:flex;align-items:flex-end;gap:8px}
+.touch-move{left:12px}.touch-actions{right:12px}.touch-actions>div{display:flex;flex-direction:column;gap:7px}
+#touch-controls button{pointer-events:auto;touch-action:none;width:clamp(44px,8dvh,64px);height:clamp(44px,8dvh,64px);border:1px solid #c4ed7d80;border-radius:15px;background:#183d2fc9;color:#fff;font:bold 12px Arial;box-shadow:0 3px 12px #0005;padding:0}
+#touch-controls .touch-kick{width:clamp(58px,12dvh,86px);height:clamp(58px,12dvh,86px);border-radius:50%;background:#bfdc49e8;color:#fff;text-shadow:0 1px 3px #28401a;font-size:16px}
+#touch-controls .pressed{transform:scale(.93);box-shadow:0 0 20px #dcff6aaa;background:#66882b}
+.touch-landscape #mobile-record{position:absolute;display:flex;gap:10px;align-items:center;left:50%;transform:translateX(-50%);top:68px;max-width:72%;z-index:2;font-size:10px;color:#efffcf;background:#11271dbb;border-radius:5px;padding:3px 8px;white-space:nowrap}
+#mobile-best{overflow:hidden;text-overflow:ellipsis}#mobile-pause{color:white;border:0;background:transparent;padding:4px 9px}
+.touch-landscape .overlay{padding:10px 20px;overflow:auto;justify-content:flex-start}
+.touch-landscape .overlay h2{font-size:25px;margin:6px}.touch-landscape .overlay p{margin:6px}.touch-landscape .overlay .primary{padding:9px 20px}
+.touch-landscape .overlay:has(#result-ranking:not([hidden])) #account-panel:has(#logout:not([hidden])){display:none}
+.touch-landscape #result-top{max-height:145px}
+.touch-landscape .kit-panel{height:96dvh;overflow:hidden}.touch-landscape .kit-grid{overflow:auto;grid-template-columns:repeat(5,1fr);grid-template-rows:none;grid-auto-rows:minmax(94px,1fr)}
+.touch-landscape .kit-shirt{width:44px;height:47px}.touch-landscape .kit-actions{position:static}.touch-landscape .kit-copy{display:none}

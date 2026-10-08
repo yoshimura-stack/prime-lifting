@@ -1,0 +1,23 @@
+import { createHash, randomBytes } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
+const context=vm.createContext({});
+for(const file of ['config.js','engine.js'])vm.runInContext(readFileSync(new URL('../js/'+file,import.meta.url),'utf8'),context);
+const C=context.PRIME_DEFAULTS,Rules=context.LiftingGame;
+export const RULESET='prime-v031-standard';
+export class ApiError extends Error{constructor(status,message){super(message);this.status=status;}}
+export function init(db){db.exec(`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;
+CREATE TABLE IF NOT EXISTS runs_v031(id TEXT PRIMARY KEY,started INTEGER NOT NULL,client TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS runs_v031_client_time ON runs_v031(client,started);
+CREATE TABLE IF NOT EXISTS scores_v031(run_id TEXT PRIMARY KEY REFERENCES runs_v031(id),name TEXT NOT NULL,name_key TEXT NOT NULL,score INTEGER NOT NULL,hits INTEGER NOT NULL,combo INTEGER NOT NULL,drops INTEGER NOT NULL,created INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS scores_v031_rank ON scores_v031(score DESC,created ASC,run_id ASC);`);}
+export function normalizeName(value){if(typeof value!=='string')throw new ApiError(400,'名前を入力してください。');const name=value.normalize('NFKC').trim().replace(/\s+/gu,' ');if([...name].length<1||[...name].length>16||/[\p{Cc}\p{Cf}<>]/u.test(name))throw new ApiError(400,'名前は1〜16文字で入力してください。');return {name,key:name.toLocaleLowerCase('ja')};}
+export function replay(events){if(!Array.isArray(events)||events.length>3000)throw new ApiError(400,'プレイ記録が正しくありません。');let prev=-1;for(const e of events){if(!e||!Number.isInteger(e.t)||e.t<prev||e.t<0||e.t>7800||!['move','jump','act','spin'].includes(e.n)||(e.n==='move'&&![-1,0,1].includes(e.v)))throw new ApiError(400,'プレイ記録が正しくありません。');prev=e.t;}
+ const g=new Rules(structuredClone(C));g.reset();let at=0,dir=0,tick=0;while(g.phase!=='ended'&&tick<7800){while(at<events.length&&events[at].t===tick){const e=events[at++];if(e.n==='move')dir=e.v;else g[e.n]();}g.update(C.FIXED_STEP,dir);g.events.length=0;tick++;}if(at!==events.length||g.phase!=='ended')throw new ApiError(400,'プレイ記録の終了位置が正しくありません。');return {score:g.score,hits:g.hits,combo:g.bestCombo,drops:g.drops};}
+const leaders=`WITH ranked AS (SELECT *,ROW_NUMBER() OVER(PARTITION BY name_key ORDER BY score DESC,created ASC,run_id ASC) AS personal FROM scores_v031) SELECT name,name_key,score,hits,combo,drops,created,run_id FROM ranked WHERE personal=1 ORDER BY score DESC,created ASC,run_id ASC`;
+export function leaderboard(db){const rows=db.prepare(leaders+' LIMIT 50').all();return {ruleset:RULESET,entries:rows.map((r,i)=>({rank:i+1,name:r.name,score:r.score,combo:r.combo,created:r.created})),players:db.prepare('SELECT COUNT(DISTINCT name_key) AS n FROM scores_v031').get().n};}
+export function begin(db,client,now=Date.now()){const cutoff=now-60000;const n=db.prepare('SELECT COUNT(*) AS n FROM runs_v031 WHERE client=? AND started>?').get(client,cutoff).n;if(n>=12)throw new ApiError(429,'少し待ってから、もう一度開始してください。');const id=randomBytes(24).toString('hex');db.prepare('INSERT INTO runs_v031 VALUES(?,?,?)').run(id,now,client);db.prepare('DELETE FROM runs_v031 WHERE started<? AND id NOT IN (SELECT run_id FROM scores_v031)').run(now-86400000);return {runId:id,ruleset:RULESET};}
+export function submit(db,body,now=Date.now()){const {name,key}=normalizeName(body.name);if(typeof body.runId!=='string')throw new ApiError(400,'プレイを開始し直してください。');const run=db.prepare('SELECT * FROM runs_v031 WHERE id=?').get(body.runId);if(!run)throw new ApiError(404,'プレイ記録が見つかりません。');const old=db.prepare('SELECT * FROM scores_v031 WHERE run_id=?').get(body.runId);if(old){if(old.name_key!==key)throw new ApiError(409,'このプレイはすでに登録済みです。');return savedResult(db,old);}
+ if(now-run.started<60000)throw new ApiError(400,'60秒のプレイが終わってから登録してください。');if(now-run.started>86400000)throw new ApiError(410,'登録期限が過ぎました。もう一度プレイしてください。');if(body.ruleset!==RULESET)throw new ApiError(400,'ゲームを再読み込みしてください。');const result=replay(body.events);db.prepare('INSERT INTO scores_v031 VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(run_id) DO NOTHING').run(body.runId,name,key,result.score,result.hits,result.combo,result.drops,now);return savedResult(db,db.prepare('SELECT * FROM scores_v031 WHERE run_id=?').get(body.runId));}
+function savedResult(db,row){const rows=db.prepare(leaders).all();const index=rows.findIndex(r=>r.name_key===row.name_key);return {saved:true,name:row.name,score:row.score,rank:index+1,best:rows[index].score,personalBest:rows[index].run_id===row.run_id};}
+export const clientKey=(address,salt)=>createHash('sha256').update(salt+address).digest('hex');

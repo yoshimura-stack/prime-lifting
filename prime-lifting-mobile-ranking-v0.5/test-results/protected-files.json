@@ -1,0 +1,37 @@
+[
+  {
+    "file": "js/config.js",
+    "sha256": "2d2e4f5f7fb6f49ab2a5ef5b4e09765fd8d6fe4b72ea34b5f653190cabb2e43b",
+    "identicalToV42": true
+  },
+  {
+    "file": "js/engine.js",
+    "sha256": "fcf288d6fb4d9d520c2ddce5b11de8330a33414c504d9d5db2a779f0e274c2ad",
+    "identicalToV42": true
+  },
+  {
+    "file": "js/renderer3d.js",
+    "sha256": "ccf9a9f069e0881465bf1b6a00c7f3aaf14d93857fd5378b4ce25b8a18d9d3f8",
+    "identicalToV42": true
+  },
+  {
+    "file": "js/kits.js",
+    "sha256": "82c89ec7209f879abb0964dd6e96328513fd5907fe2acee0b480c390f2ea7e18",
+    "identicalToV42": true
+  },
+  {
+    "file": "vendor/three.min.js",
+    "sha256": "170c6789f43217c96b3170f4b42fafe135de7f7cd48497a4218f9757ee1d49fa",
+    "identicalToV42": true
+  },
+  {
+    "file": "vendor/THREE-LICENSE.txt",
+    "sha256": "852e0e8699169bf9f6fdc6bda3e682d078dcbc738b5d33e74df594721bff271d",
+    "identicalToV42": true
+  },
+  {
+    "file": "style.css",
+    "sha256": "19b56e5337d441a22c7fcb7b9b7606a0e135d56833dd81d231281779f9c93b80",
+    "identicalToV42": true
+  }
+]
