@@ -64,9 +64,9 @@ class LiftingGame{
  // LEFT/RIGHT are the player's anatomical sides: front-facing LEFT is screen-right.
  regions(){
   const p=this.player,result=[];
-  for(const name of ['FOOT','KNEE','CHEST',p.y<this.c.GROUND_Y-0.5?'JUMP_HEADER':'HEADER']){
+  for(const name of ['FOOT','KNEE','SHOULDER','CHEST',p.y<this.c.GROUND_Y-0.5?'JUMP_HEADER':'HEADER']){
    const a=this.c.ACTIONS[name];
-   for(const side of name==='FOOT'||name==='KNEE'?['LEFT','RIGHT']:[null])
+   for(const side of name==='FOOT'||name==='KNEE'||name==='SHOULDER'?['LEFT','RIGHT']:[null])
     result.push({
      name,
      side,

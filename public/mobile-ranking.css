@@ -139,3 +139,42 @@
  .touch-landscape #touch-controls button{width:clamp(45px,10dvh,56px);height:clamp(45px,10dvh,56px)}
  .touch-landscape #touch-controls .touch-kick{width:clamp(60px,13dvh,75px);height:clamp(60px,13dvh,75px)}
 }
+
+/* V0.5.5: score help only during live play; never cover score or kit picker. */
+.touch-landscape .mobile-score-panel{display:none!important}
+.touch-landscape.mobile-in-game .mobile-score-panel{display:flex!important}
+.touch-landscape.mobile-in-game #mobile-score-left{
+ left:max(8px,calc((100vw - min(100vw, 161.29dvh))/2 - 162px))!important;
+ right:auto!important;
+}
+.touch-landscape.mobile-in-game #mobile-score-right{
+ right:max(8px,calc((100vw - min(100vw, 161.29dvh))/2 - 162px))!important;
+ left:auto!important;
+}
+.touch-landscape.mobile-in-game .mobile-score-panel{
+ width:150px!important;max-width:calc((100vw - min(100vw, 161.29dvh))/2 - 16px)!important;
+ top:max(7px,env(safe-area-inset-top))!important;
+ font-size:clamp(10px,1.9dvh,14px)!important;
+ background:rgba(9,29,22,.76)!important;
+ box-sizing:border-box;
+}
+/* Hide guides rather than obscure score when no side gutters are available. */
+@media (max-width:1050px) and (max-height:650px){
+ .touch-landscape.mobile-in-game .mobile-score-panel{font-size:10px!important;gap:1px!important}
+}
+.touch-landscape #touch-controls button{
+ width:clamp(62px,13dvh,76px)!important;
+ height:clamp(62px,13dvh,76px)!important;
+}
+.touch-landscape #touch-controls .touch-kick{
+ width:clamp(80px,17dvh,96px)!important;
+ height:clamp(80px,17dvh,96px)!important;
+}
+.touch-landscape .touch-move,.touch-landscape .touch-actions{
+ bottom:max(12px,env(safe-area-inset-bottom))!important;
+}
+.touch-landscape .touch-move{gap:10px!important}
+@media(max-height:380px) and (orientation:landscape){
+ .touch-landscape #touch-controls button{width:60px!important;height:60px!important}
+ .touch-landscape #touch-controls .touch-kick{width:78px!important;height:78px!important}
+}

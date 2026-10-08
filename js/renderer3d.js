@@ -106,9 +106,9 @@ class PrimeRenderer{
    }
    this.connect(leg.thigh,[s*12,68,0],knee,7.2);leg.knee.position.set(...knee);this.connect(leg.calf,knee,ankle,5.6);leg.ankle.position.set(...ankle);leg.shoe.position.set(ankle[0],ankle[1]-4,ankle[2]+3);leg.shoe.rotation.x=kneeActive&&s===hitSign?ka.toeAngle*kneePose:active&&s===hitSign&&a==='FOOT'?-.23*pose:0;
   }
-  for(const arm of model.arms){const s=arm.s,raise=spinning?12:inAir?10:active&&a==='CHEST'?9:kneeActive?5*kneePose:0;const elbow=[s*(31+raise*.15),100+raise,active&&a==='CHEST'?-5:0],hand=[s*(35+raise*.4),82+raise*1.9,7];this.connect(arm.upper,[s*21,117,0],elbow,7);this.connect(arm.fore,elbow,hand,4.8);arm.elbow.position.set(...elbow);arm.hand.position.set(...hand);}
+  for(const arm of model.arms){const s=arm.s,raise=spinning?12:inAir?10:active&&(a==='CHEST'||a==='SHOULDER')?9:kneeActive?5*kneePose:0;const elbow=[s*(31+raise*.15),100+raise,active&&a==='CHEST'?-5:0],hand=[s*(35+raise*.4),82+raise*1.9,7];this.connect(arm.upper,[s*21,117,0],elbow,7);this.connect(arm.fore,elbow,hand,4.8);arm.elbow.position.set(...elbow);arm.hand.position.set(...hand);}
   model.torso.rotation.z=kneeActive?hitSign*.035*kneePose:0;
-  model.torso.rotation.x=active&&a==='CHEST'?-.13*pose:0;model.head.rotation.x=active&&(a==='HEADER'||a==='JUMP_HEADER')?.15*pose:-.06;model.head.rotation.y=spinning?0:Math.max(-.2,Math.min(.2,(g.ball.x-p.x)*.004));
+  model.torso.rotation.x=active&&a==='CHEST'?-.13*pose:active&&a==='SHOULDER'?-.09*pose:0;model.head.rotation.x=active&&(a==='HEADER'||a==='JUMP_HEADER')?.15*pose:-.06;model.head.rotation.y=spinning?0:Math.max(-.2,Math.min(.2,(g.ball.x-p.x)*.004));
   const ballDepth=19+26*kneePose;this.ball.visible=g.ball.active;this.ball.position.set(g.ball.x-500,(c.WORLD_HEIGHT-g.ball.y-310+ballDepth*Math.sin(this.tilt))/this.cos+310,ballDepth);this.ball.rotation.set(t*.3,g.ball.rotation,g.ball.rotation*.6);
   const height=c.GROUND_Y-g.ball.y;this.ballShadow.visible=g.ball.active;this.ballShadow.position.x=g.ball.x-500;this.ballShadow.scale.setScalar(.45+height*.0014);this.ballShadow.material.opacity=Math.max(.07,.3-height*.0005);this.playerShadow.position.x=p.x-500;this.playerShadow.scale.setScalar(.65+(c.GROUND_Y-p.y)*.003);this.playerShadow.material.opacity=inAir?.15:.3;
   for(const person of this.spectators){person.rotation.z=Math.sin(t*.65+person.userData.phase)*.008;}

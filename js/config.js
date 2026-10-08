@@ -14,6 +14,7 @@ const CONFIG={
  ACTIONS:{
   FOOT:{height:18,offsetX:19,contactRadius:25,verticalVelocity:620,horizontalInfluence:6.5,moveInfluence:0.14,score:100},
   KNEE:{height:72,offsetX:13,contactRadius:23,verticalVelocity:550,horizontalInfluence:6.0,moveInfluence:0.12,score:150},
+  SHOULDER:{height:115,offsetX:24,contactRadius:7,verticalVelocity:475,horizontalInfluence:6.3,moveInfluence:0.1,score:1000},
   CHEST:{height:99,offsetX:0,contactRadius:25,verticalVelocity:430,horizontalInfluence:5.5,moveInfluence:0.1,score:200},
   HEADER:{height:143,offsetX:0,contactRadius:24,verticalVelocity:460,horizontalInfluence:6.0,moveInfluence:0.1,score:250},
   JUMP_HEADER:{height:143,offsetX:0,contactRadius:24,verticalVelocity:510,horizontalInfluence:7.0,moveInfluence:0.12,score:500}
