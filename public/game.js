@@ -1,7 +1,8 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id),c=PRIME_CONFIG,canvas=$('game'),ctx=canvas.getContext('2d');
-const settingsKey='prime-lifting-v031-tuning';
+// V0.5.12: start with clean defaults; do not import tuning values saved by older releases.
+const settingsKey='prime-lifting-v0512-tuning';
 const controls=[['移動速度','PLAYER_SPEED',120,450,10],['移動の加速','PLAYER_ACCELERATION',400,3000,100],['移動の減速','PLAYER_DECELERATION',400,3000,100],['ジャンプ力','PLAYER_JUMP_POWER',200,550,10],['選手の重力','GRAVITY',700,1800,50],['ボールの重力','BALL_GRAVITY',400,1100,25],['回転時間','SPIN_DURATION',0.18,0.8,0.01],['回転中の移動率','SPIN_MOVE_FACTOR',0,0.8,0.05],['打球間隔','ACTION_COOLDOWN',0.1,0.4,0.01],['回転ボーナス','SPIN_BONUS',0,600,25]];
 for(const name of Object.keys(c.ACTIONS)){controls.push([name+' 打上げ力','ACTIONS.'+name+'.verticalVelocity',250,750,10],[name+' 判定半径','ACTIONS.'+name+'.contactRadius',10,36,1],[name+' 横への影響','ACTIONS.'+name+'.horizontalInfluence',0,12,0.25],[name+' 得点','ACTIONS.'+name+'.score',0,1000,25]);}
 const get=(o,path)=>path.split('.').reduce((a,k)=>a[k],o);
