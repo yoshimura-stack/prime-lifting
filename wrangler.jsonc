@@ -26,5 +26,8 @@
         "period": 60
       }
     }
-  ]
+  ],
+  "vars": {
+    "SUPABASE_URL": "https://ctxhopadmvasxvjspwoi.supabase.co"
+  }
 }
