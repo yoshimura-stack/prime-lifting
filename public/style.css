@@ -127,3 +127,19 @@ main.game-app{width:100vw;height:100dvh;max-width:none;margin:0;padding:12px 14p
 .control-row .mouse-icon{width:31px;height:38px;display:block;filter:drop-shadow(0 0 3px #d8ff6c44)}
 .control-row .mouse-key small{display:block;color:#e3f3db;font-size:10px;font-weight:800;white-space:nowrap;margin:0}
 @media(max-width:1100px){.control-row .mouse-key{width:60px}.control-row .mouse-key small{display:block;font-size:8px}.control-row .mouse-icon{width:26px;height:32px}}
+
+
+/* V0.5.15 — top-three podium */
+.record-card .podium-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:6px;align-items:stretch}
+.record-card .podium-first{min-width:0;display:flex;flex-direction:column;justify-content:center}
+.record-card .podium-first .panel-kicker{font-size:clamp(8px,.56vw,10px);margin:0 0 6px;color:#e7cf78}
+.record-card .podium-first>strong{display:block;font:900 clamp(13px,1vw,18px) Consolas,monospace;color:#dcff6a;line-height:1.2;white-space:nowrap}
+.record-card .podium-first>span{display:block;font-size:clamp(8px,.56vw,10px);color:#e7eee9;font-weight:700;overflow-wrap:anywhere;margin-top:5px}
+.record-card .podium-runners{min-width:0;display:grid;gap:5px}
+.record-card .podium-runner{display:grid;gap:1px;padding:5px 6px;border:1px solid #ffffff20;border-radius:5px;background:#071a1680;min-width:0}
+.record-card .podium-medal{font-size:clamp(8px,.54vw,10px);font-weight:800;color:#c7d0d6}
+.record-card .podium-runner:last-child .podium-medal{color:#d6a779}
+.record-card .podium-runner>strong{font:800 clamp(10px,.75vw,13px) Consolas,monospace;color:#f1f5f0;white-space:nowrap}
+.record-card .podium-runner>span:last-child{font-size:clamp(8px,.53vw,10px);color:#cbd6cd;overflow-wrap:anywhere}
+.record-card .view-ranking-btn{margin-top:8px}
+@media(max-width:1100px){.record-card .podium-grid{gap:4px}.record-card .podium-runner{padding:4px}}
