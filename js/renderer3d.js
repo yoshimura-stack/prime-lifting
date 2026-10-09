@@ -12,8 +12,36 @@ class PrimeRenderer{
   const fill=new T.DirectionalLight(0x9ed6ed,0.6);fill.position.set(300,280,-300);this.scene.add(fill);
   this.sphereGeo=new T.SphereGeometry(1,24,16);this.cylinderGeo=new T.CylinderGeometry(1,1,1,16);this.boxGeo=new T.BoxGeometry(1,1,1);
   this.buildGround();this.buildEnvironment();this.player=this.makePlayer();this.scene.add(this.player.group);this.player.group.scale.y=1/this.cos;this.setKit(root.PRIME_KITS?root.PRIME_KITS.get(root.PRIME_KITS.defaultId):null);
-  const ballTex=this.texture(512,256,(x,w,h)=>{x.fillStyle='#eeeede';x.fillRect(0,0,w,h);x.strokeStyle='#8d998c';x.lineWidth=1.5;for(let j=0;j<4;j++)for(let i=0;i<9;i++){const px=i*64+(j%2)*32,py=j*70; x.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3;x.lineTo(px+31*Math.cos(a),py+31*Math.sin(a));}x.closePath();x.stroke();if((i+j)%3===0){x.fillStyle='#162b33';x.beginPath();for(let k=0;k<5;k++){const a=k*Math.PI*2/5;x.lineTo(px+19*Math.cos(a),py+19*Math.sin(a));}x.closePath();x.fill();}}});
-  this.ball=new T.Mesh(new T.SphereGeometry(c.BALL_RADIUS,32,24),new T.MeshStandardMaterial({map:ballTex,roughness:0.48,metalness:0.05}));this.ball.castShadow=true;this.scene.add(this.ball);
+  // V0.5.18: bold red / blue / green match-ball graphics, visual only.
+  // Original sphere geometry, physical radius, movement and collision remain untouched.
+  const ballTex=this.texture(1024,512,(x,w,h)=>{
+   x.fillStyle='#fcfcf6';x.fillRect(0,0,w,h);
+   // Broad curved color panels: legible even when the ball is only ~25px tall.
+   const palette=['#df2433','#0864b9','#00875b'];
+   for(let row=-1;row<4;row++)for(let col=-1;col<7;col++){
+    const cx=col*180+((row&1)?90:0),cy=row*178;
+    const color=palette[((row+col)%3+3)%3];
+    x.save();x.translate(cx,cy);x.rotate(((row+col)%4-1.5)*.27);
+    // White panel perimeter, then saturated sweeping crescent.
+    x.beginPath();x.moveTo(-70,-55);x.bezierCurveTo(-4,-94,79,-67,83,-9);
+    x.bezierCurveTo(94,47,22,86,-48,67);x.bezierCurveTo(-95,49,-105,-19,-70,-55);x.closePath();
+    x.strokeStyle='#9eaaa9';x.lineWidth=3;x.stroke();
+    x.beginPath();x.moveTo(-69,-50);x.bezierCurveTo(-17,-75,67,-59,72,-10);
+    x.bezierCurveTo(37,-24,2,-7,-13,21);x.bezierCurveTo(-37,49,-60,57,-78,28);
+    x.bezierCurveTo(-87,-5,-83,-29,-69,-50);x.closePath();x.fillStyle=color;x.fill();
+    // Narrow contrast stripe suggests a professional panel graphic.
+    x.beginPath();x.moveTo(-55,-44);x.bezierCurveTo(-10,-58,35,-49,52,-28);
+    x.strokeStyle='rgba(255,255,255,.88)';x.lineWidth=7;x.stroke();
+    x.beginPath();x.moveTo(31,32);x.bezierCurveTo(55,17,69,2,73,-10);
+    x.strokeStyle=color;x.lineWidth=13;x.stroke();
+    x.restore();
+   }
+   // Fine seams and leather texture, kept intentionally subtle.
+   for(let py=3;py<h;py+=9)for(let px=3;px<w;px+=9){
+    x.fillStyle='rgba(70,82,78,.10)';x.fillRect(px,py,1,1);
+   }
+  });
+  this.ball=new T.Mesh(new T.SphereGeometry(c.BALL_RADIUS,32,24),new T.MeshStandardMaterial({map:ballTex,roughness:0.38,metalness:0.02}));this.ball.castShadow=true;this.scene.add(this.ball);
   this.ballShadow=this.shadow(25,0.23);this.scene.add(this.ballShadow);this.playerShadow=this.shadow(58,0.28);this.scene.add(this.playerShadow);
  }
  mat(color,roughness=.78){return new this.T.MeshStandardMaterial({color,roughness});}
