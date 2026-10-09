@@ -20,12 +20,4 @@ export function replay(events){
  if(at!==events.length||g.phase!=='ended')throw new ApiError(400,'プレイ記録の終了位置が正しくありません。');
  return {score:g.score,hits:g.hits,combo:g.bestCombo,drops:g.drops};
 }
-// Keep historical V0.5.18 kit IDs valid for existing accounts and saved sessions.
-// The new collection uses unlock-XX IDs; both are cosmetic and never affect replay.
-const LEGACY_KIT_GROUPS={japan:20,germany:4,england:4,spain:4,italy:4,france:4,world:4};
-export function validKit(id){
- if(typeof id!=='string')return false;
- if(globalThis.PRIME_KITS.kits.some(k=>k.id===id))return true;
- const m=/^(japan|germany|england|spain|italy|france|world)-(\d{2})$/.exec(id);
- return !!m&&Number(m[2])>=1&&Number(m[2])<=LEGACY_KIT_GROUPS[m[1]];
-}
+export function validKit(id){return globalThis.PRIME_KITS.kits.some(k=>k.id===id);}

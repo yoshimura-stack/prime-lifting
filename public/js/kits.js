@@ -1,33 +1,14 @@
-(function(root){'use strict';
-const milestones=[0,3000,6000,9000,12000,15000,18000,20000,...Array.from({length:25},(_,i)=>24000+i*3000),100000];
-const solids=['#d9e0e5','#d3283e','#1564c4','#e9c837','#19865b','#8c4ac4','#161d28'];
-const palettes=[['#1d55b5','#f8f8f8','#d52e35','stripe'],['#d82135','#111b35','#e7d5a4','stripe'],['#ffffff','#14274b','#d12835','band'],['#101010','#f2b947','#f2b947','stripe'],['#13a3aa','#ffffff','#073d54','band'],['#8c1f40','#f5d6a0','#111d35','stripe'],['#f5f1dd','#1a3b86','#d52038','band'],['#244eaa','#e5c34e','#ffffff','stripe'],['#e94d24','#101828','#e5b65a','band'],['#121a29','#d42b3d','#f4f0e5','stripe'],['#52a8e4','#ffffff','#172b49','band'],['#e7d541','#224fa8','#ffffff','stripe'],['#156943','#f7e7ac','#e2b851','band'],['#ffffff','#111111','#d2a44a','stripe'],['#a71f30','#f1c5a2','#1d3b73','band'],['#111b24','#d7a84e','#e4bd65','stripe'],['#364bb8','#f2f2f2','#e83754','stripe'],['#bf2036','#f3c44d','#141f38','band'],['#071f37','#31d5e0','#a3ecff','stripe'],['#f0f0f0','#7b1f42','#e8bc72','band'],['#1e2736','#a9b8c6','#e9eef6','stripe'],['#29213f','#d8a9ff','#f1d5ff','band'],['#1c1c1c','#d9ad55','#f3d580','stripe'],['#062a31','#43d7ac','#d4fff0','band'],['#17141e','#b57afa','#f3c6ff','stripe']];
-const specialDesigns={
-  40000:{name:'NEON PULSE',primary:'#12162d',secondary:'#04f7e2',accent:'#80fff1',pattern:'neon',tier:'SPECIAL',glow:0.34},
-  42000:{name:'LEOPARD KING',primary:'#d6a552',secondary:'#2c1a10',accent:'#fff1b5',pattern:'leopard',tier:'WILD'},
-  45000:{name:'STREET HOODIE',primary:'#4e6c75',secondary:'#e2f1ed',accent:'#b7f7ed',pattern:'hoodie',tier:'STREET'},
-  48000:{name:'BLACK SUIT',primary:'#17191e',secondary:'#f6f5ed',accent:'#e73b44',pattern:'suit',tier:'FORMAL'},
-  51000:{name:'TIGER STRIKE',primary:'#ed791d',secondary:'#211711',accent:'#ffe19c',pattern:'tiger',tier:'WILD'},
-  54000:{name:'GALAXY',primary:'#25124c',secondary:'#f567ee',accent:'#57f4ff',pattern:'galaxy',tier:'COSMIC',glow:0.28},
-  57000:{name:'GOLDEN TUXEDO',primary:'#181818',secondary:'#e6bd61',accent:'#fff1b7',pattern:'tuxedo',tier:'FORMAL',glow:0.16},
-  60000:{name:'CYBER GRID',primary:'#071b25',secondary:'#29f6c3',accent:'#7bfff2',pattern:'grid',tier:'CYBER',glow:0.34},
-  63000:{name:'ZEBRA RUSH',primary:'#f4f1e9',secondary:'#151515',accent:'#d9ff68',pattern:'zebra',tier:'WILD'},
-  66000:{name:'ROYAL CAPE',primary:'#53166d',secondary:'#f3c950',accent:'#fce4a1',pattern:'royal',tier:'ROYAL',glow:0.17},
-  69000:{name:'LAVA ARMOR',primary:'#231317',secondary:'#ff5127',accent:'#ffc04c',pattern:'lava',tier:'ELEMENTAL',glow:0.35},
-  72000:{name:'DENIM STREET',primary:'#37628c',secondary:'#b2d4ed',accent:'#f1f5f7',pattern:'denim',tier:'STREET'},
-  75000:{name:'DISCO FEVER',primary:'#3a124c',secondary:'#f7d146',accent:'#ff65c9',pattern:'disco',tier:'PARTY',glow:0.28},
-  78000:{name:'ICE PHANTOM',primary:'#bce9f4',secondary:'#4ac9f1',accent:'#ffffff',pattern:'ice',tier:'ELEMENTAL',glow:0.28},
-  81000:{name:'SAMURAI GOLD',primary:'#1b1a21',secondary:'#d6a23e',accent:'#fff1a9',pattern:'samurai',tier:'MYTHIC',glow:0.3},
-  84000:{name:'DRAGON SCALE',primary:'#176047',secondary:'#9ef3a6',accent:'#f8d95a',pattern:'scale',tier:'MYTHIC',glow:0.26},
-  87000:{name:'PHANTOM SUIT',primary:'#282339',secondary:'#c9a6f7',accent:'#f0d9ff',pattern:'suit',tier:'MYTHIC',glow:0.35},
-  90000:{name:'PLASMA STORM',primary:'#101535',secondary:'#d36bff',accent:'#64f9ff',pattern:'plasma',tier:'MYTHIC',glow:0.48},
-  93000:{name:'BLACK DIAMOND',primary:'#14171d',secondary:'#91a5c1',accent:'#e8f8ff',pattern:'diamond',tier:'MYTHIC',glow:0.42},
-  96000:{name:'GOLD EMPEROR',primary:'#4b3211',secondary:'#ffe082',accent:'#fff4c7',pattern:'royal',tier:'MYTHIC',glow:0.45},
-  100000:{name:'LEGEND',primary:'#f3e5ff',secondary:'#78ecff',accent:'#ffe26d',pattern:'legend',tier:'LEGEND',glow:0.72}
-};
-const kits=milestones.map((pts,i)=>{if(i<7)return {pts,name:['STANDARD','CRIMSON','OCEAN','SUNSHINE','FOREST','VIOLET','MIDNIGHT'][i],primary:solids[i],secondary:solids[i],accent:solids[i],pattern:'solid',tier:'SOLID'};const p=palettes[i-7]||['#f1e2ff','#d7b44d','#72e5ff','stripe'];return {pts,name:i===33?'LEGEND':`WORLD KIT ${String(i-6).padStart(2,'0')}`,primary:p[0],secondary:p[1],accent:p[2],pattern:p[3],tier:i===33?'LEGEND':i>=18?'PREMIUM':'WORLD KIT'};});
-kits.forEach((k,i)=>{if(k.pts>=40000){const d=specialDesigns[k.pts];if(d)Object.assign(k,d);}});
-
-const all=kits.map((k,i)=>({...k,id:'unlock-'+String(i).padStart(2,'0'),group:'COLLECTION'}));
-root.PRIME_KITS={groups:['COLLECTION'],kits:all,defaultId:all[0].id,get(id){return all.find(k=>k.id===id)||all[0];}};
+(function(root){
+'use strict';
+const groups=[
+ ['JAPAN',[['01','#d7193f','#111827','#ffffff','solid'],['02','#1557b0','#ffffff','#d7193f','stripe'],['03','#6d3a91','#ffffff','#f0c34e','solid'],['04','#f28c28','#162c48','#ffffff','band'],['05','#55aee8','#111827','#ffffff','solid'],['06','#111827','#1557b0','#ffffff','stripe'],['07','#e84a86','#162c48','#ffffff','solid'],['08','#159447','#ffffff','#f2c94c','solid'],['09','#f2c94c','#1557b0','#ffffff','band'],['10','#8b1e3f','#162c48','#ffffff','solid'],['11','#d7193f','#f2c94c','#ffffff','stripe'],['12','#f28c28','#ffffff','#162c48','solid'],['13','#283f8f','#d7193f','#ffffff','stripe'],['14','#7b2c91','#111827','#ffffff','stripe'],['15','#64c7d9','#ffffff','#162c48','band'],['16','#111827','#d7193f','#ffffff','band'],['17','#ffffff','#1557b0','#d7193f','stripe'],['18','#8bcf55','#162c48','#ffffff','solid'],['19','#244a91','#f2c94c','#ffffff','band'],['20','#ffffff','#d7193f','#162c48','band']]],
+ ['GERMANY',[['01','#d71920','#ffffff','#111111','solid'],['02','#111111','#d71920','#f2c94c','stripe'],['03','#ffffff','#d71920','#111111','band'],['04','#7b1020','#ffffff','#111111','solid']]],
+ ['ENGLAND',[['01','#d71920','#ffffff','#111827','solid'],['02','#1e5aa8','#ffffff','#d71920','solid'],['03','#79c9e8','#ffffff','#202b3a','band'],['04','#7b1f35','#7fc7d9','#ffffff','stripe']]],
+ ['SPAIN',[['01','#ffffff','#1e5aa8','#d71920','stripe'],['02','#d71920','#1e3a8a','#f2c94c','band'],['03','#ffffff','#111111','#d71920','solid'],['04','#1e5aa8','#d71920','#ffffff','band']]],
+ ['ITALY',[['01','#111111','#1769aa','#ffffff','stripe'],['02','#c51f35','#111111','#ffffff','stripe'],['03','#ffffff','#111111','#d6b24c','stripe'],['04','#1e5aa8','#ffffff','#111111','solid']]],
+ ['FRANCE',[['01','#1d3557','#d71920','#ffffff','band'],['02','#ffffff','#d71920','#1d3557','solid'],['03','#7b1f35','#1d3557','#f2c94c','solid'],['04','#f2c94c','#1d3557','#d71920','band']]],
+ ['WORLD',[['01','#f2c94c','#1e5aa8','#ffffff','solid'],['02','#75c9ef','#ffffff','#202b3a','stripe'],['03','#1e5aa8','#ffffff','#d71920','solid'],['04','#d71920','#ffffff','#1d3557','band']]]
+];
+const kits=[];for(const [group,items] of groups)items.forEach(([n,primary,secondary,accent,pattern])=>kits.push({id:group.toLowerCase()+'-'+n,group,name:group+' '+n,primary,secondary,accent,pattern}));
+root.PRIME_KITS={groups:groups.map(x=>x[0]),kits,defaultId:'japan-01',get(id){return kits.find(k=>k.id===id)||kits[0];}};
 })(globalThis);

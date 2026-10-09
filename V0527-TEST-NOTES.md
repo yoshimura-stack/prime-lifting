@@ -1,1 +1,0 @@
-V0.5.27: Fix fitting-room iframe confirm bridge scope. Previously a second IIFE could not access selectedKit/applyKit in game closure. The bridge is now inside the game IIFE. No scoring/physics/ranking changes. Open root index.html, click この衣装で決定, verify play overlay, then run 60s test. Do not deploy during competition without online validation.
