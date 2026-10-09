@@ -143,3 +143,32 @@ main.game-app{width:100vw;height:100dvh;max-width:none;margin:0;padding:12px 14p
 .record-card .podium-runner>span:last-child{font-size:clamp(8px,.53vw,10px);color:#cbd6cd;overflow-wrap:anywhere}
 .record-card .view-ranking-btn{margin-top:8px}
 @media(max-width:1100px){.record-card .podium-grid{gap:4px}.record-card .podium-runner{padding:4px}}
+
+/* V0.5.16: compact score guide for notebook screens, preserve all scoring values */
+@media (min-width:761px){
+ .score-guide{gap:clamp(4px,.7dvh,8px)}
+ .score-guide .panel-block{padding-top:clamp(5px,.8dvh,10px)}
+ .score-guide .panel-block h2{font-size:clamp(18px,1.35vw,24px);margin:3px 0 7px}
+ .score-guide .panel-kicker{font-size:clamp(8px,.58vw,10px)}
+ .score-guide .score-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:7px;row-gap:0}
+ .score-guide .score-list>div{min-width:0;display:flex;justify-content:space-between;gap:3px;padding:clamp(5px,.7dvh,7px) 1px}
+ .score-guide .score-list>div:nth-child(-n+4) span{font-size:clamp(8px,.57vw,10px);letter-spacing:0;white-space:nowrap}
+ .score-guide .score-list>div:nth-child(-n+4) strong{font-size:clamp(9px,.64vw,12px);white-space:nowrap}
+ .score-guide .score-list>.featured{grid-column:1/-1}
+ .score-guide .score-list>.featured span{font-size:clamp(9px,.68vw,12px)}
+ .score-guide .score-list>.featured strong{font-size:clamp(11px,.8vw,15px)}
+ .score-guide .bonus-card{padding:clamp(7px,.85dvh,10px)}
+ .score-guide .bonus-card>strong{font-size:clamp(11px,.82vw,15px);margin:2px 0 4px;white-space:nowrap}
+ .score-guide .bonus-copy{font-size:clamp(9px,.65vw,11px);line-height:1.32;font-weight:700}
+ .score-guide .record-card{padding:clamp(7px,.9dvh,10px);margin-top:auto}
+ .score-guide .record-card .view-ranking-btn{margin-top:6px;padding:7px 3px}
+}
+@media (min-width:761px) and (max-height:800px){
+ .score-guide{gap:4px}
+ .score-guide .panel-block{padding-top:4px}
+ .score-guide .panel-block h2{margin:2px 0 5px}
+ .score-guide .score-list>div{padding:4px 1px}
+ .score-guide .bonus-card{padding:6px 7px}
+ .score-guide .bonus-copy{font-size:9px;line-height:1.22}
+ .score-guide .record-card{padding:6px 7px}
+}
