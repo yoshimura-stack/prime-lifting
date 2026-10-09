@@ -11,7 +11,7 @@ class PrimeRenderer{
   this.scene.add(new T.HemisphereLight(0xe3f5ff,0x344432,1.6));const sun=new T.DirectionalLight(0xffecc8,2.5);sun.position.set(-350,800,420);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-850,right:850,top:650,bottom:-650,near:1,far:2100});sun.shadow.normalBias=0.6;sun.shadow.bias=-0.0003;sun.shadow.radius=3;sun.target.position.set(0,100,-180);this.scene.add(sun,sun.target);
   const fill=new T.DirectionalLight(0x9ed6ed,0.6);fill.position.set(300,280,-300);this.scene.add(fill);
   this.sphereGeo=new T.SphereGeometry(1,24,16);this.cylinderGeo=new T.CylinderGeometry(1,1,1,16);this.boxGeo=new T.BoxGeometry(1,1,1);
-  this.buildGround();this.buildEnvironment();this.player=this.makePlayer();this.scene.add(this.player.group);this.costumeLayer=root.PrimeCostumes3D?root.PrimeCostumes3D.createCostumes(T,this):null;this.player.group.scale.y=1/this.cos;this.setKit(root.PRIME_KITS?root.PRIME_KITS.get(root.PRIME_KITS.defaultId):null);
+  this.buildGround();this.buildEnvironment();this.player=this.makePlayer();this.scene.add(this.player.group);this.player.group.scale.y=1/this.cos;this.setKit(root.PRIME_KITS?root.PRIME_KITS.get(root.PRIME_KITS.defaultId):null);
   // V0.5.18: bold red / blue / green match-ball graphics, visual only.
   // Original sphere geometry, physical radius, movement and collision remain untouched.
   const ballTex=this.texture(1024,512,(x,w,h)=>{
@@ -102,7 +102,8 @@ class PrimeRenderer{
   const badgeTex=this.texture(256,256,(x)=>{x.fillStyle='#efe8cf';x.textAlign='center';x.font='bold 105px Arial';x.fillText('10',128,190);x.font='bold 21px Arial';x.fillText('PRIME',128,58);x.strokeStyle='#eee7c9';x.lineWidth=3;x.strokeRect(178,45,24,30);});
   const number=new T.Mesh(new T.PlaneGeometry(31,31),new T.MeshStandardMaterial({map:badgeTex,transparent:true,roughness:.85}));number.position.set(0,93,12.4);torso.add(number);const backNumber=number.clone();backNumber.rotation.y=Math.PI;backNumber.position.set(0,101,-12.3);torso.add(backNumber);
   for(const s of [-1,1]){const seam=this.box(torso,teal,s*20,89,7,1,24,1);seam.rotation.z=-s*.06;}
-  this.sphere(g,dark,0,76,0,20,9,11);const shorts=[];for(const s of [-1,1]){const cuff=new T.Group();cuff.position.set(s*11,77,0);g.add(cuff);this.mesh(new T.CylinderGeometry(10.5,9.3,20,24),dark,cuff,0,-8,0,1,1,1.05);this.box(cuff,teal,s*9.1,-8,1,1,17,9);shorts.push({s,cuff});}
+  // Flat, tailored shorts bridge: replaces the protruding spherical crotch mesh.
+  this.box(g,dark,0,76,0,37,10,18);const shorts=[];for(const s of [-1,1]){const cuff=new T.Group();cuff.position.set(s*11,77,0);g.add(cuff);this.mesh(new T.CylinderGeometry(10.5,9.3,20,24),dark,cuff,0,-8,0,1,1,1.05);this.box(cuff,teal,s*9.1,-8,1,1,17,9);shorts.push({s,cuff});}
   const head=new T.Group();head.position.set(0,143,1);g.add(head);const faceGeo=new T.SphereGeometry(1,32,24);const pos=faceGeo.attributes.position;for(let i=0;i<pos.count;i++){const y=pos.getY(i);if(y<-.15)pos.setX(i,pos.getX(i)*(1+(y+.15)*.22));}faceGeo.computeVertexNormals();this.mesh(faceGeo,skinLight,head,0,0,0,12.7,17.5,11.7);
   for(const s of [-1,1]){this.sphere(head,skin,s*12.7,-1,0,2.2,4.2,2.6);this.sphere(head,sock,s*5.1,2.5,10.5,2.7,.9,.65);this.sphere(head,dark,s*5.1,2.5,11,.75,.85,.4);const brow=this.box(head,hair,s*5.3,5.3,10.7,5.5,.8,.6);brow.rotation.z=-s*.1;}
   this.sphere(head,skinLight,0,-.7,12,2,4.7,2.4);this.sphere(head,this.mat('#825e4f'),0,-8,10.5,4.2,.7,.7);
@@ -110,31 +111,34 @@ class PrimeRenderer{
   const hairCap=new T.Mesh(new T.SphereGeometry(13.2,24,12,0,Math.PI*2,0,Math.PI*.48),hair);hairCap.scale.set(1,1.2,.88);hairCap.position.y=3;head.add(hairCap);
   for(let i=0;i<8;i++){const lock=this.sphere(head,hair,-9+i*2.55,13.8+(i%3)*.4,5.5,2.8,3,5.3);lock.rotation.z=-.4;}for(const s of [-1,1])this.box(head,hair,s*12.1,4,-1,1.5,12,8);
   const arms=[];for(const s of [-1,1]){const upper=this.bone(g,kit,7.7),fore=this.bone(g,skin,5.1),elbow=this.sphere(g,skin,0,0,0,5.3,5.3,5.3),hand=this.sphere(g,skinLight,0,0,0,4.3,6.4,3.3);arms.push({s,upper,fore,elbow,hand});}
-  const legs=[];for(const s of [-1,1]){const thigh=this.bone(g,skin,7.5),calf=this.bone(g,sock,5.6),knee=this.sphere(g,skinLight,0,0,0,6.8,7,6.5),ankle=this.sphere(g,sock,0,0,0,5.3,6.5,5.2),shoe=new T.Group();this.sphere(shoe,boot,0,0,2,7,5,13);this.sphere(shoe,sole,0,-3.6,2,7.1,1.3,13);for(let i=0;i<4;i++)this.box(shoe,sock,0,4-i*.5,3+i*2,7,.5,1);this.box(shoe,teal,s*6.3,0,4,1,3,10);g.add(shoe);legs.push({s,thigh,calf,knee,ankle,shoe,originalMaterials:{thigh:thigh.material,knee:knee.material,calf:calf.material,ankle:ankle.material},costumeMaterials:null});}
+  const legs=[];for(const s of [-1,1]){const thigh=this.bone(g,skin,7.5),calf=this.bone(g,sock,5.6),knee=this.sphere(g,skinLight,0,0,0,6.8,7,6.5),ankle=this.sphere(g,sock,0,0,0,5.3,6.5,5.2),shoe=new T.Group();this.sphere(shoe,boot,0,0,2,7,5,13);this.sphere(shoe,sole,0,-3.6,2,7.1,1.3,13);for(let i=0;i<4;i++)this.box(shoe,sock,0,4-i*.5,3+i*2,7,.5,1);this.box(shoe,teal,s*6.3,0,4,1,3,10);g.add(shoe);legs.push({s,thigh,calf,knee,ankle,shoe});}
   return {group:g,torso,head,arms,legs,shorts,kitMaterials:{bodyMat,kit,dark,teal}};
  }
- setKit(selected){if(!selected)return;if(this.costumeLayer)this.costumeLayer.dress(selected);const m=this.player.kitMaterials,T=this.T;const tex=this.texture(256,512,(x,w,h)=>{x.fillStyle=selected.primary;x.fillRect(0,0,w,h);if(selected.pattern==='stripe'){x.fillStyle=selected.secondary;for(let i=0;i<5;i++)x.fillRect(i*w/5,0,w/10,h);}else if(selected.pattern==='band'){x.fillStyle=selected.secondary;x.fillRect(w*.38,0,w*.24,h);}for(let y=0;y<h;y+=4){x.fillStyle='rgba(255,255,255,.025)';x.fillRect(0,y,w,1);}x.fillStyle=selected.accent;x.fillRect(0,145,w,20);});if(m.bodyMat.map)m.bodyMat.map.dispose();m.bodyMat.map=tex;m.bodyMat.needsUpdate=true;m.kit.color.set(selected.primary);m.dark.color.set(selected.secondary);m.teal.color.set(selected.accent);}
- // Visual-only knee/leg covering: follows existing bone poses, never changes hitboxes.
- applyCostumeLegCover(kit){
-  const special=kit.pts>=40000;
-  const n=kit.name;
-  const color=n.includes('SUIT')||n.includes('TUXEDO')||n.includes('BUSINESS')?'#17171c':
-   n.includes('LEOPARD')?'#c89442':n.includes('TIGER')?'#f18a28':n.includes('ZEBRA')?'#eae9dc':
-   n.includes('DENIM')?'#27649a':n.includes('DISCO')?'#e832b9':n.includes('HOODIE')?'#455f66':
-   n.includes('GALAXY')?'#30225d':n.includes('CYBER')||n.includes('SPACE')||n.includes('PLASMA')||n.includes('NEON')?'#0a2a3a':
-   n.includes('DRAGON')?'#165e49':n.includes('DIAMOND')?'#b9d4e9':n.includes('ARMOR')?'#5d2520':
-   n.includes('SAMURAI')||n.includes('EMPEROR')||n.includes('ROYAL')?'#bb8727':
-   n.includes('ICE')?'#4d8baf':n.includes('LAVA')?'#54201c':n.includes('LEGEND')?'#b7c7e8':kit.primary;
-  for(const leg of this.player.legs){
-   if(leg.costumeMaterials){for(const m of Object.values(leg.costumeMaterials))m.dispose();leg.costumeMaterials=null;}
-   for(const part of ['thigh','knee','calf','ankle'])leg[part].material=leg.originalMaterials[part];
-   if(!special)continue;
-   const m=new this.T.MeshStandardMaterial({color,roughness:.68,metalness:n.includes('GOLD')||n.includes('LEGEND')?.5:0});
-   const cuff=new this.T.MeshStandardMaterial({color:kit.accent,roughness:.55});
-   leg.costumeMaterials={fabric:m,cuff};
-   // Knee sphere and thigh/shin bones already track every FOOT/KNEE/JUMP pose.
-   leg.thigh.material=m;leg.knee.material=m;leg.calf.material=m;leg.ankle.material=cuff;
-  }
+ setKit(selected){
+  if(!selected)return;
+  const m=this.player.kitMaterials,T=this.T;
+  const tex=this.texture(512,512,(x,w,h)=>{
+   x.fillStyle=selected.primary;x.fillRect(0,0,w,h);
+   const p=selected.pattern,s=selected.secondary,a=selected.accent;
+   const rand=(n)=>{let z=Math.sin(n*127.1+9.7)*43758.5453;return z-Math.floor(z);};
+   if(p==='stripe'){x.fillStyle=s;for(let i=0;i<9;i++)x.fillRect(i*w/9,0,w/22,h);}
+   else if(p==='band'){x.fillStyle=s;x.fillRect(w*.35,0,w*.3,h);}
+   else if(p==='leopard'){for(let i=0;i<175;i++){const xx=rand(i*3)*w,yy=rand(i*3+1)*h,r=5+rand(i*3+2)*12;x.strokeStyle=s;x.lineWidth=3+rand(i)*4;x.beginPath();x.ellipse(xx,yy,r,r*.75,rand(i+400)*6.28,0,Math.PI*1.7);x.stroke();}}
+   else if(p==='tiger'||p==='zebra'){x.strokeStyle=s;x.lineWidth=p==='tiger'?17:14;for(let i=-12;i<25;i++){x.beginPath();x.moveTo(i*40,-20);x.bezierCurveTo(i*38+55,120,i*38-65,320,i*38+90,550);x.stroke();}}
+   else if(p==='suit'||p==='tuxedo'){x.fillStyle=s;x.beginPath();x.moveTo(180,0);x.lineTo(256,150);x.lineTo(332,0);x.lineTo(294,0);x.lineTo(256,95);x.lineTo(218,0);x.fill();x.fillStyle=p==='tuxedo'?'#e8bc5b':'#c72b35';x.beginPath();x.moveTo(256,66);x.lineTo(241,100);x.lineTo(256,185);x.lineTo(271,100);x.fill();x.fillStyle='#ddd';for(let i=0;i<3;i++){x.beginPath();x.arc(256,230+i*45,4,0,7);x.fill();}}
+   else if(p==='hoodie'){x.strokeStyle=s;x.lineWidth=13;x.beginPath();x.arc(256,8,87,0,Math.PI);x.stroke();x.fillStyle=s;x.fillRect(130,240,250,18);}
+   else if(p==='grid'||p==='neon'||p==='plasma'){x.strokeStyle=s;x.lineWidth=p==='grid'?3:9;x.shadowColor=a;x.shadowBlur=18;for(let i=0;i<14;i++){x.beginPath();x.moveTo(i*47,0);x.lineTo((i*47+140)%600,h);x.stroke();}if(p==='grid')for(let y=0;y<h;y+=48){x.beginPath();x.moveTo(0,y);x.lineTo(w,y);x.stroke();}x.shadowBlur=0;}
+   else if(p==='galaxy'||p==='disco'||p==='legend'){for(let i=0;i<170;i++){x.fillStyle=[s,a,'#ffffff'][i%3];x.globalAlpha=.25+rand(i)*.75;x.beginPath();x.arc(rand(i*3)*w,rand(i*3+1)*h,2+rand(i*3+2)*(p==='disco'?10:5),0,7);x.fill();}x.globalAlpha=1;}
+   else if(p==='scale'||p==='diamond'||p==='ice'||p==='samurai'){x.strokeStyle=s;x.lineWidth=4;for(let y=-40;y<h+50;y+=42)for(let j=0;j<12;j++){let xx=j*48+(Math.floor(y/42)%2)*24;x.beginPath();x.moveTo(xx,y);x.lineTo(xx+24,y+27);x.lineTo(xx+48,y);x.stroke();}}
+   else if(p==='lava'||p==='royal'){x.strokeStyle=s;x.lineWidth=12;x.shadowColor=a;x.shadowBlur=12;for(let i=0;i<9;i++){x.beginPath();x.moveTo(rand(i)*w,0);x.lineTo(rand(i+12)*w,180);x.lineTo(rand(i+24)*w,330);x.lineTo(rand(i+36)*w,h);x.stroke();}x.shadowBlur=0;}
+   else if(p==='denim'){x.strokeStyle=s;x.lineWidth=2;for(let i=0;i<100;i++){x.beginPath();x.moveTo(i*8,0);x.lineTo(i*8-150,h);x.stroke();}}
+   for(let y=0;y<h;y+=5){x.fillStyle='rgba(255,255,255,.022)';x.fillRect(0,y,w,1);}
+   if(p==='solid')return;
+   x.fillStyle=a;x.fillRect(0,145,w,12);
+  });
+  if(m.bodyMat.map)m.bodyMat.map.dispose();m.bodyMat.map=tex;m.bodyMat.needsUpdate=true;
+  m.bodyMat.emissive.set(selected.glow?selected.secondary:'#000000');m.bodyMat.emissiveIntensity=selected.glow||0;
+  m.kit.color.set(selected.primary);m.dark.color.set(selected.secondary);m.teal.color.set(selected.accent);
  }
  render(g){const c=this.c,p=g.player,a=g.action,active=g.actionTime>0,model=this.player;const t=g.elapsed,spinning=p.spin>0;const angle=spinning?(1-p.spin/c.SPIN_DURATION)*Math.PI*2:0;model.group.position.set(p.x-500,(c.WORLD_HEIGHT-p.y-310)/this.cos+310,0);model.group.rotation.y=angle;
   // A hit is posed at contact immediately, then returns to rest; no delayed kick.

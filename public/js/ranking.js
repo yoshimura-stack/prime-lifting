@@ -8,7 +8,7 @@ async function api(path,body){
  const data=await response.json();if(!response.ok)throw new Error(data.error||'接続できませんでした。');return data;
  }catch(e){throw new Error(e.name==='AbortError'?'接続がタイムアウトしました。再試行できます。':e instanceof SyntaxError?'ランキングAPIが利用できません。':e.message==='Failed to fetch'?'通信できません。再試行してください。':e.message);}finally{clearTimeout(timer);}
 }
-function account(){
+function account(){window.dispatchEvent(new Event('prime-account-change'));
  $('account-status').textContent=player?`${player.name} ／ BEST ${player.best.toLocaleString()} PTS`:'ゲストプレイ（保存なし）';
  $('account-form').hidden=!!player;$('logout').hidden=!player;
 }
@@ -84,12 +84,12 @@ async function save(){
  try{const data=await api('/api/scores',submission);
  if(current!==generation)return;player=data.player;pending=null;account();
  $('personal-result').textContent=`今回 ${data.score.toLocaleString()} PTS ／ BEST ${player.best.toLocaleString()} PTS ／ 全体 ${player.rank??'—'}位`;
- $('record-banner').textContent=data.newChampion?'NEW CHAMPION!':data.personalBest?'NEW RECORD!':'';
+ window.dispatchEvent(new Event('prime-account-change'));$('record-banner').textContent=data.newChampion?'NEW CHAMPION!':data.personalBest?'NEW RECORD!':'';
  $('save-feedback').textContent='記録を保存しました。';await refresh();
  }catch(e){if(current!==generation)return;$('save-feedback').textContent=e.message;$('save-retry').hidden=false;}
  finally{saving=false;if(current!==generation&&pending)save();}
 }
-window.PRIME_RANKING={
+window.PRIME_RANKING={getBest:()=>player?Math.max(0,Number(player.best)||0):0,hasAccount:()=>!!player,
  async begin(standard){
   const current=++generation;ticket=null;pending=null;$('result-ranking').hidden=true;$('account-panel').hidden=false;
   if(!standard||!player)return;
