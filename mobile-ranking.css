@@ -228,6 +228,7 @@
 #ranking-dialog-list li{display:flex;justify-content:space-between;gap:15px;padding:11px 9px;border-bottom:1px solid #ffffff24;font-size:clamp(12px,2.3dvh,15px)}
 #ranking-dialog-list li:first-child{color:#dcff6a;font-weight:800;background:#dcff6a0b}
 #ranking-dialog-list li strong{white-space:nowrap;font-family:Consolas,monospace}
+.ranking-device{display:inline-block;font-size:11px;font-weight:700;color:#d9efb0;border:1px solid #8baa6870;border-radius:4px;padding:2px 5px;margin-left:5px;white-space:nowrap;vertical-align:middle}#rank-rows li span:first-child{min-width:0;overflow-wrap:anywhere}
 #ranking-dialog-refresh{align-self:center;border:1px solid #809b5f;background:#2b4534;color:#eaffc6;font-weight:700}
 @media (max-height:450px){.ranking-dialog-card{max-height:95dvh;padding:10px 18px}.ranking-dialog-head h2{margin:1px 0 4px}#ranking-dialog-list li{padding:6px 8px}}
 

@@ -12,6 +12,7 @@ function account(){
  $('account-status').textContent=player?`${player.name} ／ BEST ${player.best.toLocaleString()} PTS`:'ゲストプレイ（保存なし）';
  $('account-form').hidden=!!player;$('logout').hidden=!player;
 }
+function deviceBadge(device){const b=document.createElement('span');b.className='ranking-device';b.textContent=device==='pc'?'🖥 PC':device==='mobile'?'📱 スマホ':'—';b.setAttribute('aria-label',device==='pc'?'PCで記録':device==='mobile'?'スマホで記録':'記録端末不明');return b;}
 function champion(entries){
  const [first,second,third]=entries||[];
  $('leader-best-score').textContent=first?first.score.toLocaleString()+' PTS':'--- PTS';
@@ -46,7 +47,7 @@ async function updateRankDialog(){
   const list=$('ranking-dialog-list');list.replaceChildren();
   for(const e of data.entries){
    const li=document.createElement('li'),name=document.createElement('span'),score=document.createElement('strong');
-   name.textContent=`${e.rank}. ${e.name}`;score.textContent=e.score.toLocaleString()+' PTS';
+   name.textContent=`${e.rank}. ${e.name}`;name.append(' ',deviceBadge(e.device));score.textContent=e.score.toLocaleString()+' PTS';
    li.append(name,score);list.append(li);
   }
   $('ranking-dialog-status').textContent=data.entries.length?'': 'まだ記録がありません。';
@@ -74,7 +75,7 @@ async function refresh(){
  const current=++refreshGeneration;$('rank-message').textContent='ランキングを取得中…';
  try{const data=await api('/api/leaderboard');if(current!==refreshGeneration)return;
  $('rank-rows').replaceChildren();
- for(const e of data.entries){const li=document.createElement('li'),name=document.createElement('span'),score=document.createElement('strong');name.textContent=`${e.rank}. ${e.name}`;score.textContent=e.score.toLocaleString()+' PTS';li.append(name,score);$('rank-rows').append(li);}
+ for(const e of data.entries){const li=document.createElement('li'),name=document.createElement('span'),score=document.createElement('strong');name.textContent=`${e.rank}. ${e.name}`;name.append(' ',deviceBadge(e.device));score.textContent=e.score.toLocaleString()+' PTS';li.append(name,score);$('rank-rows').append(li);}
  champion(data.entries);$('rank-message').textContent=data.entries.length?'':'まだ記録がありません。';
  }catch(e){if(current!==refreshGeneration)return;champion([]);$('rank-rows').replaceChildren();$('rank-message').textContent=e.message;}
 }

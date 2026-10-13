@@ -13,7 +13,7 @@ async function verify(token,secret,kind,now){
  return value;}catch{throw new ApiError(401,'ログインし直してください。');}
 }
 const json=(body,status=200,headers={})=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...headers}});
-function publicPlayer(p){if(!p||typeof p.id!=='string'||typeof p.name!=='string'||!Number.isSafeInteger(p.best)||p.best<0||!(p.rank===null||Number.isSafeInteger(p.rank)&&p.rank>0))throw new ApiError(503,'ランキングの応答を確認中です。');return {id:p.id,name:p.name,best:p.best,rank:p.rank,kit:typeof p.kit==='string'?p.kit:null,lastPlayed:typeof p.lastPlayed==='string'?p.lastPlayed:null};}
+function publicPlayer(p){if(!p||typeof p.id!=='string'||typeof p.name!=='string'||!Number.isSafeInteger(p.best)||p.best<0||!(p.rank===null||Number.isSafeInteger(p.rank)&&p.rank>0))throw new ApiError(503,'ランキングの応答を確認中です。');return {id:p.id,name:p.name,best:p.best,rank:p.rank,kit:typeof p.kit==='string'?p.kit:null,lastPlayed:typeof p.lastPlayed==='string'?p.lastPlayed:null,device:p.device==='pc'||p.device==='mobile'?p.device:null};}
 async function readBody(request){
  if(!(request.headers.get('content-type')||'').startsWith('application/json'))throw new ApiError(415,'JSON形式で送信してください。');
  const reader=request.body?.getReader();if(!reader)throw new ApiError(400,'入力がありません。');let size=0,chunks=[];
@@ -73,7 +73,7 @@ export function createWorker({database=createDatabase,now=()=>Date.now()}={}){re
   if((path==='/api/leaderboard'||path==='/api/champion')&&!post){
    const data=await db.call('leaderboard',{limit:10});
    if(!Array.isArray(data?.entries))throw new ApiError(503,'ランキングの応答を確認中です。');
-   const entries=data.entries.slice(0,10).map(p=>{const v=publicPlayer(p);return {name:v.name,score:v.best,rank:v.rank};});
+   const entries=data.entries.slice(0,10).map(p=>{const v=publicPlayer(p);return {name:v.name,score:v.best,rank:v.rank,device:v.device};});
    return json(path==='/api/champion'?{champion:entries[0]||null}:{entries});
   }
   if(!['/api/me','/api/game/start','/api/scores'].includes(path))throw new ApiError(404,'APIが見つかりません。');
