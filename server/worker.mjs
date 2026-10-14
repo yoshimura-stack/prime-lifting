@@ -14,6 +14,8 @@ async function verify(token,secret,kind,now){
 }
 const json=(body,status=200,headers={})=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...headers}});
 function publicPlayer(p){if(!p||typeof p.id!=='string'||typeof p.name!=='string'||!Number.isSafeInteger(p.best)||p.best<0||!(p.rank===null||Number.isSafeInteger(p.rank)&&p.rank>0))throw new ApiError(503,'ランキングの応答を確認中です。');return {id:p.id,name:p.name,best:p.best,rank:p.rank,kit:typeof p.kit==='string'?p.kit:null,lastPlayed:typeof p.lastPlayed==='string'?p.lastPlayed:null};}
+function requestDevice(request){return /Android|iPhone|iPad|iPod|Mobile|Windows Phone/i.test(request.headers.get('user-agent')||'')?'mobile':'pc';}
+export function finalScore(score,device){return Math.round(score*(device==='mobile'?1.2:1));}
 async function readBody(request){
  if(!(request.headers.get('content-type')||'').startsWith('application/json'))throw new ApiError(415,'JSON形式で送信してください。');
  const reader=request.body?.getReader();if(!reader)throw new ApiError(400,'入力がありません。');let size=0,chunks=[];
@@ -21,7 +23,7 @@ async function readBody(request){
  const bytes=new Uint8Array(size);let at=0;for(const c of chunks){bytes.set(c,at);at+=c.length;}
  try{const body=JSON.parse(new TextDecoder().decode(bytes));if(!body||Array.isArray(body)||typeof body!=='object')throw 0;return body;}catch{throw new ApiError(400,'入力形式が正しくありません。');}
 }
-export function createWorker({database=createDatabase,now=()=>Date.now()}={}){return {async fetch(request,env){
+export function createWorker({database=createDatabase,now=()=>Date.now(),replayGame=replay}={}){return {async fetch(request,env){
  const url=new URL(request.url),path=url.pathname;
  if(!path.startsWith('/api/'))return env.ASSETS.fetch(request);
  try{
@@ -83,16 +85,17 @@ export function createWorker({database=createDatabase,now=()=>Date.now()}={}){re
   if(path==='/api/me')return json({player:publicPlayer((await db.call('me',{playerId:session.sub})).player)});
   if(path==='/api/game/start'){
    await db.call('me',{playerId:session.sub});
-   return json({ruleset:RULESET,token:await sign({kind:'run',sub:session.sub,id:crypto.randomUUID(),started:time,exp:time+86400000,ruleset:RULESET},env.SESSION_SECRET)});
+    return json({ruleset:RULESET,token:await sign({kind:'run',sub:session.sub,id:crypto.randomUUID(),started:time,exp:time+86400000,ruleset:RULESET,device:requestDevice(request)},env.SESSION_SECRET)});
   }
   const body=await readBody(request),run=await verify(body.token,env.SESSION_SECRET,'run',time);
   if(run.sub!==session.sub||run.ruleset!==RULESET||body.ruleset!==RULESET)throw new ApiError(403,'このプレイは登録できません。');
   // 60s lower bound leaves the 3s countdown as network-latency allowance.
   if(time-run.started<60000)throw new ApiError(400,'プレイ終了後に再試行してください。');
-  if(!validKit(body.kit)||!['pc','mobile'].includes(body.device))throw new ApiError(400,'端末・ユニフォームの指定が正しくありません。');
-  const result=replay(body.events);
-  const saved=await db.call('submit',{playerId:session.sub,runId:run.id,...result,kit:body.kit,device:body.device,gameVersion:VERSION});
-  return json({player:publicPlayer(saved.player),score:result.score,personalBest:saved.personalBest===true,newChampion:saved.newChampion===true});
+  const device=run.device??requestDevice(request);
+  if(!validKit(body.kit)||!['pc','mobile'].includes(device))throw new ApiError(400,'端末・ユニフォームの指定が正しくありません。');
+  const result=replayGame(body.events),score=finalScore(result.score,device);
+  const saved=await db.call('submit',{playerId:session.sub,runId:run.id,...result,score,kit:body.kit,device,gameVersion:VERSION});
+  return json({player:publicPlayer(saved.player),score,personalBest:saved.personalBest===true,newChampion:saved.newChampion===true});
  }catch(error){return json({error:error instanceof ApiError?error.message:'ランキング処理に失敗しました。再試行してください。'},error instanceof ApiError?error.status:503);}
  }};}
 export default createWorker();

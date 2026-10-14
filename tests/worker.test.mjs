@@ -1,11 +1,17 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {createWorker} from '../server/worker.mjs';
+import {createWorker,finalScore} from '../server/worker.mjs';
 import {replay,RULESET} from '../server/replay.mjs';
 const limiter={limit:async()=>({success:true})};
 const env={SESSION_SECRET:'test-only-secret-012345678901234567890',AUTH_LIMITER:limiter,API_LIMITER:limiter,ASSETS:{fetch:()=>new Response('asset')}};
 const base='https://test.example';
-const request=(path,body,cookie)=>new Request(base+path,{method:body?'POST':'GET',headers:{...(body?{'Content-Type':'application/json',Origin:base}:{}),...(cookie?{Cookie:cookie}:{})},body:body?JSON.stringify(body):undefined});
+const request=(path,body,cookie,extraHeaders={})=>new Request(base+path,{method:body?'POST':'GET',headers:{...(body?{'Content-Type':'application/json',Origin:base}:{}),...(cookie?{Cookie:cookie}:{}),...extraHeaders},body:body?JSON.stringify(body):undefined});
+test('device score multiplier rounds verified scores and leaves PC unchanged',()=>{
+ assert.equal(finalScore(30000,'pc'),30000);
+ assert.equal(finalScore(30000,'mobile'),36000);
+ assert.equal(finalScore(0,'pc'),0);
+ assert.equal(finalScore(0,'mobile'),0);
+});
 test('unconfigured database fails closed; assets still work',async()=>{
  const worker=createWorker();assert.equal((await worker.fetch(request('/api/leaderboard'),env)).status,503);
  assert.equal(await (await worker.fetch(request('/'),env)).text(),'asset');
@@ -65,4 +71,49 @@ test('admin login requires configured password and reset needs valid short-lived
  time+=301000;
  assert.equal((await worker.fetch(request('/api/admin/reset',{token,confirm:'DELETE ALL PLAYERS'}),configured)).status,401);
  assert.equal(resets,1);
+});
+test('verified scores use signed server device, update mixed-device best, and retry idempotently',async()=>{
+ let time=100000,replayScore=30000;
+ const player={id:'player-one',name:'A',best:0,rank:1,kit:null,lastPlayed:null},rows=new Map(),submissions=[];
+ const database=()=>({call:async(op,input)=>{
+  if(op==='submit'){
+   submissions.push(input.runId);
+   const old=rows.get(input.runId);
+   if(!old){const personalBest=input.score>player.best;rows.set(input.runId,{score:input.score,device:input.device});player.best=Math.max(player.best,input.score);player.rank=1;return {player:{...player},personalBest,newChampion:false};}
+   return {player:{...player},personalBest:false,newChampion:false};
+  }
+  return {player:{...player}};
+ }});
+ const worker=createWorker({database,now:()=>time,replayGame:()=>({score:replayScore,hits:0,combo:0,drops:0})});
+ const auth=await worker.fetch(request('/api/register',{name:'A',pin:'123456'}),env),cookie=auth.headers.get('set-cookie').split(';')[0];
+ async function play(userAgent,claimedDevice){
+  const start=await worker.fetch(request('/api/game/start',{},cookie,{'User-Agent':userAgent}),env),ticket=await start.json();
+  time+=64000;
+  const submission={...ticket,events:[],kit:'japan-01',device:claimedDevice,score:999999};
+  const response=await worker.fetch(request('/api/scores',submission,cookie),env);
+  const duplicate=await worker.fetch(request('/api/scores',submission,cookie),env);
+  assert.equal(duplicate.status,response.status);
+  assert.equal((await duplicate.json()).score,(await response.clone().json()).score);
+  return response;
+ }
+ const pc=await play('Mozilla/5.0 (X11; Linux x86_64) Chrome/120.0','mobile');
+ assert.equal(pc.status,200,await pc.clone().text());assert.equal((await pc.json()).score,30000);
+ assert.deepEqual([...rows.values()][0],{score:30000,device:'pc'});
+ replayScore=30000;
+ const mobile=await play('Mozilla/5.0 (Linux; Android 14; Pixel 8) Chrome/120.0 Mobile','pc');
+ assert.equal(mobile.status,200);const mobileResult=await mobile.json();
+ assert.equal(mobileResult.score,36000);assert.equal(mobileResult.player.best,36000);
+ assert.deepEqual([...rows.values()][1],{score:36000,device:'mobile'});
+ replayScore=35000;
+ const pcAgain=await play('Mozilla/5.0 (X11; Linux x86_64) Chrome/120.0','pc');
+ assert.equal((await pcAgain.json()).player.best,36000);
+ assert.equal(rows.size,3);
+ replayScore=0;
+ const zero=await play('Mozilla/5.0 (Linux; Android 14; Pixel 8) Chrome/120.0 Mobile','mobile');
+ const zeroResult=await zero.json();assert.equal(zeroResult.score,0);
+ const beforeRetry=rows.size;
+ assert.equal(rows.size,beforeRetry);
+ assert.equal(rows.size,4);
+ assert.equal(submissions.length,8);
+ for(let index=0;index<submissions.length;index+=2)assert.equal(submissions[index],submissions[index+1]);
 });
