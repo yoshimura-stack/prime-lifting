@@ -36,12 +36,19 @@ const server=createServer((req,res)=>{
    }else{
     const cdp=await context.newCDPSession(page);
     const point=async action=>{const b=await page.locator(`[data-action="${action}"]`).boundingBox();return {x:b.x+b.width/2,y:b.y+b.height/2};};
-    const r=await point('right'),j=await point('jump'),k=await point('act');
+    const stick=await page.locator('[data-action="stick"]').boundingBox(),j=await point('jump'),k=await point('act');
     const before=await page.evaluate(()=>__test.g.player.x);
-    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{...r,id:1}]});await page.waitForTimeout(120);
-    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{...r,id:1},{...j,id:2}]});
+    const center={x:stick.x+stick.width/2,y:stick.y+stick.height/2};
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{...center,id:1}]});
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:center.x+45,y:center.y,id:1}]});
+    assert.equal(await page.evaluate(()=>__test.touch.held('right')),true);
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:center.x-45,y:center.y,id:1}]});
+    assert.equal(await page.evaluate(()=>__test.touch.held('left')),true);
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:center.x+45,y:center.y,id:1}]});
+    await page.waitForTimeout(120);
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:center.x+45,y:center.y,id:1},{...j,id:2}]});
     assert.equal(await page.evaluate(()=>__test.touch.pointers.size),2);assert.ok(await page.evaluate(()=>__test.g.player.vy<0));
-    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{...r,id:1},{...j,id:2},{...k,id:3}]});assert.equal(await page.evaluate(()=>__test.touch.pointers.size),3);
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:center.x+45,y:center.y,id:1},{...j,id:2},{...k,id:3}]});assert.equal(await page.evaluate(()=>__test.touch.pointers.size),3);
     await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[{...j,id:2},{...k,id:3}]});await page.waitForFunction(()=>__test.touch.pointers.size===1);
     assert.ok(await page.evaluate(()=>__test.g.player.x)>before);
     await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await page.waitForTimeout(30);assert.equal(await page.evaluate(()=>__test.g.player.vx),0);
@@ -49,7 +56,10 @@ const server=createServer((req,res)=>{
     const jump=await page.locator('[data-action="jump"]').boundingBox(),spin=await page.locator('[data-action="spin"]').boundingBox();assert.ok(jump.y+jump.height<=spin.y);
     for(const size of [{width:956,height:440},{width:844,height:390},{width:667,height:375}]){
      await page.setViewportSize(size);await page.waitForTimeout(100);
-     for(const action of ['left','right','jump','spin','act']){const b=await page.locator(`[data-action="${action}"]`).boundingBox();assert.ok(b.x>=0&&b.y>=0&&b.x+b.width<=size.width&&b.y+b.height<=size.height);}
+     for(const action of ['stick','jump','spin','act']){const b=await page.locator(`[data-action="${action}"]`).boundingBox();assert.ok(b.x>=0&&b.y>=0&&b.x+b.width<=size.width&&b.y+b.height<=size.height);}
+     assert.equal(await page.locator('[data-action="left"],[data-action="right"]').count(),0);
+     assert.ok((await page.locator('[data-action="jump"]').boundingBox()).height>=74);
+     assert.ok((await page.locator('[data-action="act"]').boundingBox()).height>=96);
     }
     await page.setViewportSize({width:956,height:440});
     log.push('Mobile emulation: simultaneous 3 pointers, release stops, field tap suppressed, JUMP above SPIN, bounds on 3 viewports PASS');
