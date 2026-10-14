@@ -84,7 +84,7 @@ async function save(){
  try{const data=await api('/api/scores',submission);
  if(current!==generation)return;player=data.player;pending=null;account();
  $('personal-result').textContent=`今回 ${data.score.toLocaleString()} PTS ／ BEST ${player.best.toLocaleString()} PTS ／ 全体 ${player.rank??'—'}位`;
- $('record-banner').textContent=data.newChampion?'NEW CHAMPION!':data.personalBest?'NEW RECORD!':'';
+ $('record-banner').textContent=data.newChampion?'NEW CHAMPION!':data.personalBest?'NEW PERSONAL BEST!':'';$('record-banner').classList.toggle('record-celebrate',!!(data.personalBest||data.newChampion));
  $('save-feedback').textContent='記録を保存しました。';await refresh();
  }catch(e){if(current!==generation)return;$('save-feedback').textContent=e.message;$('save-retry').hidden=false;}
  finally{saving=false;if(current!==generation&&pending)save();}
@@ -96,7 +96,7 @@ window.PRIME_RANKING={
   try{const data=await api('/api/game/start',{});if(current===generation)ticket=data;}catch{}
  },
  finish(result,events,standard){
-  $('result-ranking').hidden=false;$('record-banner').textContent='';$('save-retry').hidden=true;
+  $('result-ranking').hidden=false;$('record-banner').textContent='';$('record-banner').classList.remove('record-celebrate');$('save-retry').hidden=true;
   $('personal-result').textContent=`今回 ${result.score.toLocaleString()} PTS ／ BEST ${player?player.best.toLocaleString():'—'} PTS ／ 全体 ${player?.rank??'—'}位`;
   refresh();
   if(standard&&ticket&&player){pending={...ticket,events:structuredClone(events),kit:result.kit,device:result.device};save();}
