@@ -273,3 +273,13 @@
  font-size:clamp(16px,3.4dvh,21px)!important;
 }
 .touch-landscape .touch-actions{gap:8px}
+
+/* V0.5.22: visual feedback only; scoring and controls unchanged. */
+#time.time-warning{color:#ff6d64!important;text-shadow:0 0 16px rgba(255,75,60,.55)}
+#time.time-critical{animation:prime-final-seconds .65s ease-in-out infinite alternate}
+@keyframes prime-final-seconds{from{transform:scale(1)}to{transform:scale(1.1)}}
+#record-banner.record-celebrate{display:block;color:#ffe47c;text-shadow:0 0 16px #d6a02c,0 0 30px rgba(255,217,90,.6);animation:prime-record-pop .7s ease-out both}
+#record-banner.record-celebrate::after{content:'✦  ✧  ✦  ✧  ✦';display:block;letter-spacing:.7em;color:#f5d96a;font-size:17px;animation:prime-record-sparkle 1.3s ease-out both}
+@keyframes prime-record-pop{from{opacity:0;transform:scale(.7)}65%{transform:scale(1.13)}to{opacity:1;transform:scale(1)}}
+@keyframes prime-record-sparkle{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(-5px)}}
+@media(prefers-reduced-motion:reduce){#time.time-critical,#record-banner.record-celebrate,#record-banner.record-celebrate::after{animation:none}}
