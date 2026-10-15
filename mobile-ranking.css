@@ -398,3 +398,19 @@
  .controls-panel .panel-block h2{margin-bottom:clamp(6px,1dvh,12px)}
  .controls-panel .control-stack{gap:clamp(6px,1.2dvh,12px)}
 }
+
+/* Temporary stealth access during WORLD ARENA development.
+   Preserve the existing hit area and layout; hide all visual clues.
+   This is cosmetic only, not a security/access-control mechanism. */
+.stage-block #stage-preview,
+.stage-block #stage-preview:hover,
+.stage-block #stage-preview:active,
+.stage-block #stage-preview:focus:not(:focus-visible){
+ background:transparent;
+ border-color:transparent;
+ color:transparent;
+ box-shadow:none;
+ text-shadow:none;
+ cursor:default;
+}
+.stage-block #stage-preview:focus-visible{outline:2px solid #a3d9cb;outline-offset:2px}
