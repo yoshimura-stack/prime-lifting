@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-let player=null,ticket=null,pending=null,generation=0,saving=false,authBusy=false;
+let player=null,ticket=null,pending=null,generation=0,saving=false,authBusy=false,progressGeneration=0;
 async function api(path,body){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
  try{const response=await fetch(path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,signal:controller.signal,cache:'no-store',credentials:'same-origin'});
@@ -11,6 +11,20 @@ async function api(path,body){
 function account(){
  $('account-status').textContent=player?`${player.name} ／ BEST ${player.best.toLocaleString()} PTS`:'ゲストプレイ（保存なし）';
  $('account-form').hidden=!!player;$('logout').hidden=!player;
+}
+function renderProgress(progress){
+ const el=$('master-progress');if(!el)return;
+ if(!player){el.textContent='ログインすると累計称号を確認できます';return;}
+ if(!progress){el.textContent='累計称号：取得できませんでした';return;}
+ const count=progress.earned?.length??0;
+ el.textContent=progress.master?'💠 LIFTING MASTER 解放！':`累計称号 ${count}/8 ／ 💠 LIFTING MASTERまであと${8-count}`;
+ el.classList.toggle('master-unlocked',!!progress.master);
+}
+async function refreshProgress(){
+ const current=++progressGeneration;
+ if(!player){renderProgress(null);return;}
+ try{const data=await api('/api/achievements');if(current===progressGeneration&&player)renderProgress(data.progress);}
+ catch{if(current===progressGeneration)renderProgress(null);}
 }
 function deviceIcon(device){
  if(device!=='pc'&&device!=='mobile')return null;
@@ -123,7 +137,7 @@ async function save(){
  if(current!==generation)return;player=data.player;pending=null;account();
  $('personal-result').textContent=`今回 ${data.score.toLocaleString()} PTS ／ BEST ${player.best.toLocaleString()} PTS ／ 全体 ${player.rank??'—'}位`;
  $('record-banner').textContent=data.newChampion?'NEW CHAMPION!':data.personalBest?'NEW PERSONAL BEST!':'';$('record-banner').classList.toggle('record-celebrate',!!(data.personalBest||data.newChampion));
- $('save-feedback').textContent='記録を保存しました。';await refresh();await updateResultRival();
+ $('save-feedback').textContent='記録を保存しました。';if(data.progress)renderProgress(data.progress);else refreshProgress();await refresh();await updateResultRival();
  }catch(e){if(current!==generation)return;$('save-feedback').textContent=e.message;$('save-retry').hidden=false;}
  finally{saving=false;if(current!==generation&&pending)save();}
 }
@@ -197,12 +211,12 @@ window.PRIME_RANKING={
 $('account-form').onsubmit=async e=>{
  e.preventDefault();if(authBusy)return;authBusy=true;$('account-status').textContent='確認しています…';
  const pin=$('player-pin').value;$('player-pin').value='';
- try{const data=await api('/api/'+(e.submitter?.value==='register'?'register':'login'),{name:$('player-name').value,pin});player=data.player;account();}
+ try{const data=await api('/api/'+(e.submitter?.value==='register'?'register':'login'),{name:$('player-name').value,pin});player=data.player;account();refreshProgress();}
  catch(error){$('account-status').textContent=error.message;}finally{authBusy=false;}
 };
-$('logout').onclick=async()=>{try{await api('/api/logout',{});generation++;player=null;ticket=null;pending=null;account();}catch(e){$('account-status').textContent=e.message;}};
+$('logout').onclick=async()=>{try{await api('/api/logout',{});generation++;player=null;ticket=null;pending=null;account();refreshProgress();}catch(e){$('account-status').textContent=e.message;}};
 $('save-retry').onclick=save;$('rank-refresh').onclick=refresh;
-api('/api/me').then(data=>{if(!authBusy&&!player){player=data.player;account();}}).catch(()=>{});
+api('/api/me').then(data=>{if(!authBusy&&!player){player=data.player;account();refreshProgress();}}).catch(()=>{});
 refresh();document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 setInterval(()=>{if(!document.hidden)refresh();},60000);
 })();
