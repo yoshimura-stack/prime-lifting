@@ -149,10 +149,10 @@ function renderLive(stats,animate=true){
 }
 function resetAchievements(){unlocked.clear();clearTimeout(unlockTimer);const toast=document.getElementById('achievement-unlock');toast.className='achievement-unlock';toast.textContent='';renderLive({score:0,bestCombo:0,maxAirStreak:0,shoulderHits:0},false);document.getElementById('achievement-panel').hidden=true;document.getElementById('achievement-badges').replaceChildren();}
 function showAchievements(stats){
- const panel=$(\'achievement-panel\'),badges=$(\'achievement-badges\');badges.replaceChildren();
+ const panel=$('achievement-panel'),badges=$('achievement-badges');badges.replaceChildren();
  const earned=achievementDefinitions.filter(b=>b.earned(stats));
- for(const badge of earned){const el=document.createElement(\'span\');el.className=\'achievement-badge\'+(badge.legendary?\' legendary\':\'\');el.textContent=`${badge.icon} ${badge.name}`;badges.append(el);}
- panel.hidden=false;if(!earned.length){const el=document.createElement(\'span\');el.textContent=\'今回は未獲得。次のプレイで挑戦！\';badges.append(el);}
+ for(const badge of earned){const el=document.createElement('span');el.className='achievement-badge'+(badge.legendary?' legendary':'');el.textContent=`${badge.icon} ${badge.name}`;badges.append(el);}
+ panel.hidden=false;if(!earned.length){const el=document.createElement('span');el.textContent='今回は未獲得。次のプレイで挑戦！';badges.append(el);}
 }
 window.PRIME_RANKING={
  achievements(stats){renderLive(stats,false);showAchievements(stats);},resetAchievements,updateAchievements(stats){renderLive(stats,true);},
