@@ -2,6 +2,7 @@
 'use strict';
 const $=id=>document.getElementById(id);
 let player=null,ticket=null,pending=null,generation=0,saving=false,authBusy=false,progressGeneration=0;
+let cumulativeEarned=new Set(),progressOwner=null;
 async function api(path,body){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
  try{const response=await fetch(path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,signal:controller.signal,cache:'no-store',credentials:'same-origin'});
@@ -13,6 +14,9 @@ function account(){
  $('account-form').hidden=!!player;$('logout').hidden=!player;
 }
 function renderProgress(progress){
+ if(!player||!progress){cumulativeEarned=new Set();progressOwner=null;}
+ else {cumulativeEarned=new Set(Array.isArray(progress.earned)?progress.earned:[]);progressOwner=player.id;}
+ if(typeof renderLive==='function')renderLive(lastLiveStats,false);
  let el=$('master-progress');
  if(!el){const guide=document.querySelector('.title-guide-copy');if(!guide)return;el=document.createElement('p');el.id='master-progress';el.className='master-progress';el.setAttribute('aria-live','polite');guide.after(el);}
 
@@ -189,16 +193,20 @@ function initTitleGuide(){
 }
 initTitleGuide();
 const unlocked=new Set();let unlockTimer;
+const emptyLiveStats=()=>({score:0,bestCombo:0,maxAirStreak:0,shoulderHits:0});
+let lastLiveStats=emptyLiveStats();
 function renderLive(stats,animate=true){
+ lastLiveStats=stats;
+ const persistent=player&&progressOwner===player.id?cumulativeEarned:new Set();
  const list=document.getElementById('achievement-live-list');if(!list)return;
- const fresh=achievementDefinitions.filter(a=>a.earned(stats)&&!unlocked.has(a.name));
- for(const a of fresh)unlocked.add(a.name);
+ const fresh=achievementDefinitions.filter(a=>a.earned(stats)&&!unlocked.has(a.name)&&!persistent.has(a.name));
+ for(const a of achievementDefinitions)if(a.earned(stats))unlocked.add(a.name);
  list.replaceChildren();
- for(const a of achievementDefinitions){const row=document.createElement('div');row.className='achievement-live-row'+(unlocked.has(a.name)?' earned':'')+(a.legendary?' legendary':'');const icon=document.createElement('span');icon.className='achievement-live-icon';icon.textContent=a.icon;const label=document.createElement('span');label.textContent=a.name;row.append(icon,label);list.append(row);}
- document.getElementById('achievement-count').textContent=unlocked.size+'/8';
+ for(const a of achievementDefinitions){const row=document.createElement('div');row.className='achievement-live-row'+((unlocked.has(a.name)||persistent.has(a.name))?' earned':'')+(a.legendary?' legendary':'');const icon=document.createElement('span');icon.className='achievement-live-icon';icon.textContent=a.icon;const label=document.createElement('span');label.textContent=a.name;row.append(icon,label);list.append(row);}
+ document.getElementById('achievement-count').textContent=new Set([...unlocked,...persistent]).size+'/8';
  if(animate&&fresh.length){const a=fresh[fresh.length-1],toast=document.getElementById('achievement-unlock');toast.textContent=(a.legendary?'✦ LEGENDARY UNLOCK! ✦ ':'✦ UNLOCK! ✦ ')+a.name;toast.className='achievement-unlock show'+(a.legendary?' legendary':'');clearTimeout(unlockTimer);unlockTimer=setTimeout(()=>toast.className='achievement-unlock',1500);}
 }
-function resetAchievements(){unlocked.clear();clearTimeout(unlockTimer);const toast=document.getElementById('achievement-unlock');toast.className='achievement-unlock';toast.textContent='';renderLive({score:0,bestCombo:0,maxAirStreak:0,shoulderHits:0},false);document.getElementById('achievement-panel').hidden=true;document.getElementById('achievement-badges').replaceChildren();}
+function resetAchievements(){unlocked.clear();lastLiveStats=emptyLiveStats();clearTimeout(unlockTimer);const toast=document.getElementById('achievement-unlock');toast.className='achievement-unlock';toast.textContent='';renderLive(lastLiveStats,false);document.getElementById('achievement-panel').hidden=true;document.getElementById('achievement-badges').replaceChildren();}
 function showAchievements(stats){
  const panel=$('achievement-panel'),badges=$('achievement-badges');badges.replaceChildren();
  const earned=achievementDefinitions.filter(b=>b.earned(stats));
@@ -223,10 +231,10 @@ window.PRIME_RANKING={
 $('account-form').onsubmit=async e=>{
  e.preventDefault();if(authBusy)return;authBusy=true;$('account-status').textContent='確認しています…';
  const pin=$('player-pin').value;$('player-pin').value='';
- try{const data=await api('/api/'+(e.submitter?.value==='register'?'register':'login'),{name:$('player-name').value,pin});player=data.player;account();refreshProgress();}
+ try{const data=await api('/api/'+(e.submitter?.value==='register'?'register':'login'),{name:$('player-name').value,pin});player=data.player;cumulativeEarned=new Set();progressOwner=null;account();renderLive(lastLiveStats,false);refreshProgress();}
  catch(error){$('account-status').textContent=error.message;}finally{authBusy=false;}
 };
-$('logout').onclick=async()=>{try{await api('/api/logout',{});generation++;player=null;ticket=null;pending=null;account();refreshProgress();}catch(e){$('account-status').textContent=e.message;}};
+$('logout').onclick=async()=>{try{await api('/api/logout',{});generation++;player=null;ticket=null;pending=null;cumulativeEarned=new Set();progressOwner=null;account();renderLive(lastLiveStats,false);refreshProgress();}catch(e){$('account-status').textContent=e.message;}};
 $('save-retry').onclick=save;$('rank-refresh').onclick=refresh;
 api('/api/me').then(data=>{if(!authBusy&&!player){player=data.player;account();refreshProgress();}}).catch(()=>{});
 renderProgress(null);refresh();document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
