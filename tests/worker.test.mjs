@@ -26,7 +26,7 @@ test('rejects missing auth, cross-origin, weak PIN, missing limit binding and ov
 });
 test('mock adapter: register, cross-device login, authenticated replay, retry and top ten',async()=>{
  let time=100000,player={id:'player-one',name:'A',best:15000,rank:1,kit:'japan-01',lastPlayed:null},calls=[];
- const database=()=>({call:async(op,input)=>{calls.push({op,input});if(op==='leaderboard')return {entries:[player]};if(op==='submit'){assert.equal(input.score,0);assert.equal(input.playerId,player.id);return {player,personalBest:false,newChampion:false};}if(op==='login'&&input.pin!=='123456')return {player:null};return {player};}});
+ const database=()=>({call:async(op,input)=>{calls.push({op,input});if(op==='achievement_merge')return {mask:0};if(op==='leaderboard')return {entries:[player]};if(op==='submit'){assert.equal(input.score,0);assert.equal(input.playerId,player.id);return {player,personalBest:false,newChampion:false};}if(op==='login'&&input.pin!=='123456')return {player:null};return {player};}});
  const worker=createWorker({database,now:()=>time});
  const auth=await worker.fetch(request('/api/register',{name:'A',pin:'123456'}),env);assert.equal(auth.status,200);
  const header=auth.headers.get('set-cookie');assert.match(header,/HttpOnly; Secure; SameSite=Strict/);const cookie=header.split(';')[0];
@@ -77,6 +77,7 @@ test('verified scores use signed server device, update mixed-device best, and re
  let time=100000,replayScore=30000;
  const player={id:'player-one',name:'A',best:0,rank:1,kit:null,lastPlayed:null},rows=new Map(),submissions=[];
  const database=()=>({call:async(op,input)=>{
+  if(op==='achievement_merge')return {mask:0};
   if(op==='submit'){
    submissions.push(input.runId);
    const old=rows.get(input.runId);
@@ -149,4 +150,28 @@ test('leaderboard survives temporary title lookup outage',async()=>{
  assert.equal(response.status,200);
  const {entries}=await response.json();
  assert.equal(entries[0].achievementCount,0);
+});
+
+test('failed achievement merge returns retryable error without dropping the signed run',async()=>{
+ let time=100000,attempts=0,submitCalls=0;
+ const player={id:'player-one',name:'A',best:0,rank:1,kit:'japan-01'};
+ const worker=createWorker({now:()=>time,replayGame:()=>({score:0,hits:0,combo:0,drops:0}),
+  database:()=>({call:async(op)=>{
+   if(op==='submit'){submitCalls++;return {player,personalBest:false,newChampion:false};}
+   if(op==='achievement_merge'){attempts++;if(attempts===1)throw Error('temporary outage');return {mask:0};}
+   return {player};
+  }})});
+ const auth=await worker.fetch(request('/api/register',{name:'A',pin:'123456'}),env);
+ const cookie=auth.headers.get('set-cookie').split(';')[0];
+ const run=await (await worker.fetch(request('/api/game/start',{},cookie),env)).json();
+ time+=64000;
+ const submission={...run,events:[],kit:'japan-01'};
+ const first=await worker.fetch(request('/api/scores',submission,cookie),env);
+ assert.equal(first.status,503);
+ assert.match((await first.json()).error,/再試行/);
+ const retry=await worker.fetch(request('/api/scores',submission,cookie),env);
+ assert.equal(retry.status,200);
+ assert.deepEqual((await retry.json()).progress.earned,[]);
+ assert.equal(submitCalls,2);
+ assert.equal(attempts,2);
 });
