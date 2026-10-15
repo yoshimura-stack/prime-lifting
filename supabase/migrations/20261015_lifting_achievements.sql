@@ -1,5 +1,7 @@
 -- V0.5.28 additive migration. Execute only after reviewing in a staging Supabase project.
 -- Existing lifting_players, lifting_runs, leaderboard RPCs and historical scores are untouched.
+-- Review target project schema and permissions before applying.
+begin;
 create table if not exists public.lifting_achievements (
   player_id uuid primary key references public.lifting_players(id) on delete cascade,
   title_mask integer not null default 0 check (title_mask between 0 and 255),
@@ -92,3 +94,4 @@ end;
 $$;
 revoke all on function public.lifting_api_achievement_list(jsonb) from public, anon, authenticated;
 grant execute on function public.lifting_api_achievement_list(jsonb) to service_role;
+commit;
