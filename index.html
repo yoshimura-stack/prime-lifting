@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>PRIME / Lifting Lab</title><link rel="stylesheet" href="style.css?v=0513"><link rel="stylesheet" href="mobile-ranking.css?v=0529"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>PRIME / Lifting Lab</title><link rel="stylesheet" href="style.css?v=0513"><link rel="stylesheet" href="mobile-ranking.css?v=0533"></head>
 <body>
 <main class="game-app">
  <aside class="side-panel controls-panel" aria-label="操作ガイド">
@@ -15,7 +15,6 @@
    </div>
   </div>
   <div class="panel-block title-guide-block"><p class="panel-kicker">TITLE COLLECTION</p><h2>称号リザルト</h2><p class="title-guide-copy">全8称号に挑戦！獲得条件をチェック。</p><button type="button" id="title-guide-open" class="title-guide-open">🏅 称号の獲得条件を見る ↗</button></div>
-  <div class="panel-block stage-block"><p class="panel-kicker">SELECT STAGE</p><h2>ステージ</h2><div class="stage-buttons"><button id="stage-training" type="button" aria-pressed="true">01 TRAINING LAB</button><button id="stage-arena" type="button" aria-pressed="false" disabled>🔒 02 WORLD ARENA</button></div><button id="stage-preview" type="button">👁 WORLD ARENAを見学</button><small id="stage-hint">全8称号コンプリートで解放</small></div>
   <div class="panel-block utility-block">
    <p class="panel-kicker">GAME MENU</p>
    <button id="pause">一時停止 <em>ESC</em></button><button id="sound" aria-pressed="true">音 ON</button><button id="debug" aria-pressed="false">判定表示 <em>F2</em></button><button id="kit-change">ユニフォーム</button><button id="tune" aria-expanded="false">調整パネル</button><button type="button" id="admin-open">管理者</button>
@@ -50,6 +49,7 @@
   </div>
   <div class="bonus-card air-card"><p class="panel-kicker">ジャンプ連続ボーナス</p><strong>+150 × 連続回数</strong><p class="bonus-copy">ジャンプ中の成功タッチで加点！<br>キック・ひざ・むね・ヘッド対象<br>最大5連続 <b>+750</b></p></div>
   <div class="bonus-card"><p class="panel-kicker">スピン連続ボーナス</p><strong>1回転 +100 / 4回転 +1000</strong><p class="bonus-copy">次の成功タッチまでの回転で加点<br>5回転 +1100、以降 +100ずつ<br>連続成功でも追加ボーナス！<br><b>AIR BONUSと同時加点OK</b></p></div>
+  <div class="panel-block stage-block"><p class="panel-kicker">SELECT STAGE</p><h2>ステージ</h2><div class="stage-buttons"><button id="stage-training" type="button" aria-pressed="true">01 TRAINING LAB</button><button id="stage-arena" type="button" aria-pressed="false" disabled>🔒 02 WORLD ARENA</button></div><button id="stage-preview" type="button">👁 WORLD ARENAを見学</button><small id="stage-hint">全8称号コンプリートで解放</small></div>
   <div class="record-card" aria-label="現在のランキング上位3名"><div class="podium-grid"><div class="podium-first"><p class="panel-kicker">🥇 1位 / 最高記録</p><strong id="leader-best-score">--- PTS</strong><span id="leader-best-name">未登録</span></div><div class="podium-runners"><div class="podium-runner"><span class="podium-medal">🥈 2位</span><strong id="leader-second-score">--- PTS</strong><span id="leader-second-name">未登録</span></div><div class="podium-runner"><span class="podium-medal">🥉 3位</span><strong id="leader-third-score">--- PTS</strong><span id="leader-third-name">未登録</span></div></div></div><button type="button" id="view-ranking" class="view-ranking-btn">現在のランキングを見る ↗</button></div>
  </aside>
 
