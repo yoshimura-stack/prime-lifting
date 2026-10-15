@@ -172,3 +172,25 @@ main.game-app{width:100vw;height:100dvh;max-width:none;margin:0;padding:12px 14p
  .score-guide .bonus-copy{font-size:9px;line-height:1.22}
  .score-guide .record-card{padding:6px 7px}
 }
+
+/* Keep the development preview available without a visible button. */
+#stage-preview { opacity: 0; }
+#stage-preview:focus-visible { opacity: 1; }
+
+/* PC stadium presentation only. Existing touch UI rules remain untouched. */
+@media (min-width:1000px) and (pointer:fine) {
+ .world-arena-active { border-color:#536580; box-shadow:0 22px 70px #02071599,0 0 22px #ef4eaa12; }
+ .world-arena-active .scorebar { background:linear-gradient(#071124ed,#07112460,transparent); }
+ .world-arena-active .scorebar small { color:#cee8ff; }
+ .world-arena-active .field-bottom { background:linear-gradient(transparent,#071124a0); }
+}
+
+/* Compact PC live titles: leave the left playing corridor visible. */
+@media (pointer:fine) {
+ body:not(.touch-landscape) .achievement-board { top:82px; left:16px; font-size:clamp(8px,.6vw,10px); line-height:1.1; }
+ body:not(.touch-landscape) .achievement-board-heading { font-size:.9em; margin-bottom:5px; letter-spacing:.04em; }
+ body:not(.touch-landscape) #achievement-live-list { gap:3px; }
+ body:not(.touch-landscape) .achievement-live-row { gap:4px; }
+ body:not(.touch-landscape) .achievement-live-icon { width:1.2em; font-size:1.05em; }
+ body:not(.touch-landscape) .achievement-unlock { top:calc(100% + 6px); font-size:10px; }
+}

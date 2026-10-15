@@ -1,231 +1,176 @@
-/* V0.5.30 — night-match stadium spectacle.
-   GPU-lightweight procedural panorama + instanced celebratory lights.
-   This module never changes the ball, player, input, or scoring physics. */
+/* WORLD ARENA — real stepped stands around the unchanged training camera.
+   Static scenery only: no game state, unlock, input or network dependencies. */
 (function(root){
 'use strict';
 root.PRIME_WORLD_ARENA=function(host){
- const T=host.T, g=host.ground, group=new T.Group();host.scene.add(group);
- const basic=(color)=>new T.MeshBasicMaterial({color,side:T.DoubleSide});
- const addBox=(x,y,z,w,h,d,color)=>{
-  const m=new T.Mesh(new T.BoxGeometry(w,h,d),basic(color));m.position.set(x,y,z);group.add(m);return m;
- };
- // The camera is orthographic. A high-resolution stadium panorama gives the
- // full curved grandstand silhouette without thousands of CPU-heavy objects.
- const panorama=host.texture(2048,1024,(ctx,w,h)=>{
-  const grad=ctx.createLinearGradient(0,0,0,h);
-  grad.addColorStop(0,'#071326');grad.addColorStop(.46,'#10233c');
-  grad.addColorStop(.78,'#22223b');grad.addColorStop(1,'#061a23');
-  ctx.fillStyle=grad;ctx.fillRect(0,0,w,h);
-  // Subtle magenta/cyan atmospheric glow.
-  for(const [x,color] of [[290,'rgba(248,42,169,.35)'],[1720,'rgba(51,224,255,.32)']]){
-   const halo=ctx.createRadialGradient(x,280,20,x,280,620);
-   halo.addColorStop(0,color);halo.addColorStop(1,'rgba(0,0,0,0)');
-   ctx.fillStyle=halo;ctx.fillRect(0,0,w,h);
-  }
-  // Sweeping tiers: rows curve upward at the edges, as if inside a full bowl.
-  const bowl=(x)=>Math.pow(Math.abs((x-w/2)/(w/2)),1.9);
-  for(let tier=0;tier<3;tier++){
-   const base=465+tier*140;
-   ctx.beginPath();
-   for(let x=0;x<=w;x+=8){const y=base-125*bowl(x);if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}
-   for(let x=w;x>=0;x-=8)ctx.lineTo(x,base+83-125*bowl(x));
-   ctx.closePath();ctx.fillStyle=['#101a32','#151a36','#111b36','#131b2f'][tier];ctx.fill();
-   ctx.strokeStyle=tier%2?'#dd6bb5':'#8fe8ff';ctx.lineWidth=5;ctx.beginPath();
-   for(let x=0;x<=w;x+=8){const y=base-125*bowl(x);if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}
-   ctx.stroke();
-   // Crowd is drawn into one texture: thousands of tiny colored spectators
-   // cost no additional draw calls.
-   for(let row=0;row<13;row++)for(let col=0;col<300;col++){
-    const x=col*7+((row%2)*3),y=base+10+row*9-125*bowl(x);
-    const seed=(col*43+row*71+tier*97)%37;
-    ctx.fillStyle=seed<5?'#f8e8f6':seed<12?'#78c5e2':seed<18?'#fa86bd':seed<24?'#596c9d':'#364563';
-    ctx.globalAlpha=.45+(seed%6)*.08;ctx.fillRect(x,y,3.5,4.2);
-   }
-   ctx.globalAlpha=1;
-  }
-  // VIP boxes and bright ribbon LEDs across the stadium.
-  for(let tier=0;tier<3;tier++){
-   const y=572+tier*140;ctx.strokeStyle='#ff4bd4';
-   ctx.lineWidth=8;ctx.beginPath();for(let x=0;x<=w;x+=8){
-    const yy=y-125*bowl(x);if(x===0)ctx.moveTo(x,yy);else ctx.lineTo(x,yy);
-   }ctx.stroke();
-  }
-  // Curved roof silhouette and a continuous lighting ribbon.
-  ctx.beginPath();for(let x=0;x<=w;x+=8){
-   const y=385-175*bowl(x);if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
-  }for(let x=w;x>=0;x-=8)ctx.lineTo(x,275-155*bowl(x));
-  ctx.closePath();ctx.fillStyle='#090d1e';ctx.fill();
-  ctx.strokeStyle='#a5c9f2';ctx.lineWidth=7;ctx.beginPath();
-  for(let x=0;x<=w;x+=8){const y=385-175*bowl(x);if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}
-  ctx.stroke();
-  // Roof trusses and floodlight arrays: permanent match-day architecture.
-  ctx.strokeStyle='rgba(114,155,193,.48)';ctx.lineWidth=5;
-  for(let i=0;i<=12;i++){
-   const x=i*w/12;ctx.beginPath();ctx.moveTo(w/2,18);ctx.lineTo(x,270-125*bowl(x));ctx.stroke();
-  }
-  for(let bank=0;bank<8;bank++){
-   const cx=(bank+.5)*w/8,cy=360-175*bowl(cx);
-   for(let lamp=0;lamp<7;lamp++){
-    const x=cx+(lamp-3)*11;
-    const glow=ctx.createRadialGradient(x,cy,1,x,cy,19);
-    glow.addColorStop(0,'rgba(255,255,255,.95)');
-    glow.addColorStop(.3,'rgba(181,224,255,.65)');
-    glow.addColorStop(1,'rgba(181,224,255,0)');
-    ctx.fillStyle=glow;ctx.fillRect(x-20,cy-20,40,40);
-    ctx.fillStyle='#ffffff';ctx.fillRect(x-2.5,cy-2.5,5,5);
-   }
-  }
+ const T=host.T,g=host.ground,group=new T.Group();group.name='world-arena';host.scene.add(group);
+ const material=(color)=>new T.MeshStandardMaterial({color,roughness:.9});
+ const concrete=material('#273044'),riser=material('#171e30'),apron=material('#27333c');
+ const pink=new T.MeshBasicMaterial({color:'#ff69be'}),ice=new T.MeshBasicMaterial({color:'#a2e9ff'});
+ const dark=material('#101b2c'),metal=material('#506079');
+ const box=(name,x,y,z,w,h,d,mat)=>{const m=new T.Mesh(host.boxGeo,mat);m.name=name;m.position.set(x,y,z);m.scale.set(w,h,d);group.add(m);return m;};
+ const floor=(name,x,z,w,d,mat,y=g)=>{const m=new T.Mesh(new T.PlaneGeometry(w,d),mat);m.name=name;m.rotation.x=-Math.PI/2;m.position.set(x,y,z);m.receiveShadow=true;group.add(m);return m;};
 
+ // Turf is exclusively horizontal. Its rear edge meets the service apron,
+ // rather than extending upward behind the people or through the stands.
+ let seed=20261015;const rand=()=>{seed=(1664525*seed+1013904223)>>>0;return seed/4294967296;};
+ const grass=host.texture(512,512,(ctx,w,h)=>{
+  ctx.fillStyle='#4d793a';ctx.fillRect(0,0,w,h);
+  for(let i=0;i<24000;i++){const x=rand()*w,y=rand()*h;ctx.strokeStyle=rand()>.5?'rgba(174,199,105,.19)':'rgba(12,45,27,.25)';ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+rand()*2-1,y-2-rand()*3);ctx.stroke();}
  });
- const wall=new T.Mesh(new T.PlaneGeometry(3100,1000),new T.MeshBasicMaterial({map:panorama,depthWrite:false}));
- wall.position.set(0,g+345,-1080);group.add(wall);
- // Real 3D fascia in front of the panorama adds parallax while preserving
- // the single-texture crowd budget. Stadium ribbons are emissive, not lights.
- const ribbonMat=new T.MeshBasicMaterial({color:0xf64dcb});
- for(let tier=0;tier<2;tier++){
-  const y=g+185+tier*124,z=-840-tier*105;
-  addBox(0,y-10,z,1880,25,13,0x071323);
-  const led=new T.Mesh(new T.BoxGeometry(1880,5,17),ribbonMat);
-  led.position.set(0,y,z+9);group.add(led);
-  for(const side of [-1,1]){
-   const corner=new T.Mesh(new T.BoxGeometry(380,5,17),ribbonMat);
-   corner.position.set(side*1060,y-14,z+70);
-   corner.rotation.y=side*.38;group.add(corner);
+ grass.wrapS=grass.wrapT=T.RepeatWrapping;grass.repeat.set(5,5);
+ floor('pitch',0,350,2800,2000,new T.MeshStandardMaterial({map:grass,bumpMap:grass,bumpScale:.65,roughness:1}));
+ floor('service-apron',0,-1200,3600,1100,apron,g-.1);
+ const mowing=new T.MeshStandardMaterial({color:'#c2d4a1',transparent:true,opacity:.12,depthWrite:false});
+ for(let i=0;i<8;i++)floor('mowing-band',0,-585+i*260,2800,130,mowing,g+.12);
+ const chalk=material('#dde5dc');floor('back-touchline',0,-405,2500,3,chalk,g+.35);
+ floor('side-touchline',-448,80,3,1850,chalk,g+.35);
+ const ring=new T.Mesh(new T.RingGeometry(221,224,120),chalk);ring.name='center-circle';ring.rotation.x=-Math.PI/2;ring.position.set(0,g+.4,-10);ring.receiveShadow=true;group.add(ring);
+
+ // Curved strips use real x/y/z geometry. Each tread is horizontal and each
+ // riser vertical; increasing radius and elevation form the stadium bowl.
+ const arc=1.3,segments=64,centerZ=250;
+ const point=(rx,rz,y,a)=>[Math.sin(a)*rx,g+y,centerZ-Math.cos(a)*rz];
+ function strips(name,bands,mat){
+  const vertices=[];
+  for(const [inner,outer] of bands)for(let i=0;i<segments;i++){
+   const a=-arc+2*arc*i/segments,b=-arc+2*arc*(i+1)/segments;
+   const p=point(...inner,a),q=point(...inner,b),r=point(...outer,a),s=point(...outer,b);
+   vertices.push(...p,...q,...r,...q,...s,...r);
   }
+  const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(vertices,3));geo.computeVertexNormals();
+  const m=new T.Mesh(geo,mat);m.name=name;group.add(m);return m;
  }
- // Three bands of subtle aisle illumination help sell the tier depth.
- const aisleMat=new T.MeshBasicMaterial({color:0xdcefff});
- for(let tier=0;tier<3;tier++)for(let aisle=-4;aisle<=4;aisle++){
-  const x=aisle*207;
-  for(let step=0;step<7;step++){
-   const marker=new T.Mesh(new T.BoxGeometry(8,3,5),aisleMat);
-   marker.position.set(x,g+150+tier*125+step*11,-900-tier*90);
-   group.add(marker);
+ // Back faces are visible on the curved returns and roof soffit.
+ for(const mat of [concrete,riser,metal,pink,ice])mat.side=T.DoubleSide;
+ const seats=[],treads=[],risers=[];
+ const rows=8,columns=320;
+ for(let tier=0;tier<3;tier++){
+  const rx=900+tier*220,rz=1100+tier*220,y=18+tier*72;
+  for(let row=0;row<rows;row++){
+   const r1=rx+row*22,r2=rz+row*22,h=y+row*6;
+   treads.push([[r1,r2,h],[r1+22,r2+22,h]]);
+   risers.push([[r1,r2,h-7],[r1,r2,h]]);
+   for(let col=0;col<columns;col++){
+    // Leave eight radial gangways open so the crowd has readable sections.
+    if(col%40<3)continue;
+    const angle=-arc+(col+.25+(row%2)*.5+(rand()-.5)*.65)*2*arc/columns;
+    seats.push({position:point(r1+12,r2+12,h,angle),angle,shade:Math.floor(rand()*11),height:.75+rand()*.55});
+   }
   }
+  strips('concourse-'+tier,[[[rx-35,rz-35,y-7],[rx,rz,y-7]]],concrete);
+  strips('tier-fascia-'+tier,[[[rx-35,rz-35,y-7],[rx-35,rz-35,y-20]]],riser);
+  strips('tier-led-'+tier,[[[rx-36,rz-36,y-9],[rx-36,rz-36,y-13]]],pink);
  }
- // Compact overhead floodlight banks; no shadow-casting lights or postprocess.
- const lampMat=new T.MeshBasicMaterial({color:0xffffff});
- for(let bank=-3;bank<=3;bank++){
-  const x=bank*300;
-  addBox(x,g+575,-1000,145,9,13,0x273b54);
-  for(let j=0;j<6;j++){
-   const bulb=new T.Mesh(new T.BoxGeometry(11,7,7),lampMat);
-   bulb.position.set(x+(j-2.5)*21,g+571,-991);group.add(bulb);
+ strips('stadium-treads',treads,concrete);strips('stadium-risers',risers,riser);
+
+ // Thousands of spectators are two static instanced draws, with no individual
+ // animation, shadow maps, textures or per-frame allocations.
+ const crowdBody=new T.InstancedMesh(new T.LatheGeometry([[0,2.4],[2,2.6],[5.4,2.9],[7,1.4]].map(([y,r])=>new T.Vector2(r,y-3.5)),8),new T.MeshBasicMaterial({color:0xffffff}),seats.length);
+ const crowdHead=new T.InstancedMesh(new T.SphereGeometry(2.15,6,4),new T.MeshBasicMaterial({color:0xffffff}),seats.length);
+ crowdBody.name='crowd-bodies';crowdHead.name='crowd-heads';
+ const dummy=new T.Object3D(),color=new T.Color(),shirts=['#6fcbe9','#ec65b6','#edf4ff','#364b70','#94d9ef','#e7a9d1','#667fa1','#e4efff','#5279aa','#d64d9b','#afcddd'];
+ seats.forEach((seat,i)=>{
+  const [x,y,z]=seat.position;dummy.position.set(x,y+6*seat.height,z);dummy.rotation.set(0,-seat.angle,0);dummy.scale.set(1,seat.height,1);dummy.updateMatrix();crowdBody.setMatrixAt(i,dummy.matrix);crowdBody.setColorAt(i,color.set(shirts[seat.shade]));
+  dummy.position.y=y+11*seat.height;dummy.scale.set(1,1,1);dummy.updateMatrix();crowdHead.setMatrixAt(i,dummy.matrix);crowdHead.setColorAt(i,color.set(['#b99d8d','#806e65','#c4afa2'][i%3]));
+ });
+ for(const m of [crowdBody,crowdHead]){m.instanceMatrix.needsUpdate=true;m.instanceColor.needsUpdate=true;group.add(m);}
+ group.userData.crowdCount=seats.length;
+
+ // Roof canopy, radial steel ribs and visible lamps establish a large enclosed
+ // arena. Only the main white floodlight casts a real-time shadow.
+ // Deep ring truss: two chords, diagonal webs and radial roof rafters.
+ strips('roof-canopy',[[[1450,1630,272],[1830,2010,330]]],dark).material.side=T.DoubleSide;
+ strips('roof-edge',[[[1450,1630,269],[1450,1630,280]]],metal);
+ const beamGeo=new T.CylinderGeometry(1,1,1,6);
+ const beams=[];
+ const beam=(p,q,width=1.6)=>{const m=new T.Mesh(beamGeo,metal);host.connect(m,p,q,width);m.updateMatrix();beams.push(m.matrix.clone());};
+ for(let i=0;i<32;i++){
+  const a=-arc+2*arc*i/32,b=-arc+2*arc*(i+1)/32;
+  const lo=point(1440,1620,270,a),hi=point(1440,1620,298,a),next=point(1440,1620,270,b),top=point(1440,1620,298,b);
+  beam(lo,next,2.4);beam(hi,top,2.4);beam(lo,hi);beam(lo,top);beam(hi,next);
+  if(i%2===0){beam(hi,point(1830,2010,330,a),3);beam(lo,point(1710,1890,310,a),2);}
+ }
+ const truss=new T.InstancedMesh(beamGeo,metal,beams.length);truss.name='roof-truss';beams.forEach((m,i)=>truss.setMatrixAt(i,m));group.add(truss);
+ // Lit access stairs and concourse doors divide the crowd into believable bays.
+ for(let tier=0;tier<3;tier++)for(let bay=1;bay<8;bay++){
+  const a=-arc+2*arc*bay/8,rx=900+tier*220,rz=1100+tier*220,y=18+tier*72;
+  for(let row=0;row<8;row++){
+   const pos=point(rx+row*22+8,rz+row*22+8,y+row*6+.8,a);
+   const step=box('aisle-light',...pos,12,1,3,ice);step.rotation.y=-a;
   }
+  const pos=point(rx-18,rz-18,y+9,a);const door=box('concourse-door',...pos,17,25,5,dark);door.rotation.y=-a;
  }
- // Stadium side wings provide real depth and wrap toward the player.
- const wingMat=new T.MeshBasicMaterial({color:0x17263e,side:T.DoubleSide});
+ const glowTexture=host.texture(64,64,(ctx)=>{const gradient=ctx.createRadialGradient(32,32,0,32,32,32);gradient.addColorStop(0,'rgba(255,255,255,.7)');gradient.addColorStop(.2,'rgba(255,255,255,.2)');gradient.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=gradient;ctx.fillRect(0,0,64,64);});
+ const lamps=new T.InstancedMesh(host.boxGeo,new T.MeshBasicMaterial({color:'#eaf7ff',depthTest:false}),24);
+ lamps.name='match-floodlights';lamps.renderOrder=50;let lampIndex=0;
+ for(const x of [-380,-125,125,380]){
+  box('floodlight-support',x,g+331,-900,2,32,3,metal);
+  box('floodlight-housing',x,g+315,-898,49,12,7,dark);
+  for(let n=0;n<6;n++){dummy.position.set(x-19+n*7.6,g+315,-893);dummy.rotation.set(0,0,0);dummy.scale.set(5.5,7,2);dummy.updateMatrix();lamps.setMatrixAt(lampIndex++,dummy.matrix);}
+  const glow=new T.Mesh(new T.PlaneGeometry(155,105),new T.MeshBasicMaterial({map:glowTexture,color:'#c7e8ff',transparent:true,opacity:1,depthTest:false,depthWrite:false,blending:T.AdditiveBlending}));glow.renderOrder=51;glow.position.set(x,g+315,-890);group.add(glow);
+ }
+ lamps.instanceMatrix.needsUpdate=true;group.add(lamps);
+ const shaftTex=host.texture(64,128,(ctx,w,h)=>{const fade=ctx.createLinearGradient(0,0,0,h);fade.addColorStop(0,'rgba(190,223,255,.16)');fade.addColorStop(1,'rgba(190,223,255,0)');ctx.fillStyle=fade;ctx.beginPath();ctx.moveTo(w*.45,0);ctx.lineTo(w*.55,0);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fill();});
+ const shaftMat=new T.MeshBasicMaterial({map:shaftTex,transparent:true,opacity:.28,depthWrite:false,blending:T.AdditiveBlending,side:T.DoubleSide});
+ for(const x of [-380,380]){const shaft=new T.Mesh(new T.PlaneGeometry(210,265),shaftMat);shaft.position.set(x,g+180,-660);shaft.rotation.z=x<0?-.18:.18;group.add(shaft);}
+
+
+ // A low boundary sits behind the technical area. Feet are never placed on
+ // top of it; the crew stand on exactly the same ground plane as the player.
+ box('advertising-wall',0,g+14,-750,1700,28,8,dark);
+ for(const side of [-1,1])box('advertising-led',side*500,g+29,-744,580,2,2,side<0?pink:ice);
+ const title=host.texture(1024,96,(ctx,w,h)=>{ctx.fillStyle='#101b2c';ctx.fillRect(0,0,w,h);ctx.textAlign='center';ctx.font='bold 36px Arial';ctx.fillStyle='#c5edff';ctx.fillText('WORLD ARENA  /  PRIME',w/2,62);});
+ const sign=new T.Mesh(new T.PlaneGeometry(330,28),new T.MeshBasicMaterial({map:title}));sign.name='arena-sign';sign.position.set(0,g+15,-744);group.add(sign);
  for(const side of [-1,1]){
-  for(let tier=0;tier<4;tier++){
-   const wing=new T.Mesh(new T.BoxGeometry(350,34,650),wingMat);
-   wing.position.set(side*(1240+tier*28),g+90+tier*93,-680);
-   wing.rotation.y=side*.33;group.add(wing);
-  }
-  // Powerful match-day floodlights, visible in front of the distant crowd.
-  const pole=addBox(side*1030,g+265,-680,8,530,8,0x65778b);
-  const beam=addBox(side*1030,g+524,-675,155,16,18,0xc8eafa);
-  for(let i=0;i<7;i++)addBox(side*1030-65+i*21,g+525,-660,13,11,4,0xffffff);
+  box('dugout-seat',side*300,g+29,-627,260,5,25,dark);
+  box('dugout-back',side*300,g+43,-640,260,25,5,dark);
+  for(const dx of [-100,100])box('dugout-leg',side*300+dx,g+13,-627,4,26,18,metal);
  }
- // Sideline advertising, avoiding the player's hitbox and front-field area.
- addBox(0,g+34,-550,2100,68,8,0x071e2b);
- const banner=host.texture(1024,96,(ctx,w,h)=>{
-  ctx.fillStyle='#061723';ctx.fillRect(0,0,w,h);
-  ctx.textAlign='center';ctx.font='bold 49px Arial';ctx.fillStyle='#e6f8ff';
-  ctx.fillText('PRIME  /  LIFTING LAB',w/2,65);
- });
- const bannerMesh=new T.Mesh(new T.PlaneGeometry(920,86),new T.MeshBasicMaterial({map:banner}));
- bannerMesh.position.set(0,g+55,-540);group.add(bannerMesh);
- // Match-day pitch: independently visible from the practice-ground scene.
- // Use a shared textured plane and a handful of low-cost markings; the player,
- // ball and existing physical ground height remain completely unchanged.
- let grassSeed=20261015;
- const grassRand=()=>{grassSeed=(1664525*grassSeed+1013904223)>>>0;return grassSeed/4294967296;};
- const turf=host.texture(512,512,(ctx,w,h)=>{
-  ctx.fillStyle='#377f40';ctx.fillRect(0,0,w,h);
-  for(let stripe=0;stripe<16;stripe++){
-   ctx.fillStyle=stripe%2?'rgba(6,41,21,.13)':'rgba(165,224,112,.13)';
-   ctx.fillRect(0,stripe*h/16,w,h/16);
-  }
-  for(let i=0;i<23000;i++){
-   const x=grassRand()*w,y=grassRand()*h;
-   ctx.strokeStyle=grassRand()>.52?'rgba(185,231,129,.25)':'rgba(8,56,24,.27)';
-   ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(x,y);
-   ctx.lineTo(x+(grassRand()-.5)*2,y-2-grassRand()*3);ctx.stroke();
-  }
- });
- turf.wrapS=turf.wrapT=T.RepeatWrapping;turf.repeat.set(5,8);
- turf.anisotropy=Math.min(8,host.renderer.capabilities.getMaxAnisotropy());
- const pitch=new T.Mesh(new T.PlaneGeometry(2800,1850),
-  new T.MeshStandardMaterial({map:turf,roughness:1,metalness:0,side:T.DoubleSide}));
- pitch.rotation.x=-Math.PI/2;pitch.position.set(0,g-.45,385);
- pitch.receiveShadow=true;group.add(pitch);
- // Mowing bands at field scale, intentionally subtle under night floodlights.
- const mowLight=new T.MeshBasicMaterial({color:0x85b966,transparent:true,opacity:.07,depthWrite:false,side:T.DoubleSide});
- for(let i=0;i<7;i++){
-  const stripe=new T.Mesh(new T.PlaneGeometry(2800,170),mowLight);
-  stripe.rotation.x=-Math.PI/2;stripe.position.set(0,g-.35,-420+i*265);
-  group.add(stripe);
+
+ // Reuse TRAINING LAB's actual human model, then batch its static parts by
+ // geometry. This keeps the faces, shoes and proportions without ~200 draws.
+ const batches=new Map(),crew=[];
+ for(let i=0;i<10;i++){
+  const human=host.makeSpectator(i),role=i===4?'manager':i===5||i===9?'staff':'substitute';
+  human.children[0].material.color.set(role==='manager'?'#293447':role==='staff'?'#81b8c9':'#b25586');
+  human.position.set([-430,-355,-280,-205,-130,130,205,280,355,430][i],g,-535-(i%3)*22);
+  human.scale.setScalar(.70+(i%3)*.025);human.rotation.y=(i%3-1)*.12;human.updateMatrixWorld(true);
+  crew.push({role,x:human.position.x,y:g,z:human.position.z,scale:human.scale.x});
+  human.traverse(mesh=>{
+   if(!mesh.isMesh)return;
+   const key=mesh.geometry.type+JSON.stringify(mesh.geometry.parameters);
+   if(!batches.has(key))batches.set(key,{geometry:mesh.geometry,parts:[]});
+   batches.get(key).parts.push({matrix:mesh.matrixWorld.clone(),color:mesh.material.color.clone()});
+  });
+  // makeSpectator owns its materials, but shares host sphere/cylinder geometry.
+  const owned=new Set();human.traverse(m=>{if(m.isMesh)owned.add(m.material);});for(const mat of owned)mat.dispose();
  }
- const paint=new T.MeshBasicMaterial({color:0xf0f5e9,side:T.DoubleSide,depthWrite:false});
- const line=(x,z,w,d)=>{
-  const m=new T.Mesh(new T.PlaneGeometry(w,d),paint);
-  m.rotation.x=-Math.PI/2;m.position.set(x,g-.22,z);group.add(m);return m;
- };
- // Visible center circle and field lines, located behind and around the player.
- const ring=new T.Mesh(new T.RingGeometry(216,219,128),paint);
- ring.rotation.x=-Math.PI/2;ring.position.set(0,g-.2,-10);group.add(ring);
- const centerDot=new T.Mesh(new T.CircleGeometry(5,24),paint);
- centerDot.rotation.x=-Math.PI/2;centerDot.position.set(0,g-.19,-10);group.add(centerDot);
- line(0,-405,2450,3);
- for(const x of [-1020,1020])line(x,-300,3,1850);
- // Keep the pitch playable and visually grounded: no solid obstacles.
- // Match-day touchline: ten low-poly staff and substitutes behind the
- // advertising board. Reuse a small set of geometries and materials.
- const skin=new T.MeshStandardMaterial({color:0xc58e70,roughness:.9});
- const hair=new T.MeshStandardMaterial({color:0x22242b,roughness:1});
- const navy=new T.MeshStandardMaterial({color:0x142539,roughness:1});
- const shirt=new T.MeshStandardMaterial({color:0x2a79c4,roughness:1});
- const vest=new T.MeshStandardMaterial({color:0x8ce2ae,roughness:1});
- const trousers=new T.MeshStandardMaterial({color:0x1a2433,roughness:1});
- const shoes=new T.MeshStandardMaterial({color:0x10151e,roughness:1});
- const white=new T.MeshStandardMaterial({color:0xe9e6df,roughness:1});
- const headGeo=new T.SphereGeometry(10,9,7),bodyGeo=new T.CylinderGeometry(13,12,44,8),limbGeo=new T.CylinderGeometry(4.5,5.5,40,7);
- const createPerson=(i)=>{
-  const person=new T.Group();
-  const role=i===1||i===7?'manager':i===4||i===9?'coach':'sub';
-  const top=role==='manager'?navy:role==='coach'?vest:shirt;
-  const torso=new T.Mesh(bodyGeo,top);torso.position.y=81;person.add(torso);
-  const head=new T.Mesh(headGeo,skin);head.position.y=117;person.add(head);
-  const cap=new T.Mesh(new T.SphereGeometry(10.5,9,5,0,Math.PI*2,0,Math.PI*.43),hair);
-  cap.position.y=121;person.add(cap);
-  if(role==='manager'){
-   const tie=new T.Mesh(new T.BoxGeometry(3,25,2),white);tie.position.set(0,80,13);person.add(tie);
-  }
-  for(const side of [-1,1]){
-   const leg=new T.Mesh(limbGeo,trousers);leg.position.set(side*7,31,0);leg.rotation.z=side*(i%3===0?.09:.02);person.add(leg);
-   const boot=new T.Mesh(new T.BoxGeometry(11,7,18),shoes);boot.position.set(side*7,8,6);person.add(boot);
-   const arm=new T.Mesh(new T.CylinderGeometry(4.5,4,38,7),top);
-   arm.position.set(side*17,82,0);
-   arm.rotation.z=side*(role==='manager'?-.12:i%3===0?-.55:.25);person.add(arm);
-   const hand=new T.Mesh(new T.SphereGeometry(4.3,7,6),skin);
-   hand.position.set(side*(role==='manager'?20:i%3===0?27:14),63,0);person.add(hand);
-  }
-  const x=-630+i*140;
-  person.position.set(x,g+68,-560);
-  person.scale.setScalar(.73+(i%4)*.035);
-  person.rotation.y=i%3===0?-.17:i%3===1?.1:0;
-  group.add(person);
- };
- for(let i=0;i<10;i++)createPerson(i);
- // Night-time illumination is independent of the training ground's sunlight.
- const ambient=new T.HemisphereLight(0xc4e9ff,0x273729,2.2);group.add(ambient);
- const key=new T.DirectionalLight(0xf9efff,2.5);key.position.set(-350,700,460);group.add(key);
- const fill=new T.DirectionalLight(0x8acfff,1.2);fill.position.set(420,400,270);group.add(fill);
- const sky=new T.Color('#071326'),fog=new T.Fog('#15152b',2400,5500);
+ for(const {geometry,parts} of batches.values()){
+  const mesh=new T.InstancedMesh(geometry,new T.MeshStandardMaterial({color:0xffffff,roughness:.85}),parts.length);
+  mesh.name='technical-area-people';parts.forEach((part,i)=>{mesh.setMatrixAt(i,part.matrix);mesh.setColorAt(i,part.color);});
+  mesh.instanceMatrix.needsUpdate=true;mesh.instanceColor.needsUpdate=true;mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);
+ }
+ const contact=host.shadow(25,.23);contact.name='crew-contact-shadow';
+ crew.forEach((person,i)=>{const shadow=i===0?contact:contact.clone();shadow.position.set(person.x,g+.3,person.z);group.add(shadow);});
+ group.userData.staffCount=crew.length;group.userData.crew=crew;
+
+ // Merge repeated static architectural boxes into material batches.
+ const trimBatches=new Map();
+ for(const m of [...group.children])if(m.isMesh&&!m.isInstancedMesh&&m.geometry===host.boxGeo){
+  m.updateMatrix();if(!trimBatches.has(m.material))trimBatches.set(m.material,[]);
+  trimBatches.get(m.material).push(m.matrix.clone());group.remove(m);
+ }
+ for(const [mat,matrices] of trimBatches){const batch=new T.InstancedMesh(host.boxGeo,mat,matrices.length);batch.name='architecture-trim';matrices.forEach((m,i)=>batch.setMatrixAt(i,m));group.add(batch);}
+ const ambient=new T.HemisphereLight(0xb8d7f5,0x17251e,.95);group.add(ambient);
+ const key=new T.DirectionalLight(0xeaf4ff,3.1);key.name='arena-shadow-light';key.position.set(-350,800,420);key.target.position.set(0,g,-180);
+ key.castShadow=true;key.shadow.mapSize.set(1024,1024);Object.assign(key.shadow.camera,{left:-750,right:750,top:750,bottom:-750,near:1,far:2400});key.shadow.normalBias=.6;key.shadow.bias=-.0003;key.shadow.radius=3;group.add(key,key.target);
+ const pinkFill=new T.DirectionalLight(0xff77bc,.45);pinkFill.position.set(-650,350,-400);group.add(pinkFill);
+ const blueFill=new T.DirectionalLight(0x8adfff,.65);blueFill.position.set(650,400,200);group.add(blueFill);
+ const sky=new T.Color('#080f20'),fog=new T.Fog('#141e33',2600,5500);
  return {group,show(visible){
   group.visible=visible;host.trainingGroup.visible=!visible;
-  host.scene.background=visible?sky:host.trainingBackground;
-  host.scene.fog=visible?fog:host.trainingFog;
+  host.scene.background=visible?sky:host.trainingBackground;host.scene.fog=visible?fog:host.trainingFog;
   if(host.trainingLights)for(const light of host.trainingLights)light.visible=!visible;
  }};
 };
