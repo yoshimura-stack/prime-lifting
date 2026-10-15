@@ -112,7 +112,7 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   // Only an accepted and saved standard run can grant titles.
   // Progress is isolated from score storage; a progress outage must not erase a score.
   let progress=null;
-  try{progress=publicProgress(await db.call('achievement_merge',{playerId:session.sub,mask:achievementMask(result,score)}));}catch{}
+  try{progress=publicProgress(await db.call('achievement_merge',{playerId:session.sub,mask:achievementMask(result,score)}));}catch{throw new ApiError(503,'称号の保存確認ができませんでした。同じプレイの保存を再試行してください。');}
   return json({player:publicPlayer(saved.player),score,personalBest:saved.personalBest===true,newChampion:saved.newChampion===true,progress});
  }catch(error){return json({error:error instanceof ApiError?error.message:'ランキング処理に失敗しました。再試行してください。'},error instanceof ApiError?error.status:503);}
  }};}
