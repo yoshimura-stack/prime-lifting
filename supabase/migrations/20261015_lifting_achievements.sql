@@ -28,6 +28,9 @@ begin
   if v_mask is null or v_mask < 0 or v_mask > 255 then
     raise exception 'invalid achievement mask' using errcode = '22023';
   end if;
+  if not exists (select 1 from public.lifting_players where id = v_player) then
+    raise exception 'unknown player' using errcode = '22023';
+  end if;
   insert into public.lifting_achievements (player_id,title_mask)
   values (v_player,v_mask)
   on conflict (player_id) do update
