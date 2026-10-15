@@ -1,0 +1,58 @@
+/* Mobile landscape result / leaderboard refinements. PC layout intentionally untouched. */
+.mobile-ranking-entry{display:none}
+.touch-landscape #mobile-intro-ranking,.touch-landscape #mobile-result-ranking{
+ display:block;flex:none;box-sizing:border-box;max-width:100%;min-height:40px;
+ padding:8px 12px;border:1px solid #a3cb6a;border-radius:7px;
+ background:#244632;color:#e6ffac;font-size:clamp(11px,2.8dvh,14px);
+ font-weight:800;text-align:center;cursor:pointer;touch-action:manipulation;
+}
+.touch-landscape #mobile-intro-ranking{margin:8px auto 4px}
+.touch-landscape #mobile-result-ranking{width:100%;margin:7px 0 5px}
+.touch-landscape #mobile-intro-ranking:focus-visible,.touch-landscape #mobile-result-ranking:focus-visible{outline:2px solid #ecffad;outline-offset:2px}
+.touch-landscape #mobile-intro-ranking:has(~ #result-ranking:not([hidden])){display:none}
+.touch-landscape #overlay:has(#result-ranking:not([hidden])){
+ box-sizing:border-box;padding:7px 12px max(6px,env(safe-area-inset-bottom))!important;
+ gap:3px;align-items:center;
+}
+.touch-landscape #overlay:has(#result-ranking:not([hidden])) > #overlay-label,
+.touch-landscape #overlay:has(#result-ranking:not([hidden])) > #overlay-copy,
+.touch-landscape #overlay:has(#result-ranking:not([hidden])) > #account-panel,
+.touch-landscape #overlay:has(#result-ranking:not([hidden])) > #mobile-intro-ranking,
+.touch-landscape #overlay:has(#result-ranking:not([hidden])) > #preflight-status,
+.touch-landscape #overlay:has(#result-ranking:not([hidden])) > #preflight-retry,
+.touch-landscape #overlay:has(#result-ranking:not([hidden])) > #preflight-contact{display:none!important}
+.touch-landscape #overlay:has(#result-ranking:not([hidden])) > #overlay-title{
+ display:block;flex:0 0 auto;font-size:clamp(18px,5.4dvh,28px)!important;
+ line-height:1.05;margin:0!important;color:#e6ff9a;
+}
+.touch-landscape #overlay:has(#result-ranking:not([hidden])) #result-ranking{
+ box-sizing:border-box;width:min(100%,570px);max-width:570px;
+ flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;
+ padding:3px 7px 7px;touch-action:pan-y;text-align:center;
+ scrollbar-gutter:stable;overscroll-behavior:contain;
+}
+.touch-landscape #result-ranking #personal-result{
+ font-size:clamp(11px,2.8dvh,14px);line-height:1.4;margin:4px 0;
+ overflow-wrap:anywhere;
+}
+.touch-landscape #result-ranking #achievement-panel{padding:7px 9px;margin:6px 0}
+.touch-landscape #result-ranking #achievement-panel h3{margin-bottom:5px}
+.touch-landscape #result-ranking .achievement-badge{padding:4px 6px;font-size:11px}
+.touch-landscape #result-ranking #result-top{max-height:none;overflow:visible}
+.touch-landscape #result-ranking #result-top h3{margin:6px 0}
+.touch-landscape #overlay:has(#result-ranking:not([hidden])) > #start{
+ flex:0 0 auto;position:relative;z-index:5;min-height:44px;
+ margin:3px auto 0!important;padding:8px 20px;
+ width:min(270px,94%);touch-action:manipulation;
+}
+.touch-landscape #ranking-dialog .ranking-dialog-card{
+ width:min(96vw,640px);max-height:calc(100dvh - 12px);
+ padding:8px 12px;box-sizing:border-box;
+}
+.touch-landscape #ranking-dialog .ranking-dialog-head h2{font-size:clamp(17px,4dvh,24px)}
+.touch-landscape #ranking-dialog #ranking-dialog-list{touch-action:pan-y}
+@media(max-height:390px) and (orientation:landscape){
+ .touch-landscape #overlay:has(#result-ranking:not([hidden])){padding:4px 9px!important}
+ .touch-landscape #overlay:has(#result-ranking:not([hidden])) > #overlay-title{font-size:18px!important}
+ .touch-landscape #result-ranking #result-next-rival{padding:5px 8px}
+}
