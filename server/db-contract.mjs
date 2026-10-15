@@ -1,5 +1,5 @@
 // All privileged RPC calls run only from the Cloudflare Worker.
-const player=p=>p&&({id:p.id,name:p.name,best:p.best,rank:p.rank,kit:p.kit??null,lastPlayed:p.lastPlayed??null});
+const player=p=>p&&({id:p.id,name:p.name,best:p.best,rank:p.rank,kit:p.kit??null,lastPlayed:p.lastPlayed??null,bestDevice:p.bestDevice==='mobile'||p.bestDevice==='pc'?p.bestDevice:null});
 export default {
  verified:true,
  operations:Object.fromEntries(['register','login','me','leaderboard','submit'].map(op=>[op,{

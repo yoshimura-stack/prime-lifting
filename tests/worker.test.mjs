@@ -41,8 +41,8 @@ test('mock adapter: register, cross-device login, authenticated replay, retry an
  assert.equal((await worker.fetch(request('/api/scores',{...input,events:[{t:-1,n:'act'}]},cookie),env)).status,400);
  assert.equal((await worker.fetch(request('/api/scores',input,cookie),env)).status,200);
  const submissions=calls.filter(c=>c.op==='submit');assert.equal(submissions[0].input.runId,submissions[1].input.runId);
- const top=await (await worker.fetch(request('/api/leaderboard'),env)).json();assert.deepEqual(top.entries,[{name:'A',score:15000,rank:1}]);
- const champion=await (await worker.fetch(request('/api/champion'),env)).json();assert.equal(champion.champion.score,15000);
+ const top=await (await worker.fetch(request('/api/leaderboard'),env)).json();assert.deepEqual(top.entries,[{name:'A',score:15000,rank:1,device:null}]);
+ const champion=await (await worker.fetch(request('/api/champion'),env)).json();assert.equal(champion.champion.score,15000);assert.equal(champion.champion.device,null);
  time+=8*86400000;assert.equal((await worker.fetch(request('/api/me',null,cookie),env)).status,401);
 });
 test('server replay matches unchanged engine on real timed input',()=>{

@@ -12,13 +12,28 @@ function account(){
  $('account-status').textContent=player?`${player.name} ／ BEST ${player.best.toLocaleString()} PTS`:'ゲストプレイ（保存なし）';
  $('account-form').hidden=!!player;$('logout').hidden=!player;
 }
+function deviceIcon(device){
+ if(device!=='pc'&&device!=='mobile')return null;
+ const badge=document.createElement('span');badge.className='rank-device rank-device-'+device;
+ badge.setAttribute('role','img');badge.setAttribute('aria-label',device==='mobile'?'スマートフォンでの最高記録':'PCでの最高記録');
+ badge.title=device==='mobile'?'スマートフォンでの最高記録':'PCでの最高記録';
+ // Inline SVG: no external icon library or network request.
+ badge.innerHTML=device==='mobile'?'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.2"/><path d="M10 18.5h4"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="3.5" width="19" height="13" rx="1.6"/><path d="M8 20.5h8M12 16.5v4"/></svg>';
+ return badge;
+}
+function rankName(entry,prefix=''){
+ const name=document.createElement('span');name.className='rank-player-name';
+ const label=document.createElement('span');label.textContent=prefix+entry.name;name.append(label);
+ const badge=deviceIcon(entry.device);if(badge)name.append(badge);
+ return name;
+}
 function champion(entries){
  const [first,second,third]=entries||[];
  $('leader-best-score').textContent=first?first.score.toLocaleString()+' PTS':'--- PTS';
- $('leader-best-name').textContent=first?first.name:'未登録';
+ $('leader-best-name').replaceChildren(...(first?[rankName(first)]:[document.createTextNode('未登録')]));
  for(const [position,entry] of [['second',second],['third',third]]){
   $('leader-'+position+'-score').textContent=entry?entry.score.toLocaleString()+' PTS':'--- PTS';
-  $('leader-'+position+'-name').textContent=entry?entry.name:'未登録';
+  $('leader-'+position+'-name').replaceChildren(...(entry?[rankName(entry)]:[document.createTextNode('未登録')]));
  }
  $('mobile-best').textContent=first?`🏆 ${first.score.toLocaleString()} PTS · ${first.name}`:'最高記録：未取得';
 }
@@ -45,9 +60,8 @@ async function updateRankDialog(){
   if(current!==rankDialogGeneration||rankDialog.hidden)return;
   const list=$('ranking-dialog-list');list.replaceChildren();
   for(const e of data.entries){
-   const li=document.createElement('li'),name=document.createElement('span'),score=document.createElement('strong');
-   name.textContent=`${e.rank}. ${e.name}`;score.textContent=e.score.toLocaleString()+' PTS';
-   li.append(name,score);list.append(li);
+   const li=document.createElement('li'),score=document.createElement('strong');score.textContent=e.score.toLocaleString()+' PTS';
+   li.append(rankName(e,`${e.rank}. `),score);list.append(li);
   }
   $('ranking-dialog-status').textContent=data.entries.length?'': 'まだ記録がありません。';
   champion(data.entries);
@@ -74,7 +88,7 @@ async function refresh(){
  const current=++refreshGeneration;$('rank-message').textContent='ランキングを取得中…';
  try{const data=await api('/api/leaderboard');if(current!==refreshGeneration)return;
  $('rank-rows').replaceChildren();
- for(const e of data.entries){const li=document.createElement('li'),name=document.createElement('span'),score=document.createElement('strong');name.textContent=`${e.rank}. ${e.name}`;score.textContent=e.score.toLocaleString()+' PTS';li.append(name,score);$('rank-rows').append(li);}
+ for(const e of data.entries){const li=document.createElement('li'),score=document.createElement('strong');score.textContent=e.score.toLocaleString()+' PTS';li.append(rankName(e,`${e.rank}. `),score);$('rank-rows').append(li);}
  champion(data.entries);$('rank-message').textContent=data.entries.length?'':'まだ記録がありません。';
  }catch(e){if(current!==refreshGeneration)return;champion([]);$('rank-rows').replaceChildren();$('rank-message').textContent=e.message;}
 }

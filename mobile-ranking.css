@@ -283,3 +283,11 @@
 @keyframes prime-record-pop{from{opacity:0;transform:scale(.7)}65%{transform:scale(1.13)}to{opacity:1;transform:scale(1)}}
 @keyframes prime-record-sparkle{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(-5px)}}
 @media(prefers-reduced-motion:reduce){#time.time-critical,#record-banner.record-celebrate,#record-banner.record-celebrate::after{animation:none}}
+
+/* V0.5.23 leaderboard device icon: best-scoring device only. */
+.rank-player-name{display:inline-flex;align-items:center;gap:6px;min-width:0;max-width:100%;vertical-align:middle}
+.rank-player-name>span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-device{display:inline-flex;flex:none;width:17px;height:17px;align-items:center;justify-content:center;color:#cfff7c;vertical-align:middle}
+.rank-device-mobile{color:#90d8ff}
+.rank-device svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#rank-rows li>.rank-player-name,#ranking-dialog-list li>.rank-player-name{flex:1;min-width:0}
