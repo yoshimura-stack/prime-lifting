@@ -9,6 +9,23 @@ const get=(o,path)=>path.split('.').reduce((a,k)=>a[k],o);
 function set(o,path,value){const bits=path.split('.'),last=bits.pop();bits.reduce((a,k)=>a[k],o)[last]=value;}
 try{const saved=JSON.parse(localStorage.getItem(settingsKey)||'{}');for(const [,path,min,max] of controls)if(Number.isFinite(saved[path]))set(c,path,Math.max(min,Math.min(max,saved[path])));}catch{}
 const g=new LiftingGame(c),keys=new Set();
+let stageUnlocked=false,selectedStage=1;
+function selectStage(stage){
+ if(stage===2&&!stageUnlocked)return;
+ selectedStage=stage;
+ if(renderer3d&&typeof renderer3d.setStage==='function')renderer3d.setStage(stage);
+ $('stage-training').setAttribute('aria-pressed',String(stage===1));
+ $('stage-arena').setAttribute('aria-pressed',String(stage===2));
+}
+window.addEventListener('prime:progress',event=>{
+ stageUnlocked=event.detail?.master===true;
+ $('stage-arena').disabled=!stageUnlocked;
+ $('stage-arena').textContent=stageUnlocked?'💠 02 WORLD ARENA':'🔒 02 WORLD ARENA';
+ $('stage-hint').textContent=stageUnlocked?'WORLD ARENA 解放済み！ステージを選べます':'全8称号コンプリートで解放';
+ if(!stageUnlocked&&selectedStage===2)selectStage(1);
+});
+$('stage-training').addEventListener('click',()=>selectStage(1));
+$('stage-arena').addEventListener('click',()=>selectStage(2));
 let achievementStats={maxAirStreak:0,spinBonusHits:0,shoulderHits:0,spinKing:false,quadMaster:false,airQuad:false,doubleAir:false};let jumpsSinceHit=0;let shoulderFlash=null;let quadFlash=null;let shoulderMessage=false;let milestone=null;let pointPopups=[];let renderer3d=null;try{renderer3d=new PrimeRenderer($('scene'),c);}catch(error){console.warn('3D unavailable; using 2D fallback.',error);$('scene').hidden=true;}
 const kitStorageKey='prime-lifting-selected-kit';
 let selectedKit=PRIME_KITS.get((()=>{try{return localStorage.getItem(kitStorageKey)||PRIME_KITS.defaultId;}catch{return PRIME_KITS.defaultId;}})());
