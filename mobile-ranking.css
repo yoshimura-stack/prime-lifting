@@ -364,3 +364,7 @@
 .master-progress.master-celebrate{animation:master-reveal 1.4s ease-in-out 2}
 @keyframes master-reveal{0%,100%{filter:brightness(1);transform:scale(1)}50%{filter:brightness(1.65);transform:scale(1.04)}}
 @media(prefers-reduced-motion:reduce){.master-progress.master-celebrate{animation:none}}
+
+/* V0.5.28: leaderboard collection count next to the device indicator. */
+.rank-title-count{display:inline-flex;align-items:center;white-space:nowrap;margin-inline-start:5px;padding:2px 5px;border:1px solid #67856d;border-radius:5px;background:rgba(20,48,34,.75);color:#e0efcd;font-size:clamp(9px,.7vw,12px);font-weight:900;line-height:1.2;vertical-align:middle}
+.rank-title-count.platinum{border-color:#d0d9f7;color:#f6faff;background:linear-gradient(110deg,#53617d,#9cadd0 60%,#555b84);box-shadow:0 0 8px #d5e6ff55}
