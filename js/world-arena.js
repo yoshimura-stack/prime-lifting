@@ -79,6 +79,40 @@ root.PRIME_WORLD_ARENA=function(host){
  });
  const wall=new T.Mesh(new T.PlaneGeometry(3100,1000),new T.MeshBasicMaterial({map:panorama,depthWrite:false}));
  wall.position.set(0,g+345,-1080);group.add(wall);
+ // Real 3D fascia in front of the panorama adds parallax while preserving
+ // the single-texture crowd budget. Stadium ribbons are emissive, not lights.
+ const ribbonMat=new T.MeshBasicMaterial({color:0xf64dcb});
+ for(let tier=0;tier<2;tier++){
+  const y=g+185+tier*124,z=-840-tier*105;
+  addBox(0,y-10,z,1880,25,13,0x071323);
+  const led=new T.Mesh(new T.BoxGeometry(1880,5,17),ribbonMat);
+  led.position.set(0,y,z+9);group.add(led);
+  for(const side of [-1,1]){
+   const corner=new T.Mesh(new T.BoxGeometry(380,5,17),ribbonMat);
+   corner.position.set(side*1060,y-14,z+70);
+   corner.rotation.y=side*.38;group.add(corner);
+  }
+ }
+ // Three bands of subtle aisle illumination help sell the tier depth.
+ const aisleMat=new T.MeshBasicMaterial({color:0xdcefff});
+ for(let tier=0;tier<3;tier++)for(let aisle=-4;aisle<=4;aisle++){
+  const x=aisle*207;
+  for(let step=0;step<7;step++){
+   const marker=new T.Mesh(new T.BoxGeometry(8,3,5),aisleMat);
+   marker.position.set(x,g+150+tier*125+step*11,-900-tier*90);
+   group.add(marker);
+  }
+ }
+ // Compact overhead floodlight banks; no shadow-casting lights or postprocess.
+ const lampMat=new T.MeshBasicMaterial({color:0xffffff});
+ for(let bank=-3;bank<=3;bank++){
+  const x=bank*300;
+  addBox(x,g+575,-1000,145,9,13,0x273b54);
+  for(let j=0;j<6;j++){
+   const bulb=new T.Mesh(new T.BoxGeometry(11,7,7),lampMat);
+   bulb.position.set(x+(j-2.5)*21,g+571,-991);group.add(bulb);
+  }
+ }
  // Stadium side wings provide real depth and wrap toward the player.
  const wingMat=new T.MeshBasicMaterial({color:0x17263e,side:T.DoubleSide});
  for(const side of [-1,1]){
