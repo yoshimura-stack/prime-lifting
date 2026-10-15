@@ -43,6 +43,14 @@ function rankName(entry,prefix=''){
  const name=document.createElement('span');name.className='rank-player-name';
  const label=document.createElement('span');label.textContent=prefix+entry.name;name.append(label);
  const badge=deviceIcon(entry.device);if(badge)name.append(badge);
+ if(Number.isInteger(entry.achievementCount)){
+  const progress=document.createElement('span');
+  progress.className='rank-title-count'+(entry.master?' platinum':'');
+  progress.textContent=(entry.master?'💠 ':'🏅 ')+entry.achievementCount+'/8';
+  progress.title=entry.master?'LIFTING MASTER：全8称号獲得':'累計獲得称号 '+entry.achievementCount+'/8';
+  progress.setAttribute('aria-label',progress.title);
+  name.append(progress);
+ }
  return name;
 }
 function renderNextRival(entries,sectionId,nameId,gapId){
