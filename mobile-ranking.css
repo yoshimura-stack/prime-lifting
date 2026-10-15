@@ -291,3 +291,9 @@
 .rank-device-mobile{color:#90d8ff}
 .rank-device svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 #rank-rows li>.rank-player-name,#ranking-dialog-list li>.rank-player-name{flex:1;min-width:0}
+
+/* V0.5.24: independently scroll the full leaderboard, not the dialog header/actions. */
+#ranking-dialog .ranking-dialog-card{display:flex;flex-direction:column;max-height:min(88dvh,850px);min-height:0;overflow:hidden}
+#ranking-dialog #ranking-dialog-list{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-gutter:stable}
+#ranking-dialog .ranking-dialog-head,#ranking-dialog #ranking-dialog-refresh,#ranking-dialog #ranking-dialog-status{flex-shrink:0}
+@media(max-height:450px){#ranking-dialog .ranking-dialog-card{max-height:95dvh}}
