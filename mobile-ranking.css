@@ -333,3 +333,27 @@
 .touch-landscape #achievement-live-list{gap:clamp(2px,.55dvh,5px)}
 .touch-landscape .achievement-live-row{gap:3px}
 .touch-landscape .achievement-live-icon{font-size:1.12em}
+
+/* V0.5.27.2: readable locked titles and accessible title guide. */
+.achievement-board{color:#f3fff4;text-shadow:0 1px 3px #071811,0 0 4px #071811}
+.achievement-board-heading{color:#efffee;font-size:.94em;font-weight:900}
+.achievement-live-row{opacity:1;filter:none;color:#d3ddd7;text-shadow:0 1px 4px #071911,0 0 5px #071911}
+.achievement-live-row:not(.earned) .achievement-live-icon{filter:grayscale(1);opacity:.8}
+.achievement-live-row.earned{color:#eaffb2;text-shadow:0 0 6px #17331b,0 1px 3px #071911}
+.title-guide-block{padding-top:15px;padding-bottom:17px}
+.title-guide-block h2{font-size:clamp(17px,1.35vw,23px);margin:5px 0 7px}
+.title-guide-copy{font-size:clamp(10px,.85vw,13px);color:#c5d9ca;line-height:1.5;margin:0 0 10px}
+.title-guide-open{display:block;width:100%;text-align:center;border:1px solid #a9d66c;border-radius:5px;background:#284937;color:#eaffb5;padding:11px 5px;font-weight:800;font-size:clamp(10px,.85vw,13px);cursor:pointer}
+.title-guide-open:hover,.title-guide-open:focus-visible{background:#3d6143;outline:2px solid #b9e782;outline-offset:2px}
+.title-guide-dialog-card{width:min(660px,96vw);max-height:min(90dvh,840px);min-height:0}
+.title-guide-intro{font-size:13px;color:#c7dfcd;margin:0 0 10px}
+.title-guide-list{overflow-y:auto;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:2px 3px 8px}
+.title-guide-row{display:flex;align-items:center;gap:11px;padding:12px;border:1px solid #486b58;border-radius:9px;background:#102a22;color:#eaf5eb}
+.title-guide-row.legendary{border-color:#9d70ce;background:linear-gradient(120deg,#302043,#192b2c)}
+.title-guide-icon{font-size:27px;flex-shrink:0}
+.title-guide-row strong{font-size:13px;letter-spacing:.03em}
+.title-guide-row p{font-size:12px;line-height:1.5;color:#d1ded3;margin:4px 0 0}
+.title-guide-row.legendary strong{color:#f1d6ff}
+.title-guide-legend{display:inline-block;font-size:9px;font-weight:900;letter-spacing:.08em;color:#f3d6ff;margin-top:5px}
+@media(max-width:560px){.title-guide-list{grid-template-columns:1fr}.title-guide-dialog-card{max-height:94dvh}}
+@media(max-height:470px){.title-guide-dialog-card{max-height:96dvh}.title-guide-row{padding:7px}.title-guide-row p{font-size:11px}}
