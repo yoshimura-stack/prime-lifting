@@ -228,22 +228,14 @@ async function preflight(){
   ticket=data;preflightReset();preflightMessage('通信OK：ランキング登録の準備ができました。');return true;
  }catch(e){
   ticket=null;preflightFailures++;preflightMessage('通信エラー：'+e.message);
-  preflightRetry.hidden=false;preflightContact.hidden=preflightFailures<3;return false;
+  preflightRetry.hidden=false;preflightContact.hidden=preflightFailures<3;if(preflightFailures>=3)preflightMessage('通信エラーが続いています。運営担当者に直接お問い合わせください。\n'+e.message);return false;
  }finally{preflightBusy=false;$('start').disabled=false;}
 }
 preflightRetry.onclick=()=>{$('start').click();};
-preflightContact.onclick=async()=>{
- preflightContact.disabled=true;preflightMessage('運営への障害報告を送信しています…');
- try{
-  const data=await api('/api/support/report',{failures:preflightFailures,device:navigator.userAgent.slice(0,240)});
-  preflightMessage(data.ok?'運営へ障害報告を送信しました。':'送信を確認できませんでした。');
- }catch(e){preflightMessage('障害報告を送信できませんでした。通信回復後に再試行してください。');}
- finally{preflightContact.disabled=false;}
-};
 window.PRIME_RANKING={
  achievements(stats){renderLive(stats,false);showAchievements(stats);},resetAchievements,updateAchievements(stats){renderLive(stats,true);},preflight,
  async begin(standard){
-  const current=++generation;pending=null;$('achievement-panel').hidden=true;$('achievement-badges').replaceChildren();$('result-ranking').hidden=true;$('account-panel').hidden=false;
+  ++generation;pending=null;$('achievement-panel').hidden=true;$('achievement-badges').replaceChildren();$('result-ranking').hidden=true;$('account-panel').hidden=false;
   if(!standard||!player){ticket=null;return;}
   // Ticket was acquired and validated before gameplay began.
  },
