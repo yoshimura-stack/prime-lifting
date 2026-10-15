@@ -223,12 +223,13 @@ async function preflight(){
  if(!player){preflightReset();return true;} // Explicit guest mode, no ranking.
  preflightBusy=true;$('start').disabled=true;preflightMessage('ランキング通信を確認中…');
  try{
+  const currentPlayer=player?.id;
   const data=await api('/api/game/start',{});
-  if(!data.token||!data.ruleset)throw new Error('ランキング登録の準備に失敗しました。');
+  if(!data.token||!data.ruleset||player?.id!==currentPlayer)throw new Error('ランキング登録の準備に失敗しました。');
   ticket=data;preflightReset();preflightMessage('通信OK：ランキング登録の準備ができました。');return true;
  }catch(e){
   ticket=null;preflightFailures++;preflightMessage('通信エラー：'+e.message);
-  preflightRetry.hidden=false;preflightContact.hidden=preflightFailures<3;if(preflightFailures>=3)preflightMessage('通信エラーが続いています。運営担当者に直接お問い合わせください。\n'+e.message);return false;
+  preflightRetry.hidden=false;preflightContact.hidden=preflightFailures<3;if(preflightFailures>=3)preflightMessage('通信エラーが続いています。運営担当者に直接お問い合わせください。 '+e.message);return false;
  }finally{preflightBusy=false;$('start').disabled=false;}
 }
 preflightRetry.onclick=()=>{$('start').click();};
