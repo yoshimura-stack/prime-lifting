@@ -22,7 +22,7 @@ $('kit-change').onclick=openKitSelect;
 applyKit(selectedKit);renderKitTabs();renderKitGrid();$('overlay').classList.add('intro-overlay');
 let rankTick=0,rankEvents=[],rankDirection=0,rankStandard=true;
 function standardRules(){return JSON.stringify(c)===JSON.stringify(PRIME_DEFAULTS);}
-function rankedInput(name){if(['countdown','playing'].includes(g.phase))rankEvents.push({t:rankTick,n:name});const ok=g[name]();if(name===\'jump\'&&ok===true)jumpsSinceHit++;return ok;}
+function rankedInput(name){if(['countdown','playing'].includes(g.phase))rankEvents.push({t:rankTick,n:name});const ok=g[name]();if(name==='jump'&&ok===true)jumpsSinceHit++;return ok;}
 let debug=false,muted=false,paused=false,audioContext=null,last=0,accumulator=0,effects=[],message='',messageTime=0;
 const mobileQuery=matchMedia('(orientation:landscape)');
 const touchQuery=matchMedia('(pointer:coarse)');
