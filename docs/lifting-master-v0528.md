@@ -24,3 +24,11 @@
 3. Existing score, rankings, best-score and authentication regression tests.
 4. Visual check of platinum unlock, persistent badge and stage selection.
 5. Verify DB migration in staging before production.
+
+## Current checkpoint (2026-10-15)
+- Canonical additive SQL: `supabase/migrations/20261015_lifting_achievements.sql` ONLY. Do not run any superseded SQL.
+- GitHub draft PR is not deployed. Production V0.5.27.2 continues resetting per-run badges by design.
+- Before staging DB migration: verify `lifting_players.id` is uuid and inspect actual function role permissions. Do not paste secret keys into chat.
+- The progress merge currently happens after run submit, in a separate RPC. A partial failure can save a score without saving titles. This needs idempotent recovery or an atomic transaction before release.
+- Stage 02 remains unimplemented. Do not advertise stage unlock as shipped.
+- Run `npm test`, `npm run check:deploy`, and a staging two-session login test before requesting production SQL execution.
