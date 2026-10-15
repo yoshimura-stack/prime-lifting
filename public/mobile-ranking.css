@@ -297,3 +297,8 @@
 #ranking-dialog #ranking-dialog-list{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-gutter:stable}
 #ranking-dialog .ranking-dialog-head,#ranking-dialog #ranking-dialog-refresh,#ranking-dialog #ranking-dialog-status{flex-shrink:0}
 @media(max-height:450px){#ranking-dialog .ranking-dialog-card{max-height:95dvh}}
+
+/* V0.5.25: self-ranking highlight and one-tap jump. */
+#ranking-dialog-list li.rank-self{background:rgba(218,255,107,.13);box-shadow:inset 3px 0 0 #dcff6a;color:#eaffba;font-weight:800}
+#ranking-jump-self:not([hidden]){align-self:flex-start;flex-shrink:0;margin:7px 0 3px;padding:8px 12px;background:#294533;border:1px solid #b1d771;border-radius:5px;color:#eaffba;font-weight:800;cursor:pointer}
+#ranking-jump-self:hover{background:#3b6041}
