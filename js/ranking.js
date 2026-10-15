@@ -137,6 +137,31 @@ const achievementDefinitions=[
 {name:'AIR QUAD',icon:'🌌',legendary:true,earned:s=>s.airQuad},
 {name:'DOUBLE AIR',icon:'⚡',legendary:true,earned:s=>s.doubleAir}
 ];
+const titleDescriptions={
+'50 KEEPS CLUB':'50回連続でボールタッチ成功',
+'AIR MASTER':'空中ボールタッチを3回連続成功',
+'SPIN KING':'次のボールタッチまでに3回転して成功',
+'SHOULDER ACE':'肩でボールタッチを1回成功',
+'SCORE HUNTER':'1プレイで50,000 PTS達成',
+'QUAD MASTER':'次のボールタッチまでに4回転して成功',
+'AIR QUAD':'ジャンプ1回＋4回転後にボールタッチ成功',
+'DOUBLE AIR':'2回連続ジャンプ後にボールタッチ成功'
+};
+function initTitleGuide(){
+ const dialog=document.getElementById('title-guide-dialog'),list=document.getElementById('title-guide-list'),open=document.getElementById('title-guide-open'),close=document.getElementById('title-guide-close');
+ for(const a of achievementDefinitions){const row=document.createElement('div');row.className='title-guide-row'+(a.legendary?' legendary':'');
+ const icon=document.createElement('span');icon.className='title-guide-icon';icon.textContent=a.icon;
+ const info=document.createElement('div');const title=document.createElement('strong');title.textContent=a.name;const desc=document.createElement('p');desc.textContent=titleDescriptions[a.name];info.append(title,desc);
+ if(a.legendary){const tag=document.createElement('span');tag.className='title-guide-legend';tag.textContent='LEGENDARY';info.append(tag);}
+ row.append(icon,info);list.append(row);}
+ let returnFocus=null;
+ open.addEventListener('click',()=>{returnFocus=document.activeElement;dialog.hidden=false;close.focus();});
+ const dismiss=()=>{dialog.hidden=true;if(returnFocus&&returnFocus.focus)returnFocus.focus();};
+ close.addEventListener('click',dismiss);
+ dialog.addEventListener('click',e=>{if(e.target===dialog)dismiss();});
+ dialog.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();dismiss();}else if(e.key==='Tab'){e.preventDefault();close.focus();}});
+}
+initTitleGuide();
 const unlocked=new Set();let unlockTimer;
 function renderLive(stats,animate=true){
  const list=document.getElementById('achievement-live-list');if(!list)return;
