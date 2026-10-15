@@ -154,7 +154,7 @@ async function save(){
  finally{saving=false;if(current!==generation&&pending)save();}
 }
 const achievementDefinitions=[
-{name:'50 KEEPS CLUB',icon:'🏆',earned:s=>s.bestCombo>=50},
+{name:'30 KEEPS CLUB',icon:'🏆',earned:s=>s.bestCombo>=30},
 {name:'AIR MASTER',icon:'🪽',earned:s=>s.maxAirStreak>=3},
 {name:'SPIN KING',icon:'🌀',earned:s=>s.spinKing},
 {name:'SHOULDER ACE',icon:'💎',earned:s=>s.shoulderHits>=1},
@@ -164,7 +164,7 @@ const achievementDefinitions=[
 {name:'DOUBLE AIR',icon:'⚡',legendary:true,earned:s=>s.doubleAir}
 ];
 const titleDescriptions={
-'50 KEEPS CLUB':'50回連続でボールタッチ成功',
+'30 KEEPS CLUB':'30回連続でボールタッチ成功',
 'AIR MASTER':'空中ボールタッチを3回連続成功',
 'SPIN KING':'次のボールタッチまでに3回転して成功',
 'SHOULDER ACE':'肩でボールタッチを1回成功',
