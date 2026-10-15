@@ -92,6 +92,50 @@ root.PRIME_WORLD_ARENA=function(host){
  });
  const bannerMesh=new T.Mesh(new T.PlaneGeometry(920,86),new T.MeshBasicMaterial({map:banner}));
  bannerMesh.position.set(0,g+55,-540);group.add(bannerMesh);
+ // Match-day pitch: independently visible from the practice-ground scene.
+ // Use a shared textured plane and a handful of low-cost markings; the player,
+ // ball and existing physical ground height remain completely unchanged.
+ let grassSeed=20261015;
+ const grassRand=()=>{grassSeed=(1664525*grassSeed+1013904223)>>>0;return grassSeed/4294967296;};
+ const turf=host.texture(512,512,(ctx,w,h)=>{
+  ctx.fillStyle='#377f40';ctx.fillRect(0,0,w,h);
+  for(let stripe=0;stripe<16;stripe++){
+   ctx.fillStyle=stripe%2?'rgba(6,41,21,.13)':'rgba(165,224,112,.13)';
+   ctx.fillRect(0,stripe*h/16,w,h/16);
+  }
+  for(let i=0;i<23000;i++){
+   const x=grassRand()*w,y=grassRand()*h;
+   ctx.strokeStyle=grassRand()>.52?'rgba(185,231,129,.25)':'rgba(8,56,24,.27)';
+   ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(x,y);
+   ctx.lineTo(x+(grassRand()-.5)*2,y-2-grassRand()*3);ctx.stroke();
+  }
+ });
+ turf.wrapS=turf.wrapT=T.RepeatWrapping;turf.repeat.set(5,8);
+ turf.anisotropy=Math.min(8,host.renderer.capabilities.getMaxAnisotropy());
+ const pitch=new T.Mesh(new T.PlaneGeometry(2800,3300),
+  new T.MeshStandardMaterial({map:turf,roughness:1,metalness:0,side:T.DoubleSide}));
+ pitch.rotation.x=-Math.PI/2;pitch.position.set(0,g-.45,-300);
+ pitch.receiveShadow=true;group.add(pitch);
+ // Mowing bands at field scale, intentionally subtle under night floodlights.
+ const mowLight=new T.MeshBasicMaterial({color:0x85b966,transparent:true,opacity:.07,depthWrite:false,side:T.DoubleSide});
+ for(let i=0;i<11;i++){
+  const stripe=new T.Mesh(new T.PlaneGeometry(2800,170),mowLight);
+  stripe.rotation.x=-Math.PI/2;stripe.position.set(0,g-.35,-1460+i*265);
+  group.add(stripe);
+ }
+ const paint=new T.MeshBasicMaterial({color:0xf0f5e9,side:T.DoubleSide,depthWrite:false});
+ const line=(x,z,w,d)=>{
+  const m=new T.Mesh(new T.PlaneGeometry(w,d),paint);
+  m.rotation.x=-Math.PI/2;m.position.set(x,g-.22,z);group.add(m);return m;
+ };
+ // Visible center circle and field lines, located behind and around the player.
+ const ring=new T.Mesh(new T.RingGeometry(216,219,128),paint);
+ ring.rotation.x=-Math.PI/2;ring.position.set(0,g-.2,-10);group.add(ring);
+ const centerDot=new T.Mesh(new T.CircleGeometry(5,24),paint);
+ centerDot.rotation.x=-Math.PI/2;centerDot.position.set(0,g-.19,-10);group.add(centerDot);
+ line(0,-405,2450,3);
+ for(const x of [-1020,1020])line(x,-300,3,1850);
+ // Keep the pitch playable and visually grounded: no solid obstacles.
  // Night-time illumination is independent of the training ground's sunlight.
  const ambient=new T.HemisphereLight(0xc4e9ff,0x273729,2.2);group.add(ambient);
  const key=new T.DirectionalLight(0xf9efff,2.5);key.position.set(-350,700,460);group.add(key);
