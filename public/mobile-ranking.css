@@ -309,3 +309,9 @@
 .next-rival span:not(.next-rival-label){font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .next-rival strong{font-size:clamp(13px,2vw,18px);color:#f4ffcf}
 #result-next-rival{max-width:540px;width:100%;margin:6px 0}
+
+/* V0.5.27: earned per-run achievements; display only, no persistent data changes. */
+#achievement-panel:not([hidden]){display:block;margin:10px 0;padding:11px 13px;border:1px solid #91b66a;border-radius:9px;background:linear-gradient(110deg,#253d2c,#142820)}
+#achievement-panel h3{margin:0 0 9px;font-size:13px;color:#dfff9a;letter-spacing:.04em}
+#achievement-badges{display:flex;flex-wrap:wrap;gap:7px}
+.achievement-badge{display:inline-flex;align-items:center;padding:6px 9px;border-radius:100px;border:1px solid #c2ab62;background:rgba(220,184,70,.14);color:#ffe8a1;font-size:12px;font-weight:800}
