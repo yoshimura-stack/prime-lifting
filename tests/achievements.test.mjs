@@ -21,3 +21,10 @@ test('score threshold uses verified final score',()=>{
 test('malformed progress is rejected',()=>{
  for(const mask of [-1,256,2.5,'255',null])assert.throws(()=>publicProgress({mask}));
 });
+
+test('30 keeps unlocks the first title, while 29 does not',()=>{
+ assert.equal(achievementMask({combo:29,achievementProof:{}},0)&1,0);
+ assert.equal(achievementMask({combo:30,achievementProof:{}},0)&1,1);
+ assert.equal(achievementMask({combo:50,achievementProof:{}},0)&1,1);
+ assert.equal(TITLES[0],'30 KEEPS CLUB');
+});
