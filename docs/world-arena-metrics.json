@@ -1,0 +1,23 @@
+{
+  "calls": 141,
+  "triangles": 721830,
+  "medianFrameMs": 4.200000047683716,
+  "p95FrameMs": 4.799999952316284,
+  "memory": {
+    "geometries": 86,
+    "textures": 15
+  },
+  "afterSwitching": {
+    "geometries": 86,
+    "textures": 15
+  },
+  "trainingHidden": true,
+  "arenaVisible": true,
+  "staff": 10,
+  "crowd": 7104,
+  "visualCoverage": {
+    "poses": 32,
+    "kits": 44,
+    "sharedModel": true
+  }
+}
