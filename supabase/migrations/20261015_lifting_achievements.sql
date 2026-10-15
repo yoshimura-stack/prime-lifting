@@ -63,3 +63,32 @@ end;
 $$;
 revoke all on function public.lifting_api_achievement_get(jsonb) from public, anon, authenticated;
 grant execute on function public.lifting_api_achievement_get(jsonb) to service_role;
+
+-- Batch lookup for public leaderboard, invoked only by the Worker.
+-- IDs come from the trusted leaderboard RPC, never from the browser.
+create or replace function public.lifting_api_achievement_list(payload jsonb)
+returns jsonb
+language plpgsql security definer
+set search_path = ''
+as $$
+declare
+  v_ids uuid[];
+begin
+  if auth.role() is distinct from 'service_role' then
+    raise exception 'permission denied' using errcode = '42501';
+  end if;
+  if jsonb_typeof(payload->'playerIds') is distinct from 'array'
+     or jsonb_array_length(payload->'playerIds') > 200 then
+    raise exception 'invalid player IDs' using errcode = '22023';
+  end if;
+  select coalesce(array_agg(value::uuid),array[]::uuid[])
+    into v_ids from jsonb_array_elements_text(payload->'playerIds');
+  return coalesce((
+    select jsonb_object_agg(a.player_id::text,a.title_mask)
+    from public.lifting_achievements a
+    where a.player_id=any(v_ids)
+  ),'{}'::jsonb);
+end;
+$$;
+revoke all on function public.lifting_api_achievement_list(jsonb) from public, anon, authenticated;
+grant execute on function public.lifting_api_achievement_list(jsonb) to service_role;
