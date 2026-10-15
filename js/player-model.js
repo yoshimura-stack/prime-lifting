@@ -19,7 +19,7 @@ root.PRIME_PLAYER_MODEL=function(){const T=this.T,g=new T.Group();const skin=thi
   this.sphere(g,dark,0,76,0,20,9,11);const shorts=[];for(const s of [-1,1]){const cuff=new T.Group();cuff.position.set(s*11,77,0);g.add(cuff);this.mesh(new T.CylinderGeometry(10.5,9.3,20,24),dark,cuff,0,-8,0,1,1,1.05);this.box(cuff,teal,s*9.1,-8,1,1,17,9);shorts.push({s,cuff});}
   const head=new T.Group();head.position.set(0,143,1);g.add(head);const faceGeo=new T.SphereGeometry(1,32,24);const pos=faceGeo.attributes.position;for(let i=0;i<pos.count;i++){const y=pos.getY(i);if(y<-.15)pos.setX(i,pos.getX(i)*(1+(y+.15)*.22));}faceGeo.computeVertexNormals();this.mesh(faceGeo,skinLight,head,0,0,0,12.7,17.5,11.7);
   for(const s of [-1,1]){this.sphere(head,skin,s*12.7,-1,0,2.2,4.2,2.6);this.sphere(head,sock,s*5.1,2.5,10.5,2.7,.9,.65);this.sphere(head,dark,s*5.1,2.5,11,.75,.85,.4);const brow=this.box(head,hair,s*5.3,5.3,10.7,5.5,.8,.6);brow.rotation.z=-s*.1;}
-  for(const side of [-1,1]){this.sphere(head,skinLight,side*6,-3,9.7,4,3.6,2);this.sphere(head,skin,side*12.7,-1,1,1.2,2.6,1.3);}
+  for(const side of [-1,1]){this.sphere(head,skin,side*12.7,-1,1,1.2,2.6,1.3);}
   this.sphere(head,skinLight,0,-.7,12,2,4.7,2.4);this.sphere(head,this.mat('#825e4f'),0,-8,10.5,4.2,.7,.7);
   // Sculpted hair cap with a short, swept front.
   const hairCap=new T.Mesh(new T.SphereGeometry(13.2,24,12,0,Math.PI*2,0,Math.PI*.48),hair);hairCap.scale.set(1,1.2,.88);hairCap.position.y=3;head.add(hairCap);
@@ -30,7 +30,7 @@ root.PRIME_PLAYER_MODEL=function(){const T=this.T,g=new T.Group();const skin=thi
    const shoulder=this.sphere(g,kit,s*21,117,0,7.8,8,7.5);
    this.sphere(hand,skinLight,s*.65,-.1,.35,.4,.55,.55);
    arms.push({s,upper,fore,elbow,hand,shoulder});}
-  const legs=[];for(const s of [-1,1]){const thigh=limb(g,skin),calf=limb(g,sock),knee=this.sphere(g,skinLight,0,0,0,6.8,7,6.5),ankle=this.sphere(g,sock,0,0,0,5.3,6.5,5.2),shoe=new T.Group();this.sphere(shoe,boot,0,0,2,7,5,13);this.sphere(shoe,sole,0,-3.6,2,7.1,1.3,13);for(let i=0;i<4;i++)this.box(shoe,sock,0,4-i*.5,3+i*2,7,.5,1);this.box(shoe,teal,s*6.3,0,4,1,3,10);for(const dx of [-4,4])for(const dz of [-5,7])this.sphere(shoe,boot,dx,-4.9,dz,1.5,1.3,1.5);g.add(shoe);legs.push({s,thigh,calf,knee,ankle,shoe});}
+  const legs=[];for(const s of [-1,1]){const thigh=limb(g,skin),calf=limb(g,sock),knee=this.sphere(g,skin,0,0,0,5.5,5.8,5.2),ankle=this.sphere(g,sock,0,0,0,5.3,6.5,5.2),shoe=new T.Group();this.sphere(shoe,boot,0,0,2,7,5,13);this.sphere(shoe,sole,0,-3.6,2,7.1,1.3,13);for(let i=0;i<4;i++)this.box(shoe,sock,0,4-i*.5,3+i*2,7,.5,1);this.box(shoe,teal,s*6.3,0,4,1,3,10);for(const dx of [-4,4])for(const dz of [-5,7])this.sphere(shoe,boot,dx,-4.9,dz,1.5,1.3,1.5);g.add(shoe);legs.push({s,thigh,calf,knee,ankle,shoe});}
   return {group:g,torso,head,arms,legs,shorts,kitMaterials:{bodyMat,kit,dark,teal}};
 
 };

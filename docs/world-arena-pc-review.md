@@ -5,7 +5,7 @@ Base: origin/main 42def6b. PC presentation is the priority. Mobile redesign and 
 ## Changes
 - Three genuinely stepped, curved stadium tiers, 7,104 instanced spectators in pink / ice blue / white, illuminated gangways, pink LED rims and a triangulated roof ring.
 - Separate night lighting, visible lamp banks, subtle light shafts, horizontal textured turf and center circle. Ten grounded substitutes / manager / staff; no training trees, cones or fence.
-- Shared `js/player-model.js`: shaped cloth, tapered limbs, shoulder joints, cheek / ear details, sleeve trim and boot studs. Kit IDs, colors and selection remain unchanged.
+- Shared `js/player-model.js`: shaped cloth, tapered limbs, shoulder joints, integrated face contour / ear details, sleeve trim and boot studs. Kit IDs, colors and selection remain unchanged.
 - Renderer keeps original player / ball coordinates, camera projection and contact poses. Arm swing and torso balance are visual only. Reusable vector scratch storage avoids per-bone vector allocation.
 - PC-only stadium HUD colors; preview button remains transparent, keyboard focus reveals it. Unlock logic stays at eight titles.
 
@@ -13,7 +13,7 @@ Base: origin/main 42def6b. PC presentation is the priority. Mobile redesign and 
 `npm test`: 39 checks passed. `npm run build`: passed.
 Optional `tests/arena-capture.cjs` uses Playwright + installed Edge and an offline local server. 32 pose variants, 44 kits and the same model on both stages; frozen engine snapshots render without mutation. Stage switching preserves camera / game state and GPU resource counts. Existing lock / unlock / reset events pass. Touch landscape loads with controls and no page errors.
 
-Headless Edge at 1920 × 1080: 141 render calls, 721,830 triangles, 4.2 ms median / 4.8 ms p95 frame interval. These are local test results, not a real-device performance guarantee. Resource counts remain 86 geometries / 15 textures across twenty stage switches.
+Headless Edge at 1920 × 1080: 139 render calls, 720,390 triangles, 4.2 ms median / 4.6 ms p95 frame interval. These are local test results, not a real-device performance guarantee. Resource counts remain 86 geometries / 15 textures across twenty stage switches.
 
 `game.js`, `js/engine.js`, `js/config.js`, `js/kits.js`, `js/ranking.js`, `js/touch.js`, server code and database configuration are unchanged from main. No production network / DB operations were performed. Ranking tests use mocks; production login / saving were not exercised.
 
@@ -29,3 +29,6 @@ Mobile layout work is intentionally out of scope. A later phase will optimize it
 ![PC arena](images/world-arena-pc.png)
 
 The repo contains old tracked public output. Build from root sources before deployment; generated unrelated main updates are intentionally excluded from this visual PR. Do not merge or deploy production before user approval.
+
+## Face / knee refinement
+Removed the separate cheek spheres and reduced knee volume to match the tapered thigh. The knee now shares the thigh skin material. Joint positions, motion timing and collision logic are unchanged. Rechecked 39 tests, build, 32 poses and 44 kits.

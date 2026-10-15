@@ -1,8 +1,8 @@
 {
-  "calls": 141,
-  "triangles": 721830,
+  "calls": 139,
+  "triangles": 720390,
   "medianFrameMs": 4.200000047683716,
-  "p95FrameMs": 4.799999952316284,
+  "p95FrameMs": 4.600000023841858,
   "memory": {
     "geometries": 86,
     "textures": 15
