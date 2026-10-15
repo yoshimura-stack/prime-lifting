@@ -13,12 +13,16 @@ function account(){
  $('account-form').hidden=!!player;$('logout').hidden=!player;
 }
 function renderProgress(progress){
- const el=$('master-progress');if(!el)return;
+ let el=$('master-progress');
+ if(!el){const guide=document.querySelector('.title-guide-copy');if(!guide)return;el=document.createElement('p');el.id='master-progress';el.className='master-progress';el.setAttribute('aria-live','polite');guide.after(el);}
+
  if(!player){el.textContent='ログインすると累計称号を確認できます';return;}
  if(!progress){el.textContent='累計称号：取得できませんでした';return;}
  const count=progress.earned?.length??0;
  el.textContent=progress.master?'💠 LIFTING MASTER 解放！':`累計称号 ${count}/8 ／ 💠 LIFTING MASTERまであと${8-count}`;
  el.classList.toggle('master-unlocked',!!progress.master);
+ if(progress.master&&!el.dataset.announced){el.dataset.announced='true';el.classList.add('master-celebrate');setTimeout(()=>el.classList.remove('master-celebrate'),3500);}
+ if(!progress.master)delete el.dataset.announced;
 }
 async function refreshProgress(){
  const current=++progressGeneration;
@@ -217,6 +221,6 @@ $('account-form').onsubmit=async e=>{
 $('logout').onclick=async()=>{try{await api('/api/logout',{});generation++;player=null;ticket=null;pending=null;account();refreshProgress();}catch(e){$('account-status').textContent=e.message;}};
 $('save-retry').onclick=save;$('rank-refresh').onclick=refresh;
 api('/api/me').then(data=>{if(!authBusy&&!player){player=data.player;account();refreshProgress();}}).catch(()=>{});
-refresh();document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
+renderProgress(null);refresh();document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 setInterval(()=>{if(!document.hidden)refresh();},60000);
 })();
