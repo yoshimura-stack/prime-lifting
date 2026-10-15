@@ -1,5 +1,6 @@
 import {ApiError,normalizeName,replay,validKit,RULESET,VERSION} from './replay.mjs';
 import {createDatabase} from './supabase.mjs';
+import {achievementMask,publicProgress} from './achievements.mjs';
 const encoder=new TextEncoder();
 const encode=bytes=>btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 const decode=s=>Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
@@ -79,11 +80,12 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
    const entries=data.entries.slice(0,full?200:10).map(p=>{const v=publicPlayer(p);return {name:v.name,score:v.best,rank:v.rank,device:v.bestDevice};});
    return json(path==='/api/champion'?{champion:entries[0]||null}:{entries});
   }
-  if(!['/api/me','/api/game/start','/api/scores'].includes(path))throw new ApiError(404,'APIが見つかりません。');
-  if((path==='/api/me')===post)throw new ApiError(405,'この操作には対応していません。');
+  if(!['/api/me','/api/achievements','/api/game/start','/api/scores'].includes(path))throw new ApiError(404,'APIが見つかりません。');
+  if((path==='/api/me'||path==='/api/achievements')===post)throw new ApiError(405,'この操作には対応していません。');
   const cookie=(request.headers.get('Cookie')||'').split(';').map(v=>v.trim()).find(v=>v.startsWith('prime_session='))?.slice(14);
   const session=await verify(cookie,env.SESSION_SECRET,'session',time);
   if(path==='/api/me')return json({player:publicPlayer((await db.call('me',{playerId:session.sub})).player)});
+  if(path==='/api/achievements'){await db.call('me',{playerId:session.sub});return json({progress:publicProgress(await db.call('achievement_get',{playerId:session.sub}))});}
   if(path==='/api/game/start'){
    await db.call('me',{playerId:session.sub});
     return json({ruleset:RULESET,token:await sign({kind:'run',sub:session.sub,id:crypto.randomUUID(),started:time,exp:time+86400000,ruleset:RULESET,device:requestDevice(request)},env.SESSION_SECRET)});
@@ -96,7 +98,11 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   if(!validKit(body.kit)||!['pc','mobile'].includes(device))throw new ApiError(400,'端末・ユニフォームの指定が正しくありません。');
   const result=replayGame(body.events),score=finalScore(result.score,device);
   const saved=await db.call('submit',{playerId:session.sub,runId:run.id,...result,score,kit:body.kit,device,gameVersion:VERSION});
-  return json({player:publicPlayer(saved.player),score,personalBest:saved.personalBest===true,newChampion:saved.newChampion===true});
+  // Only an accepted and saved standard run can grant titles.
+  // Progress is isolated from score storage; a progress outage must not erase a score.
+  let progress=null;
+  try{progress=publicProgress(await db.call('achievement_merge',{playerId:session.sub,mask:achievementMask(result,score)}));}catch{}
+  return json({player:publicPlayer(saved.player),score,personalBest:saved.personalBest===true,newChampion:saved.newChampion===true,progress});
  }catch(error){return json({error:error instanceof ApiError?error.message:'ランキング処理に失敗しました。再試行してください。'},error instanceof ApiError?error.status:503);}
  }};}
 export default createWorker();
