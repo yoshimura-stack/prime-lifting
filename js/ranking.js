@@ -128,20 +128,59 @@ async function save(){
  finally{saving=false;if(current!==generation&&pending)save();}
 }
 const achievementDefinitions=[
- {name:'50 KEEPS CLUB',icon:'🏆',earned:s=>s.bestCombo>=50},
- {name:'AIR MASTER',icon:'🪽',earned:s=>s.maxAirStreak>=3},
- {name:'SPIN KING',icon:'🌀',earned:s=>s.spinBonusHits>=1},
- {name:'SHOULDER ACE',icon:'💎',earned:s=>s.shoulderHits>=1},
- {name:'SCORE HUNTER',icon:'🎯',earned:s=>s.score>=10000}
+{name:'50 KEEPS CLUB',icon:'🏆',earned:s=>s.bestCombo>=50},
+{name:'AIR MASTER',icon:'🪽',earned:s=>s.maxAirStreak>=3},
+{name:'SPIN KING',icon:'🌀',earned:s=>s.spinKing},
+{name:'SHOULDER ACE',icon:'💎',earned:s=>s.shoulderHits>=1},
+{name:'SCORE HUNTER',icon:'🎯',earned:s=>s.score>=50000},
+{name:'QUAD MASTER',icon:'👑',earned:s=>s.quadMaster},
+{name:'AIR QUAD',icon:'🌌',legendary:true,earned:s=>s.airQuad},
+{name:'DOUBLE AIR',icon:'⚡',legendary:true,earned:s=>s.doubleAir}
 ];
+const titleDescriptions={
+'50 KEEPS CLUB':'50回連続でボールタッチ成功',
+'AIR MASTER':'空中ボールタッチを3回連続成功',
+'SPIN KING':'次のボールタッチまでに3回転して成功',
+'SHOULDER ACE':'肩でボールタッチを1回成功',
+'SCORE HUNTER':'1プレイで50,000 PTS達成',
+'QUAD MASTER':'次のボールタッチまでに4回転して成功',
+'AIR QUAD':'ジャンプ1回＋4回転後にボールタッチ成功',
+'DOUBLE AIR':'2回連続ジャンプ後にボールタッチ成功'
+};
+function initTitleGuide(){
+ const dialog=document.getElementById('title-guide-dialog'),list=document.getElementById('title-guide-list'),open=document.getElementById('title-guide-open'),close=document.getElementById('title-guide-close');
+ for(const a of achievementDefinitions){const row=document.createElement('div');row.className='title-guide-row'+(a.legendary?' legendary':'');
+ const icon=document.createElement('span');icon.className='title-guide-icon';icon.textContent=a.icon;
+ const info=document.createElement('div');const title=document.createElement('strong');title.textContent=a.name;const desc=document.createElement('p');desc.textContent=titleDescriptions[a.name];info.append(title,desc);
+ if(a.legendary){const tag=document.createElement('span');tag.className='title-guide-legend';tag.textContent='LEGENDARY';info.append(tag);}
+ row.append(icon,info);list.append(row);}
+ let returnFocus=null;
+ open.addEventListener('click',()=>{returnFocus=document.activeElement;dialog.hidden=false;close.focus();});
+ const dismiss=()=>{dialog.hidden=true;if(returnFocus&&returnFocus.focus)returnFocus.focus();};
+ close.addEventListener('click',dismiss);
+ dialog.addEventListener('click',e=>{if(e.target===dialog)dismiss();});
+ dialog.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();dismiss();}else if(e.key==='Tab'){e.preventDefault();close.focus();}});
+}
+initTitleGuide();
+const unlocked=new Set();let unlockTimer;
+function renderLive(stats,animate=true){
+ const list=document.getElementById('achievement-live-list');if(!list)return;
+ const fresh=achievementDefinitions.filter(a=>a.earned(stats)&&!unlocked.has(a.name));
+ for(const a of fresh)unlocked.add(a.name);
+ list.replaceChildren();
+ for(const a of achievementDefinitions){const row=document.createElement('div');row.className='achievement-live-row'+(unlocked.has(a.name)?' earned':'')+(a.legendary?' legendary':'');const icon=document.createElement('span');icon.className='achievement-live-icon';icon.textContent=a.icon;const label=document.createElement('span');label.textContent=a.name;row.append(icon,label);list.append(row);}
+ document.getElementById('achievement-count').textContent=unlocked.size+'/8';
+ if(animate&&fresh.length){const a=fresh[fresh.length-1],toast=document.getElementById('achievement-unlock');toast.textContent=(a.legendary?'✦ LEGENDARY UNLOCK! ✦ ':'✦ UNLOCK! ✦ ')+a.name;toast.className='achievement-unlock show'+(a.legendary?' legendary':'');clearTimeout(unlockTimer);unlockTimer=setTimeout(()=>toast.className='achievement-unlock',1500);}
+}
+function resetAchievements(){unlocked.clear();clearTimeout(unlockTimer);const toast=document.getElementById('achievement-unlock');toast.className='achievement-unlock';toast.textContent='';renderLive({score:0,bestCombo:0,maxAirStreak:0,shoulderHits:0},false);document.getElementById('achievement-panel').hidden=true;document.getElementById('achievement-badges').replaceChildren();}
 function showAchievements(stats){
- const panel=$(\'achievement-panel\'),badges=$(\'achievement-badges\');badges.replaceChildren();
+ const panel=$('achievement-panel'),badges=$('achievement-badges');badges.replaceChildren();
  const earned=achievementDefinitions.filter(b=>b.earned(stats));
- for(const badge of earned){const el=document.createElement(\'span\');el.className=\'achievement-badge\';el.textContent=`${badge.icon} ${badge.name}`;badges.append(el);}
- panel.hidden=!earned.length;
+ for(const badge of earned){const el=document.createElement('span');el.className='achievement-badge'+(badge.legendary?' legendary':'');el.textContent=`${badge.icon} ${badge.name}`;badges.append(el);}
+ panel.hidden=false;if(!earned.length){const el=document.createElement('span');el.textContent='今回は未獲得。次のプレイで挑戦！';badges.append(el);}
 }
 window.PRIME_RANKING={
- achievements(stats){showAchievements(stats);},
+ achievements(stats){renderLive(stats,false);showAchievements(stats);},resetAchievements,updateAchievements(stats){renderLive(stats,true);},
  async begin(standard){
   const current=++generation;ticket=null;pending=null;$('achievement-panel').hidden=true;$('achievement-badges').replaceChildren();$('result-ranking').hidden=true;$('account-panel').hidden=false;
   if(!standard||!player)return;
