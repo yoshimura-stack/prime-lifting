@@ -214,12 +214,38 @@ function showAchievements(stats){
  for(const badge of earned){const el=document.createElement('span');el.className='achievement-badge'+(badge.legendary?' legendary':'');el.textContent=`${badge.icon} ${badge.name}`;badges.append(el);}
  panel.hidden=false;if(!earned.length){const el=document.createElement('span');el.textContent='今回は未獲得。次のプレイで挑戦！';badges.append(el);}
 }
+let preflightFailures=0,preflightBusy=false;
+const preflightStatus=$('preflight-status'),preflightRetry=$('preflight-retry'),preflightContact=$('preflight-contact');
+function preflightMessage(message){preflightStatus.textContent=message;}
+function preflightReset(){preflightFailures=0;preflightRetry.hidden=true;preflightContact.hidden=true;preflightMessage('');}
+async function preflight(){
+ if(preflightBusy)return false;
+ if(!player){preflightReset();return true;} // Explicit guest mode, no ranking.
+ preflightBusy=true;$('start').disabled=true;preflightMessage('ランキング通信を確認中…');
+ try{
+  const data=await api('/api/game/start',{});
+  if(!data.token||!data.ruleset)throw new Error('ランキング登録の準備に失敗しました。');
+  ticket=data;preflightReset();preflightMessage('通信OK：ランキング登録の準備ができました。');return true;
+ }catch(e){
+  ticket=null;preflightFailures++;preflightMessage('通信エラー：'+e.message);
+  preflightRetry.hidden=false;preflightContact.hidden=preflightFailures<3;return false;
+ }finally{preflightBusy=false;$('start').disabled=false;}
+}
+preflightRetry.onclick=()=>{$('start').click();};
+preflightContact.onclick=async()=>{
+ preflightContact.disabled=true;preflightMessage('運営への障害報告を送信しています…');
+ try{
+  const data=await api('/api/support/report',{failures:preflightFailures,device:navigator.userAgent.slice(0,240)});
+  preflightMessage(data.ok?'運営へ障害報告を送信しました。':'送信を確認できませんでした。');
+ }catch(e){preflightMessage('障害報告を送信できませんでした。通信回復後に再試行してください。');}
+ finally{preflightContact.disabled=false;}
+};
 window.PRIME_RANKING={
- achievements(stats){renderLive(stats,false);showAchievements(stats);},resetAchievements,updateAchievements(stats){renderLive(stats,true);},
+ achievements(stats){renderLive(stats,false);showAchievements(stats);},resetAchievements,updateAchievements(stats){renderLive(stats,true);},preflight,
  async begin(standard){
-  const current=++generation;ticket=null;pending=null;$('achievement-panel').hidden=true;$('achievement-badges').replaceChildren();$('result-ranking').hidden=true;$('account-panel').hidden=false;
-  if(!standard||!player)return;
-  try{const data=await api('/api/game/start',{});if(current===generation)ticket=data;}catch{}
+  const current=++generation;pending=null;$('achievement-panel').hidden=true;$('achievement-badges').replaceChildren();$('result-ranking').hidden=true;$('account-panel').hidden=false;
+  if(!standard||!player){ticket=null;return;}
+  // Ticket was acquired and validated before gameplay began.
  },
  finish(result,events,standard){
   $('result-ranking').hidden=false;$('result-next-rival').hidden=true;$('record-banner').textContent='';$('record-banner').classList.remove('record-celebrate');$('save-retry').hidden=true;
@@ -232,10 +258,10 @@ window.PRIME_RANKING={
 $('account-form').onsubmit=async e=>{
  e.preventDefault();if(authBusy)return;authBusy=true;$('account-status').textContent='確認しています…';
  const pin=$('player-pin').value;$('player-pin').value='';
- try{const data=await api('/api/'+(e.submitter?.value==='register'?'register':'login'),{name:$('player-name').value,pin});player=data.player;cumulativeEarned=new Set();progressOwner=null;account();renderLive(lastLiveStats,false);refreshProgress();}
+ try{const data=await api('/api/'+(e.submitter?.value==='register'?'register':'login'),{name:$('player-name').value,pin});player=data.player;preflightReset();cumulativeEarned=new Set();progressOwner=null;account();renderLive(lastLiveStats,false);refreshProgress();}
  catch(error){$('account-status').textContent=error.message;}finally{authBusy=false;}
 };
-$('logout').onclick=async()=>{try{await api('/api/logout',{});generation++;player=null;ticket=null;pending=null;cumulativeEarned=new Set();progressOwner=null;account();renderLive(lastLiveStats,false);refreshProgress();}catch(e){$('account-status').textContent=e.message;}};
+$('logout').onclick=async()=>{try{await api('/api/logout',{});generation++;player=null;ticket=null;pending=null;preflightReset();cumulativeEarned=new Set();progressOwner=null;account();renderLive(lastLiveStats,false);refreshProgress();}catch(e){$('account-status').textContent=e.message;}};
 $('save-retry').onclick=save;$('rank-refresh').onclick=refresh;
 api('/api/me').then(data=>{if(!authBusy&&!player){player=data.player;account();refreshProgress();}}).catch(()=>{});
 renderProgress(null);refresh();document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
