@@ -127,9 +127,23 @@ async function save(){
  }catch(e){if(current!==generation)return;$('save-feedback').textContent=e.message;$('save-retry').hidden=false;}
  finally{saving=false;if(current!==generation&&pending)save();}
 }
+const achievementDefinitions=[
+ {name:'50 KEEPS CLUB',icon:'🏆',earned:s=>s.bestCombo>=50},
+ {name:'AIR MASTER',icon:'🪽',earned:s=>s.maxAirStreak>=3},
+ {name:'SPIN KING',icon:'🌀',earned:s=>s.spinBonusHits>=1},
+ {name:'SHOULDER ACE',icon:'💎',earned:s=>s.shoulderHits>=1},
+ {name:'SCORE HUNTER',icon:'🎯',earned:s=>s.score>=10000}
+];
+function showAchievements(stats){
+ const panel=$(\'achievement-panel\'),badges=$(\'achievement-badges\');badges.replaceChildren();
+ const earned=achievementDefinitions.filter(b=>b.earned(stats));
+ for(const badge of earned){const el=document.createElement(\'span\');el.className=\'achievement-badge\';el.textContent=`${badge.icon} ${badge.name}`;badges.append(el);}
+ panel.hidden=!earned.length;
+}
 window.PRIME_RANKING={
+ achievements(stats){showAchievements(stats);},
  async begin(standard){
-  const current=++generation;ticket=null;pending=null;$('result-ranking').hidden=true;$('account-panel').hidden=false;
+  const current=++generation;ticket=null;pending=null;$('achievement-panel').hidden=true;$('achievement-badges').replaceChildren();$('result-ranking').hidden=true;$('account-panel').hidden=false;
   if(!standard||!player)return;
   try{const data=await api('/api/game/start',{});if(current===generation)ticket=data;}catch{}
  },
