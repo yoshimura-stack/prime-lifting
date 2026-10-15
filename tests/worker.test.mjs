@@ -54,7 +54,7 @@ test('server replay matches unchanged engine on real timed input',()=>{
   const error=b.x-19-p.x,dir=Math.abs(error)<4?0:Math.sign(error);if(dir!==lastDir){events.push({t:tick,n:'move',v:dir});lastDir=dir;}
   game.update(PRIME_DEFAULTS.FIXED_STEP,dir);tick++;
  }
- assert.ok(game.score>0);assert.deepEqual(replay(events),{score:game.score,hits:game.hits,combo:game.bestCombo,drops:game.drops});assert.equal(RULESET,'cockpit-v42');
+ assert.ok(game.score>0);const verified=replay(events);assert.deepEqual({score:verified.score,hits:verified.hits,combo:verified.combo,drops:verified.drops},{score:game.score,hits:game.hits,combo:game.bestCombo,drops:game.drops});assert.ok(verified.achievementProof);assert.equal(RULESET,'cockpit-v42');
 });
 test('admin login requires configured password and reset needs valid short-lived token and confirmation',async()=>{
  let time=100000,resets=0;
@@ -117,4 +117,36 @@ test('verified scores use signed server device, update mixed-device best, and re
  assert.equal(rows.size,4);
  assert.equal(submissions.length,8);
  for(let index=0;index<submissions.length;index+=2)assert.equal(submissions[index],submissions[index+1]);
+});
+
+test('leaderboard includes verified collection counts with one batch lookup',async()=>{
+ const players=[
+  {id:'a',name:'A',best:90000,rank:1,bestDevice:'pc'},
+  {id:'b',name:'B',best:80000,rank:2,bestDevice:'mobile'},
+  {id:'c',name:'C',best:70000,rank:3,bestDevice:null}
+ ];
+ const calls=[];
+ const worker=createWorker({database:()=>({call:async(op,input)=>{
+  calls.push({op,input});
+  if(op==='leaderboard')return {entries:players};
+  if(op==='achievement_list')return {a:255,b:42};
+  throw Error('unexpected RPC');
+ }})});
+ const response=await worker.fetch(request('/api/leaderboard/all'),env);
+ assert.equal(response.status,200);
+ const {entries}=await response.json();
+ assert.deepEqual(entries.map(e=>[e.name,e.achievementCount,e.master]),[['A',8,true],['B',3,false],['C',0,false]]);
+ assert.deepEqual(calls.filter(c=>c.op==='achievement_list').map(c=>c.input.playerIds),[['a','b','c']]);
+ assert.deepEqual(entries.map(e=>e.score),[90000,80000,70000]);
+});
+test('leaderboard survives temporary title lookup outage',async()=>{
+ const player={id:'a',name:'A',best:100,rank:1,bestDevice:'pc'};
+ const worker=createWorker({database:()=>({call:async(op)=>{
+  if(op==='leaderboard')return {entries:[player]};
+  throw Error('temporary achievement service outage');
+ }})});
+ const response=await worker.fetch(request('/api/leaderboard'),env);
+ assert.equal(response.status,200);
+ const {entries}=await response.json();
+ assert.equal(entries[0].achievementCount,0);
 });
