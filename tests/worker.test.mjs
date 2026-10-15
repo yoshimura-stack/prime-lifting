@@ -175,3 +175,44 @@ test('failed achievement merge returns retryable error without dropping the sign
  assert.equal(submitCalls,2);
  assert.equal(attempts,2);
 });
+
+test('authenticated achievement progress accumulates across separately saved runs',async()=>{
+ let time=100000,mask=0;
+ const player={id:'player-one',name:'A',best:100,rank:1,kit:'japan-01'};
+ const masks=[1,4];let next=0;
+ const calls=[];
+ const worker=createWorker({now:()=>time,
+  replayGame:()=>({score:0,hits:0,combo:next===0?30:0,drops:0,
+   achievementProof:{spinKing:next===1}}),
+  database:()=>({call:async(op,input)=>{
+   calls.push(op);
+   if(op==='achievement_get')return {mask};
+   if(op==='achievement_merge'){mask|=input.mask;return {mask};}
+   if(op==='submit')return {player,personalBest:false,newChampion:false};
+   if(op==='leaderboard')return {entries:[player]};
+   return {player};
+  }})});
+ assert.equal((await worker.fetch(request('/api/achievements'),env)).status,401);
+ const auth=await worker.fetch(request('/api/register',{name:'A',pin:'123456'}),env);
+ assert.equal(auth.status,200);
+ const cookie=auth.headers.get('set-cookie').split(';')[0];
+ const before=await (await worker.fetch(request('/api/achievements',null,cookie),env)).json();
+ assert.deepEqual(before.progress.earned,[]);
+ for(let i=0;i<2;i++){
+  next=i;
+  const ticket=await (await worker.fetch(request('/api/game/start',{},cookie),env)).json();
+  time+=64000;
+  const response=await worker.fetch(request('/api/scores',{...ticket,events:[],kit:'japan-01'},cookie),env);
+  assert.equal(response.status,200);
+  const saved=await response.json();
+  assert.equal(saved.progress.mask,i===0?1:5);
+ }
+ const after=await (await worker.fetch(request('/api/achievements',null,cookie),env)).json();
+ assert.equal(after.progress.mask,5);
+ assert.deepEqual(after.progress.earned,['30 KEEPS CLUB','SPIN KING']);
+ assert.equal(after.progress.master,false);
+ const leaderboard=await (await worker.fetch(request('/api/leaderboard'),env)).json();
+ // This mock returns no title lookup, so the fallback is 0/8.
+ assert.equal(leaderboard.entries[0].achievementCount,0);
+ assert.equal(calls.filter(op=>op==='achievement_merge').length,2);
+});
