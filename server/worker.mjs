@@ -77,7 +77,18 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
    const full=path==='/api/leaderboard/all';
    const data=await db.call('leaderboard',{limit:full?200:10});
    if(!Array.isArray(data?.entries))throw new ApiError(503,'ランキングの応答を確認中です。');
-   const entries=data.entries.slice(0,full?200:10).map(p=>{const v=publicPlayer(p);return {name:v.name,score:v.best,rank:v.rank,device:v.bestDevice};});
+   const players=data.entries.slice(0,full?200:10).map(publicPlayer);
+   // One batch query for all ranks; do not issue per-player RPC calls.
+   // Missing progress is 0/8. A failed progress query leaves the leaderboard usable.
+   let masks={};
+   try{const response=await db.call('achievement_list',{playerIds:players.map(p=>p.id)});
+    if(response&&typeof response==='object'&&!Array.isArray(response))masks=response;
+   }catch{}
+   const entries=players.map(v=>{
+    const mask=masks[v.id],valid=Number.isInteger(mask)&&mask>=0&&mask<=255;
+    const count=valid?mask.toString(2).replace(/0/g,'').length:0;
+    return {name:v.name,score:v.best,rank:v.rank,device:v.bestDevice,achievementCount:count,master:valid&&mask===255};
+   });
    return json(path==='/api/champion'?{champion:entries[0]||null}:{entries});
   }
   if(!['/api/me','/api/achievements','/api/game/start','/api/scores'].includes(path))throw new ApiError(404,'APIが見つかりません。');
