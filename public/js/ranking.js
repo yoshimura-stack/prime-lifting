@@ -42,9 +42,13 @@ const rankDialog=$('ranking-dialog');
 const rankOpen=$('view-ranking');
 const rankClose=$('close-ranking');
 let rankDialogGeneration=0,previousFocus=null;
+const jumpSelf=$('ranking-jump-self');
+let selfRankRow=null;
+function jumpToSelf(){if(selfRankRow?.isConnected)selfRankRow.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'center'});}
+jumpSelf.addEventListener('click',jumpToSelf);
 function closeRankDialog(){
  if(rankDialog.hidden)return;
- rankDialog.hidden=true;rankDialogGeneration++;
+ rankDialog.hidden=true;rankDialogGeneration++;selfRankRow=null;jumpSelf.hidden=true;
  (previousFocus?.isConnected?previousFocus:rankOpen).focus();
 }
 async function showRankDialog(){
@@ -58,12 +62,15 @@ async function updateRankDialog(){
  try{
   const data=await api('/api/leaderboard/all');
   if(current!==rankDialogGeneration||rankDialog.hidden)return;
-  const list=$('ranking-dialog-list');list.replaceChildren();
+  const list=$('ranking-dialog-list');list.replaceChildren();selfRankRow=null;jumpSelf.hidden=true;
   for(const e of data.entries){
    const li=document.createElement('li'),score=document.createElement('strong');score.textContent=e.score.toLocaleString()+' PTS';
-   li.append(rankName(e,`${e.rank}. `),score);list.append(li);
+   li.append(rankName(e,`${e.rank}. `),score);
+   if(player&&e.name===player.name){li.classList.add('rank-self');li.setAttribute('aria-current','true');selfRankRow=li;}
+   list.append(li);
   }
   $('ranking-dialog-status').textContent=data.entries.length?`${data.entries.length}人のランキングを表示中（上下にスクロールできます）`:'まだ記録がありません。';
+  jumpSelf.hidden=!selfRankRow;
   champion(data.entries);
  }catch(e){
   if(current!==rankDialogGeneration||rankDialog.hidden)return;
@@ -78,9 +85,9 @@ document.addEventListener('keydown',e=>{
  if(rankDialog.hidden)return;
  if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();closeRankDialog();}
  if(e.key==='Tab'){
-  const controls=[rankClose,$('ranking-dialog-refresh')];
-  if(e.shiftKey&&document.activeElement===controls[0]){e.preventDefault();controls[1].focus();}
-  else if(!e.shiftKey&&document.activeElement===controls[1]){e.preventDefault();controls[0].focus();}
+  const controls=[rankClose,...(jumpSelf.hidden?[]:[jumpSelf]),$('ranking-dialog-refresh')];
+  if(e.shiftKey&&document.activeElement===controls[0]){e.preventDefault();controls[controls.length-1].focus();}
+  else if(!e.shiftKey&&document.activeElement===controls[controls.length-1]){e.preventDefault();controls[0].focus();}
  }
 },true);
 
