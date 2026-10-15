@@ -149,7 +149,7 @@ async function save(){
  if(current!==generation)return;player=data.player;pending=null;account();
  $('personal-result').textContent=`今回 ${data.score.toLocaleString()} PTS ／ BEST ${player.best.toLocaleString()} PTS ／ 全体 ${player.rank??'—'}位`;
  $('record-banner').textContent=data.newChampion?'NEW CHAMPION!':data.personalBest?'NEW PERSONAL BEST!':'';$('record-banner').classList.toggle('record-celebrate',!!(data.personalBest||data.newChampion));
- $('save-feedback').textContent='記録を保存しました。';if(data.progress)renderProgress(data.progress);else refreshProgress();await refresh();await updateResultRival();
+ $('save-feedback').textContent='記録を保存しました。';if(data.progress){progressGeneration++;renderProgress(data.progress);}else refreshProgress();await refresh();await updateResultRival();
  }catch(e){if(current!==generation)return;$('save-feedback').textContent=e.message;$('save-retry').hidden=false;}
  finally{saving=false;if(current!==generation&&pending)save();}
 }
