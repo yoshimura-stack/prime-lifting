@@ -302,3 +302,10 @@
 #ranking-dialog-list li.rank-self{background:rgba(218,255,107,.13);box-shadow:inset 3px 0 0 #dcff6a;color:#eaffba;font-weight:800}
 #ranking-jump-self:not([hidden]){align-self:flex-start;flex-shrink:0;margin:7px 0 3px;padding:8px 12px;background:#294533;border:1px solid #b1d771;border-radius:5px;color:#eaffba;font-weight:800;cursor:pointer}
 #ranking-jump-self:hover{background:#3b6041}
+
+/* V0.5.26: read-only next-rival motivation panel. */
+.next-rival:not([hidden]){display:flex;flex-direction:column;gap:4px;flex-shrink:0;margin:9px 0;padding:10px 13px;background:linear-gradient(110deg,#234233,#152b25);border:1px solid #8caa62;border-radius:8px;color:#eaffbf}
+.next-rival-label{font-size:10px;font-weight:900;letter-spacing:.13em;color:#cfff78}
+.next-rival span:not(.next-rival-label){font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.next-rival strong{font-size:clamp(13px,2vw,18px);color:#f4ffcf}
+#result-next-rival{max-width:540px;width:100%;margin:6px 0}
