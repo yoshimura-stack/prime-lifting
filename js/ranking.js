@@ -17,6 +17,7 @@ function renderProgress(progress){
  if(!player||!progress){cumulativeEarned=new Set();progressOwner=null;}
  else {cumulativeEarned=new Set(Array.isArray(progress.earned)?progress.earned:[]);progressOwner=player.id;}
  if(typeof renderLive==='function')renderLive(lastLiveStats,false);
+ window.dispatchEvent(new CustomEvent('prime:progress',{detail:{master:!!(player&&progress&&progress.master),earned:[...cumulativeEarned]}}));
  let el=$('master-progress');
  if(!el){const guide=document.querySelector('.title-guide-copy');if(!guide)return;el=document.createElement('p');el.id='master-progress';el.className='master-progress';el.setAttribute('aria-live','polite');guide.after(el);}
 
