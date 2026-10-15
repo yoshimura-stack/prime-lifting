@@ -375,3 +375,5 @@
 .stage-block .stage-buttons button[aria-pressed="true"]{border-color:#d9ff70;background:#244533;color:#e7ff9c}
 .stage-block .stage-buttons button:disabled{opacity:.58;cursor:not-allowed}
 .stage-block #stage-hint{display:block;font-size:10px;line-height:1.5;color:#b5d0be}
+
+.stage-block #stage-preview{width:100%;padding:8px 5px;margin:4px 0 8px;border:1px solid #688c8a;border-radius:5px;background:#132c33;color:#d2eff3;font-size:11px;font-weight:700;cursor:pointer}
