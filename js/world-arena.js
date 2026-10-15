@@ -112,15 +112,15 @@ root.PRIME_WORLD_ARENA=function(host){
  });
  turf.wrapS=turf.wrapT=T.RepeatWrapping;turf.repeat.set(5,8);
  turf.anisotropy=Math.min(8,host.renderer.capabilities.getMaxAnisotropy());
- const pitch=new T.Mesh(new T.PlaneGeometry(2800,3300),
+ const pitch=new T.Mesh(new T.PlaneGeometry(2800,1850),
   new T.MeshStandardMaterial({map:turf,roughness:1,metalness:0,side:T.DoubleSide}));
- pitch.rotation.x=-Math.PI/2;pitch.position.set(0,g-.45,-300);
+ pitch.rotation.x=-Math.PI/2;pitch.position.set(0,g-.45,385);
  pitch.receiveShadow=true;group.add(pitch);
  // Mowing bands at field scale, intentionally subtle under night floodlights.
  const mowLight=new T.MeshBasicMaterial({color:0x85b966,transparent:true,opacity:.07,depthWrite:false,side:T.DoubleSide});
- for(let i=0;i<11;i++){
+ for(let i=0;i<7;i++){
   const stripe=new T.Mesh(new T.PlaneGeometry(2800,170),mowLight);
-  stripe.rotation.x=-Math.PI/2;stripe.position.set(0,g-.35,-1460+i*265);
+  stripe.rotation.x=-Math.PI/2;stripe.position.set(0,g-.35,-420+i*265);
   group.add(stripe);
  }
  const paint=new T.MeshBasicMaterial({color:0xf0f5e9,side:T.DoubleSide,depthWrite:false});
@@ -136,6 +136,44 @@ root.PRIME_WORLD_ARENA=function(host){
  line(0,-405,2450,3);
  for(const x of [-1020,1020])line(x,-300,3,1850);
  // Keep the pitch playable and visually grounded: no solid obstacles.
+ // Match-day touchline: ten low-poly staff and substitutes behind the
+ // advertising board. Reuse a small set of geometries and materials.
+ const skin=new T.MeshStandardMaterial({color:0xc58e70,roughness:.9});
+ const hair=new T.MeshStandardMaterial({color:0x22242b,roughness:1});
+ const navy=new T.MeshStandardMaterial({color:0x142539,roughness:1});
+ const shirt=new T.MeshStandardMaterial({color:0x2a79c4,roughness:1});
+ const vest=new T.MeshStandardMaterial({color:0x8ce2ae,roughness:1});
+ const trousers=new T.MeshStandardMaterial({color:0x1a2433,roughness:1});
+ const shoes=new T.MeshStandardMaterial({color:0x10151e,roughness:1});
+ const white=new T.MeshStandardMaterial({color:0xe9e6df,roughness:1});
+ const headGeo=new T.SphereGeometry(10,9,7),bodyGeo=new T.CylinderGeometry(13,12,44,8),limbGeo=new T.CylinderGeometry(4.5,5.5,40,7);
+ const createPerson=(i)=>{
+  const person=new T.Group();
+  const role=i===1||i===7?'manager':i===4||i===9?'coach':'sub';
+  const top=role==='manager'?navy:role==='coach'?vest:shirt;
+  const torso=new T.Mesh(bodyGeo,top);torso.position.y=81;person.add(torso);
+  const head=new T.Mesh(headGeo,skin);head.position.y=117;person.add(head);
+  const cap=new T.Mesh(new T.SphereGeometry(10.5,9,5,0,Math.PI*2,0,Math.PI*.43),hair);
+  cap.position.y=121;person.add(cap);
+  if(role==='manager'){
+   const tie=new T.Mesh(new T.BoxGeometry(3,25,2),white);tie.position.set(0,80,13);person.add(tie);
+  }
+  for(const side of [-1,1]){
+   const leg=new T.Mesh(limbGeo,trousers);leg.position.set(side*7,31,0);leg.rotation.z=side*(i%3===0?.09:.02);person.add(leg);
+   const boot=new T.Mesh(new T.BoxGeometry(11,7,18),shoes);boot.position.set(side*7,8,6);person.add(boot);
+   const arm=new T.Mesh(new T.CylinderGeometry(4.5,4,38,7),top);
+   arm.position.set(side*17,82,0);
+   arm.rotation.z=side*(role==='manager'?-.12:i%3===0?-.55:.25);person.add(arm);
+   const hand=new T.Mesh(new T.SphereGeometry(4.3,7,6),skin);
+   hand.position.set(side*(role==='manager'?20:i%3===0?27:14),63,0);person.add(hand);
+  }
+  const x=-630+i*140;
+  person.position.set(x,g+68,-560);
+  person.scale.setScalar(.73+(i%4)*.035);
+  person.rotation.y=i%3===0?-.17:i%3===1?.1:0;
+  group.add(person);
+ };
+ for(let i=0;i<10;i++)createPerson(i);
  // Night-time illumination is independent of the training ground's sunlight.
  const ambient=new T.HemisphereLight(0xc4e9ff,0x273729,2.2);group.add(ambient);
  const key=new T.DirectionalLight(0xf9efff,2.5);key.position.set(-350,700,460);group.add(key);
