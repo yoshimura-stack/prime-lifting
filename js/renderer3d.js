@@ -9,7 +9,7 @@ class PrimeRenderer{
   this.scene=new T.Scene();this.scene.background=new T.Color('#adc6d2');this.scene.fog=new T.Fog('#bacbd0',1800,3800);
   this.camera=new T.OrthographicCamera(-500,500,310,-310,1,5500);this.camera.position.set(0,310+Math.sin(this.tilt)*1250,Math.cos(this.tilt)*1250);this.camera.lookAt(0,310,0);
   this.scene.add(new T.HemisphereLight(0xe3f5ff,0x344432,1.6));const sun=new T.DirectionalLight(0xffecc8,2.5);sun.position.set(-350,800,420);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-850,right:850,top:650,bottom:-650,near:1,far:2100});sun.shadow.normalBias=0.6;sun.shadow.bias=-0.0003;sun.shadow.radius=3;sun.target.position.set(0,100,-180);this.scene.add(sun,sun.target);
-  const fill=new T.DirectionalLight(0x9ed6ed,0.6);fill.position.set(300,280,-300);this.scene.add(fill);
+  const fill=new T.DirectionalLight(0x9ed6ed,0.6);fill.position.set(300,280,-300);this.scene.add(fill);this.trainingLights=[sun,fill];
   this.sphereGeo=new T.SphereGeometry(1,24,16);this.cylinderGeo=new T.CylinderGeometry(1,1,1,16);this.boxGeo=new T.BoxGeometry(1,1,1);
   this.buildGround();this.buildEnvironment();
   this.trainingBackground=this.scene.background;this.trainingFog=this.scene.fog;
