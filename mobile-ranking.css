@@ -315,3 +315,21 @@
 #achievement-panel h3{margin:0 0 9px;font-size:13px;color:#dfff9a;letter-spacing:.04em}
 #achievement-badges{display:flex;flex-wrap:wrap;gap:7px}
 .achievement-badge{display:inline-flex;align-items:center;padding:6px 9px;border-radius:100px;border:1px solid #c2ab62;background:rgba(220,184,70,.14);color:#ffe8a1;font-size:12px;font-weight:800}
+
+.achievement-board{position:absolute;z-index:3;top:clamp(72px,8vw,108px);left:clamp(12px,1.8vw,27px);pointer-events:none;user-select:none;color:#e7f8e2;font:800 clamp(9px,.85vw,12px)/1.15 Arial,sans-serif;text-shadow:0 2px 5px #071a14;max-width:28%;white-space:nowrap}
+.achievement-board-heading{font-size:.8em;letter-spacing:.12em;color:#9bbba8;margin-bottom:9px}
+.achievement-board-heading span{margin-left:5px;color:#b5d88a}
+#achievement-live-list{display:flex;flex-direction:column;gap:clamp(5px,.7dvh,10px)}
+.achievement-live-row{display:flex;align-items:center;gap:7px;opacity:.43;filter:grayscale(1);color:#b7c6bd}
+.achievement-live-row.earned{opacity:1;filter:none;color:#eaffb2}
+.achievement-live-row.legendary.earned{color:#efc8ff;text-shadow:0 0 9px #ab5dff,0 2px 5px #071a14}
+.achievement-live-icon{display:inline-flex;align-items:center;justify-content:center;width:1.6em;font-size:1.35em}
+.achievement-unlock{position:absolute;top:calc(100% + 12px);left:0;opacity:0;transform:translateY(8px);transition:opacity .18s,transform .18s;color:#fce57c;font-size:clamp(10px,1vw,15px);font-weight:900;text-shadow:0 0 12px #edbc46}
+.achievement-unlock.show{opacity:1;transform:translateY(0)}
+.achievement-unlock.legendary{color:#f3d5ff;text-shadow:0 0 15px #b96dff,0 0 25px #e8bd68}
+.achievement-badge.legendary{border-color:#b887f5;background:rgba(128,63,178,.22);color:#f4d7ff}
+.touch-landscape .achievement-board{top:clamp(43px,10dvh,70px);left:clamp(7px,1.5vw,18px);font-size:clamp(7px,1.5dvh,10px);max-width:29%}
+.touch-landscape .achievement-board-heading{margin-bottom:4px}
+.touch-landscape #achievement-live-list{gap:clamp(2px,.55dvh,5px)}
+.touch-landscape .achievement-live-row{gap:3px}
+.touch-landscape .achievement-live-icon{font-size:1.12em}
