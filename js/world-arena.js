@@ -168,7 +168,7 @@ root.PRIME_WORLD_ARENA=function(host){
    hand.position.set(side*(role==='manager'?20:i%3===0?27:14),63,0);person.add(hand);
   }
   const x=-630+i*140;
-  person.position.set(x,g+2,-560);
+  person.position.set(x,g+68,-560);
   person.scale.setScalar(.73+(i%4)*.035);
   person.rotation.y=i%3===0?-.17:i%3===1?.1:0;
   group.add(person);
