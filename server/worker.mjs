@@ -72,10 +72,11 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
    return json({player},200,{'Set-Cookie':`prime_session=${token}; Path=/api; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`});
   }
   if(path==='/api/logout'&&post)return json({ok:true},200,{'Set-Cookie':'prime_session=; Path=/api; HttpOnly; Secure; SameSite=Strict; Max-Age=0'});
-  if((path==='/api/leaderboard'||path==='/api/champion')&&!post){
-   const data=await db.call('leaderboard',{limit:10});
+  if((path==='/api/leaderboard'||path==='/api/champion'||path==='/api/leaderboard/all')&&!post){
+   const full=path==='/api/leaderboard/all';
+   const data=await db.call('leaderboard',{limit:full?200:10});
    if(!Array.isArray(data?.entries))throw new ApiError(503,'ランキングの応答を確認中です。');
-   const entries=data.entries.slice(0,10).map(p=>{const v=publicPlayer(p);return {name:v.name,score:v.best,rank:v.rank,device:v.bestDevice};});
+   const entries=data.entries.slice(0,full?200:10).map(p=>{const v=publicPlayer(p);return {name:v.name,score:v.best,rank:v.rank,device:v.bestDevice};});
    return json(path==='/api/champion'?{champion:entries[0]||null}:{entries});
   }
   if(!['/api/me','/api/game/start','/api/scores'].includes(path))throw new ApiError(404,'APIが見つかりません。');

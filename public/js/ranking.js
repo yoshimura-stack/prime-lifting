@@ -56,14 +56,14 @@ async function updateRankDialog(){
  const current=++rankDialogGeneration;
  $('ranking-dialog-status').textContent='ランキングを取得中…';
  try{
-  const data=await api('/api/leaderboard');
+  const data=await api('/api/leaderboard/all');
   if(current!==rankDialogGeneration||rankDialog.hidden)return;
   const list=$('ranking-dialog-list');list.replaceChildren();
   for(const e of data.entries){
    const li=document.createElement('li'),score=document.createElement('strong');score.textContent=e.score.toLocaleString()+' PTS';
    li.append(rankName(e,`${e.rank}. `),score);list.append(li);
   }
-  $('ranking-dialog-status').textContent=data.entries.length?'': 'まだ記録がありません。';
+  $('ranking-dialog-status').textContent=data.entries.length?`${data.entries.length}人のランキングを表示中（上下にスクロールできます）`:'まだ記録がありません。';
   champion(data.entries);
  }catch(e){
   if(current!==rankDialogGeneration||rankDialog.hidden)return;
