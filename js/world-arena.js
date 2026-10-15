@@ -1,69 +1,107 @@
-/* WORLD ARENA visual environment; gameplay and collision physics remain unchanged. */
+/* V0.5.30 — night-match stadium spectacle.
+   GPU-lightweight procedural panorama + instanced celebratory lights.
+   This module never changes the ball, player, input, or scoring physics. */
 (function(root){
 'use strict';
-root.PRIME_WORLD_ARENA=function(renderer){
- const T=renderer.T,scene=renderer.scene,g=renderer.ground;
- const group=new T.Group();scene.add(group);
- const mat=(color,roughness=.82,emissive=0x000000,intensity=0)=>new T.MeshStandardMaterial({color,roughness,emissive,emissiveIntensity:intensity});
- const concrete=mat(0x24313b),seat=mat(0x172b3e),accent=mat(0x86e5fa),steel=mat(0x778795,.5),dark=mat(0x08121c),lamp=mat(0xeef9ff,.3,0xb2dcff,1.3);
- const box=(parent,m,x,y,z,w,h,d)=>{const mesh=new T.Mesh(new T.BoxGeometry(w,h,d),m);mesh.position.set(x,y,z);parent.add(mesh);return mesh;};
- // Stadium bowl: three broad terraced grandstands behind the playable corridor.
- for(let tier=0;tier<4;tier++){
-  const z=-820-tier*200,y=g+80+tier*108;
-  box(group,concrete,0,y-46,z,2900,90,180);
-  box(group,seat,0,y+2,z,2800,12,172);
-  for(let row=0;row<3;row++){
-   const yy=y+12+row*16,zz=z-62+row*54;
-   box(group,mat(row===1?0x15374b:0x193249),0,yy,zz,2750,12,41);
-  }
- }
- // Instanced spectators: one draw call per color, stable GPU cost.
- const colors=[0x7ed3e5,0xeaf2f2,0xf4bb62,0x84a7b6,0x49788f];
- const geo=new T.IcosahedronGeometry(1,0);
- const dummy=new T.Object3D();
- for(let color=0;color<colors.length;color++){
-  const mesh=new T.InstancedMesh(geo,new T.MeshStandardMaterial({color:colors[color],roughness:1}),1000);
-  let index=0;
-  for(let tier=0;tier<4;tier++)for(let row=0;row<5;row++)for(let col=0;col<250;col++){
-   if((col+row*3+tier*7)%5!==color)continue;
-   const x=-1320+col*10.6,z=-880-tier*200+row*29;
-   dummy.position.set(x,g+91+tier*108+row*9,z);
-   dummy.scale.set(4.3,7.2,4.2);dummy.updateMatrix();mesh.setMatrixAt(index++,dummy.matrix);
-  }
-  mesh.count=index;mesh.instanceMatrix.needsUpdate=true;mesh.frustumCulled=false;group.add(mesh);
- }
- // Upper roof and banners.
- box(group,dark,0,g+630,-1540,3100,26,340);
- for(const x of [-1350,-675,0,675,1350])box(group,steel,x,g+360,-1450,12,610,12);
- box(group,accent,0,g+450,-1460,2700,7,9);
- const screenTex=renderer.texture(1024,320,(ctx,w,h)=>{
-  ctx.fillStyle='#061522';ctx.fillRect(0,0,w,h);
-  ctx.fillStyle='#85edff';ctx.font='bold 112px Arial';ctx.textAlign='center';ctx.fillText('WORLD ARENA',w/2,146);
-  ctx.fillStyle='#e8faff';ctx.font='bold 37px Arial';ctx.fillText('PRIME  /  LIFTING LAB',w/2,235);
- });
- const screen=new T.Mesh(new T.PlaneGeometry(720,225),new T.MeshBasicMaterial({map:screenTex}));
- screen.position.set(0,g+430,-760);group.add(screen);
- box(group,steel,0,g+430,-770,744,250,14);
- for(const x of [-1000,1000]){
-  box(group,steel,x,g+320,-680,12,640,12);
-  box(group,steel,x,g+638,-680,140,12,20);
-  for(let i=0;i<5;i++)box(group,lamp,x-54+i*27,g+635,-660,21,16,8);
- }
- const sky=new T.Color('#09182c'),fog=new T.Fog('#0c2034',1900,4200);
- const ambient=new T.HemisphereLight(0xb6dcff,0x20311d,1.0);group.add(ambient);
- const spots=[];
- for(const x of [-880,880]){
-  const light=new T.PointLight(0xd9f3ff,45,2100,2);light.position.set(x,g+560,-550);group.add(light);spots.push(light);
- }
- return {
-  show(visible){
-   group.visible=visible;
-   renderer.trainingGroup.visible=!visible;
-   renderer.scene.background=visible?sky:renderer.trainingBackground;
-   renderer.scene.fog=visible?fog:renderer.trainingFog;
-   if(renderer.trainingLights)for(const light of renderer.trainingLights)light.visible=!visible;
-  },
-  group
+root.PRIME_WORLD_ARENA=function(host){
+ const T=host.T, g=host.ground, group=new T.Group();host.scene.add(group);
+ const basic=(color)=>new T.MeshBasicMaterial({color,side:T.DoubleSide});
+ const addBox=(x,y,z,w,h,d,color)=>{
+  const m=new T.Mesh(new T.BoxGeometry(w,h,d),basic(color));m.position.set(x,y,z);group.add(m);return m;
  };
+ // The camera is orthographic. A high-resolution stadium panorama gives the
+ // full curved grandstand silhouette without thousands of CPU-heavy objects.
+ const panorama=host.texture(2048,1024,(ctx,w,h)=>{
+  const grad=ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0,'#090a21');grad.addColorStop(.46,'#17142c');
+  grad.addColorStop(.78,'#22223b');grad.addColorStop(1,'#061a23');
+  ctx.fillStyle=grad;ctx.fillRect(0,0,w,h);
+  // Subtle magenta/cyan atmospheric glow.
+  for(const [x,color] of [[290,'rgba(248,42,169,.35)'],[1720,'rgba(51,224,255,.32)']]){
+   const halo=ctx.createRadialGradient(x,280,20,x,280,620);
+   halo.addColorStop(0,color);halo.addColorStop(1,'rgba(0,0,0,0)');
+   ctx.fillStyle=halo;ctx.fillRect(0,0,w,h);
+  }
+  // Sweeping tiers: rows curve upward at the edges, as if inside a full bowl.
+  const bowl=(x)=>Math.pow(Math.abs((x-w/2)/(w/2)),1.9);
+  for(let tier=0;tier<4;tier++){
+   const base=500+tier*104;
+   ctx.beginPath();
+   for(let x=0;x<=w;x+=8){const y=base-125*bowl(x);if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}
+   for(let x=w;x>=0;x-=8)ctx.lineTo(x,base+83-125*bowl(x));
+   ctx.closePath();ctx.fillStyle=['#101a32','#151a36','#111b36','#131b2f'][tier];ctx.fill();
+   ctx.strokeStyle=tier%2?'#dd6bb5':'#8fe8ff';ctx.lineWidth=5;ctx.beginPath();
+   for(let x=0;x<=w;x+=8){const y=base-125*bowl(x);if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}
+   ctx.stroke();
+   // Crowd is drawn into one texture: thousands of tiny colored spectators
+   // cost no additional draw calls.
+   for(let row=0;row<7;row++)for(let col=0;col<300;col++){
+    const x=col*7+((row%2)*3),y=base+10+row*9-125*bowl(x);
+    const seed=(col*43+row*71+tier*97)%37;
+    ctx.fillStyle=seed<5?'#f8e8f6':seed<12?'#78c5e2':seed<18?'#fa86bd':seed<24?'#596c9d':'#364563';
+    ctx.globalAlpha=.45+(seed%6)*.08;ctx.fillRect(x,y,3.5,4.2);
+   }
+   ctx.globalAlpha=1;
+  }
+  // VIP boxes and bright ribbon LEDs across the stadium.
+  for(let tier=0;tier<3;tier++){
+   const y=592+tier*104;ctx.strokeStyle=tier===1?'#fa4fb4':'#76dcff';
+   ctx.lineWidth=3;ctx.beginPath();for(let x=0;x<=w;x+=8){
+    const yy=y-125*bowl(x);if(x===0)ctx.moveTo(x,yy);else ctx.lineTo(x,yy);
+   }ctx.stroke();
+  }
+  // Curved roof silhouette and a continuous lighting ribbon.
+  ctx.beginPath();for(let x=0;x<=w;x+=8){
+   const y=385-175*bowl(x);if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  }for(let x=w;x>=0;x-=8)ctx.lineTo(x,275-155*bowl(x));
+  ctx.closePath();ctx.fillStyle='#090d1e';ctx.fill();
+  ctx.strokeStyle='#a5c9f2';ctx.lineWidth=7;ctx.beginPath();
+  for(let x=0;x<=w;x+=8){const y=385-175*bowl(x);if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}
+  ctx.stroke();
+  // Fireworks: hundreds of upward streaks across the upper rim, two palettes.
+  for(let i=0;i<240;i++){
+   const x=(i+.5)*w/240,y=385-175*bowl(x),length=34+((i*47)%128);
+   const dx=Math.sin(i*2.31)*25;
+   const col=x<w*.5?'255,92,198':'135,240,255';
+   ctx.strokeStyle='rgba('+col+',.32)';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+dx,y-length);ctx.stroke();
+   ctx.strokeStyle='rgba('+col+',.95)';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+dx,y-length);ctx.stroke();
+   ctx.fillStyle='rgba(255,255,255,.9)';ctx.beginPath();ctx.arc(x+dx,y-length,1.8,0,Math.PI*2);ctx.fill();
+  }
+ });
+ const wall=new T.Mesh(new T.PlaneGeometry(3100,1000),new T.MeshBasicMaterial({map:panorama,depthWrite:false}));
+ wall.position.set(0,g+345,-1080);group.add(wall);
+ // Stadium side wings provide real depth and wrap toward the player.
+ const wingMat=new T.MeshBasicMaterial({color:0x17263e,side:T.DoubleSide});
+ for(const side of [-1,1]){
+  for(let tier=0;tier<4;tier++){
+   const wing=new T.Mesh(new T.BoxGeometry(350,34,650),wingMat);
+   wing.position.set(side*(1240+tier*28),g+90+tier*93,-680);
+   wing.rotation.y=side*.33;group.add(wing);
+  }
+  // Powerful match-day floodlights, visible in front of the distant crowd.
+  const pole=addBox(side*1030,g+265,-680,8,530,8,0x65778b);
+  const beam=addBox(side*1030,g+524,-675,155,16,18,0xc8eafa);
+  for(let i=0;i<7;i++)addBox(side*1030-65+i*21,g+525,-660,13,11,4,0xffffff);
+ }
+ // Sideline advertising, avoiding the player's hitbox and front-field area.
+ addBox(0,g+34,-550,2100,68,8,0x071e2b);
+ const banner=host.texture(1024,96,(ctx,w,h)=>{
+  ctx.fillStyle='#061723';ctx.fillRect(0,0,w,h);
+  ctx.textAlign='center';ctx.font='bold 49px Arial';ctx.fillStyle='#e6f8ff';
+  ctx.fillText('PRIME  /  LIFTING LAB',w/2,65);
+ });
+ const bannerMesh=new T.Mesh(new T.PlaneGeometry(920,86),new T.MeshBasicMaterial({map:banner}));
+ bannerMesh.position.set(0,g+55,-540);group.add(bannerMesh);
+ // Night-time illumination is independent of the training ground's sunlight.
+ const ambient=new T.HemisphereLight(0xc4e9ff,0x273729,2.2);group.add(ambient);
+ const key=new T.DirectionalLight(0xf9efff,2.5);key.position.set(-350,700,460);group.add(key);
+ const fill=new T.DirectionalLight(0x8acfff,1.2);fill.position.set(420,400,270);group.add(fill);
+ const sky=new T.Color('#0b1025'),fog=new T.Fog('#15152b',2400,5500);
+ return {group,show(visible){
+  group.visible=visible;host.trainingGroup.visible=!visible;
+  host.scene.background=visible?sky:host.trainingBackground;
+  host.scene.fog=visible?fog:host.trainingFog;
+  if(host.trainingLights)for(const light of host.trainingLights)light.visible=!visible;
+ }};
 };
 })(globalThis);
