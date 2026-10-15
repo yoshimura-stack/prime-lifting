@@ -357,3 +357,10 @@
 .title-guide-legend{display:inline-block;font-size:9px;font-weight:900;letter-spacing:.08em;color:#f3d6ff;margin-top:5px}
 @media(max-width:560px){.title-guide-list{grid-template-columns:1fr}.title-guide-dialog-card{max-height:94dvh}}
 @media(max-height:470px){.title-guide-dialog-card{max-height:96dvh}.title-guide-row{padding:7px}.title-guide-row p{font-size:11px}}
+
+/* V0.5.28: persistent LIFTING MASTER progress. */
+.master-progress{margin:9px 0 12px;padding:9px 8px;border:1px solid #53735d;border-radius:6px;background:#173127;color:#d6e9d5;font-size:11px;font-weight:800;line-height:1.55;text-align:center}
+.master-progress.master-unlocked{color:#f6faff;border:1px solid #d1e6ff;background:linear-gradient(115deg,#33435e,#777caa 42%,#c5d8e7 65%,#4a537d);box-shadow:0 0 12px #b9d7ff55;text-shadow:0 1px 5px #252d57;font-size:12px}
+.master-progress.master-celebrate{animation:master-reveal 1.4s ease-in-out 2}
+@keyframes master-reveal{0%,100%{filter:brightness(1);transform:scale(1)}50%{filter:brightness(1.65);transform:scale(1.04)}}
+@media(prefers-reduced-motion:reduce){.master-progress.master-celebrate{animation:none}}
