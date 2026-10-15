@@ -60,8 +60,7 @@ async function updateRankDialog(){
   if(current!==rankDialogGeneration||rankDialog.hidden)return;
   const list=$('ranking-dialog-list');list.replaceChildren();
   for(const e of data.entries){
-   const li=document.createElement('li'),name=document.createElement('span'),score=document.createElement('strong');
-   name.replaceWith(rankName(e,`${e.rank}. `));score.textContent=e.score.toLocaleString()+' PTS';
+   const li=document.createElement('li'),score=document.createElement('strong');score.textContent=e.score.toLocaleString()+' PTS';
    li.append(rankName(e,`${e.rank}. `),score);list.append(li);
   }
   $('ranking-dialog-status').textContent=data.entries.length?'': 'まだ記録がありません。';
@@ -89,7 +88,7 @@ async function refresh(){
  const current=++refreshGeneration;$('rank-message').textContent='ランキングを取得中…';
  try{const data=await api('/api/leaderboard');if(current!==refreshGeneration)return;
  $('rank-rows').replaceChildren();
- for(const e of data.entries){const li=document.createElement('li'),name=document.createElement('span'),score=document.createElement('strong');name.replaceWith(rankName(e,`${e.rank}. `));score.textContent=e.score.toLocaleString()+' PTS';li.append(rankName(e,`${e.rank}. `),score);$('rank-rows').append(li);}
+ for(const e of data.entries){const li=document.createElement('li'),score=document.createElement('strong');score.textContent=e.score.toLocaleString()+' PTS';li.append(rankName(e,`${e.rank}. `),score);$('rank-rows').append(li);}
  champion(data.entries);$('rank-message').textContent=data.entries.length?'':'まだ記録がありません。';
  }catch(e){if(current!==refreshGeneration)return;champion([]);$('rank-rows').replaceChildren();$('rank-message').textContent=e.message;}
 }
