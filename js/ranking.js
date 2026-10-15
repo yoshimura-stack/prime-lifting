@@ -126,6 +126,7 @@ async function updateRankDialog(){
  }
 }
 rankOpen.addEventListener('click',showRankDialog);
+for(const id of ['mobile-intro-ranking','mobile-result-ranking'])$(id)?.addEventListener('click',showRankDialog);
 rankClose.addEventListener('click',closeRankDialog);
 $('ranking-dialog-refresh').addEventListener('click',updateRankDialog);
 rankDialog.addEventListener('click',e=>{if(e.target===rankDialog)closeRankDialog();});
