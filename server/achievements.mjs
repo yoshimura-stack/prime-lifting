@@ -1,9 +1,9 @@
 // Canonical bit positions for the eight collectible titles.
 // The mask is derived only from a replay accepted by the Worker.
-export const TITLES=['50 KEEPS CLUB','AIR MASTER','SPIN KING','SHOULDER ACE','SCORE HUNTER','QUAD MASTER','AIR QUAD','DOUBLE AIR'];
+export const TITLES=['30 KEEPS CLUB','AIR MASTER','SPIN KING','SHOULDER ACE','SCORE HUNTER','QUAD MASTER','AIR QUAD','DOUBLE AIR'];
 export function achievementMask(result,finalScore){
  const p=result.achievementProof||{};
- return (result.combo>=50?1:0)
+ return (result.combo>=30?1:0)
  |(p.maxAirStreak>=3?2:0)
  |(p.spinKing===true?4:0)
  |(p.shoulderHits>=1?8:0)
