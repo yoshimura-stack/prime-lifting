@@ -188,6 +188,7 @@ test('authenticated achievement progress accumulates across separately saved run
    calls.push(op);
    if(op==='achievement_get')return {mask};
    if(op==='achievement_merge'){mask|=input.mask;return {mask};}
+   if(op==='achievement_list')return {[player.id]:mask};
    if(op==='submit')return {player,personalBest:false,newChampion:false};
    if(op==='leaderboard')return {entries:[player]};
    return {player};
@@ -212,7 +213,7 @@ test('authenticated achievement progress accumulates across separately saved run
  assert.deepEqual(after.progress.earned,['30 KEEPS CLUB','SPIN KING']);
  assert.equal(after.progress.master,false);
  const leaderboard=await (await worker.fetch(request('/api/leaderboard'),env)).json();
- // This mock returns no title lookup, so the fallback is 0/8.
- assert.equal(leaderboard.entries[0].achievementCount,0);
+ assert.equal(leaderboard.entries[0].achievementCount,2);
+ assert.equal(leaderboard.entries[0].master,false);
  assert.equal(calls.filter(op=>op==='achievement_merge').length,2);
 });
