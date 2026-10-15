@@ -184,3 +184,13 @@ main.game-app{width:100vw;height:100dvh;max-width:none;margin:0;padding:12px 14p
  .world-arena-active .scorebar small { color:#cee8ff; }
  .world-arena-active .field-bottom { background:linear-gradient(transparent,#071124a0); }
 }
+
+/* Compact PC live titles: leave the left playing corridor visible. */
+@media (pointer:fine) {
+ body:not(.touch-landscape) .achievement-board { top:82px; left:16px; font-size:clamp(8px,.6vw,10px); line-height:1.1; }
+ body:not(.touch-landscape) .achievement-board-heading { font-size:.9em; margin-bottom:5px; letter-spacing:.04em; }
+ body:not(.touch-landscape) #achievement-live-list { gap:3px; }
+ body:not(.touch-landscape) .achievement-live-row { gap:4px; }
+ body:not(.touch-landscape) .achievement-live-icon { width:1.2em; font-size:1.05em; }
+ body:not(.touch-landscape) .achievement-unlock { top:calc(100% + 6px); font-size:10px; }
+}
