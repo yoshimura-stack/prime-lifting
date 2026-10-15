@@ -32,3 +32,11 @@
 - The progress merge currently happens after run submit, in a separate RPC. A partial failure can save a score without saving titles. This needs idempotent recovery or an atomic transaction before release.
 - Stage 02 remains unimplemented. Do not advertise stage unlock as shipped.
 - Run `npm test`, `npm run check:deploy`, and a staging two-session login test before requesting production SQL execution.
+
+## Production migration checkpoint (2026-10-15)
+- User executed additive SQL in the correct Supabase production project; reported success.
+- Read-only verification screenshot: `table_exists=true`, `achievement_rows=0`, `player_rows=26`, `run_rows=473`, `secure_functions=3`, `anon_executable_functions=0`, `authenticated_executable_functions=0`.
+- The DB is prepared, but **live Worker integration has not been tested**; no claim of real-run progress persistence yet.
+- PR CI (tests + build) passed on commit `b0b5146e6b24a0c06411c40aee2fc36355d41a68`.
+- **Before main merge**: check latest PR CI, stage or safely smoke-test GET /api/achievements, one saved run, second run cumulative OR, public ranking count, and master 8/8; confirm existing scores are intact. Obtain explicit approval for production merge/deploy.
+- No existing achievements can be backfilled from historical runs without a verified replay audit. Previously earned per-run badges are not automatically credited.
