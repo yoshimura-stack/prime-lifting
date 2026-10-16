@@ -10,7 +10,15 @@
 .game-menu-actions button:hover,.game-menu-actions button:focus-visible{border-color:#d9ff70;background:#264b39}
 @media(max-width:480px){.game-menu-actions{grid-template-columns:1fr}}
 </style>
-<style>.rank-next-title-count{background:linear-gradient(135deg,#7b591c,#a77b29)!important;color:#fff0bf!important;border:1px solid #e4b85e!important;white-space:nowrap}</style></head>
+<style>.rank-next-title-count{background:linear-gradient(135deg,#7b591c,#a77b29)!important;color:#fff0bf!important;border:1px solid #e4b85e!important;white-space:nowrap}</style><style>
+.title-profile-card{width:min(530px,calc(100vw - 24px));max-height:85dvh;overflow:auto}
+.title-profile-list{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0 0;padding:0}
+.title-profile-item{border:1px solid #45505b;background:#18202b;color:#9ba5ae;border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.title-profile-item.earned{border-color:#c5a15a;background:#3c321e;color:#fbe5a7}
+.title-profile-item strong{font-size:12px;overflow-wrap:anywhere}
+.title-profile-item small{font-size:11px;line-height:1.4}
+@media(max-width:450px){.title-profile-list{grid-template-columns:1fr}}
+</style></head>
 <body>
 <main class="game-app">
  <aside class="side-panel controls-panel" aria-label="操作ガイド">
@@ -81,7 +89,7 @@
  <div id="ranking-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="ranking-dialog-title"><div class="ranking-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">ONLINE LEADERBOARD</p><h2 id="ranking-dialog-title">現在のランキング</h2></div><button type="button" id="close-ranking" aria-label="ランキングを閉じる">✕ 閉じる</button></div><p id="ranking-dialog-status" role="status"></p><section id="next-rival" class="next-rival" hidden aria-label="次のライバル"><span class="next-rival-label">🎯 NEXT RIVAL</span><span id="next-rival-name"></span><strong id="next-rival-gap"></strong></section><button type="button" id="ranking-jump-self" hidden>自分の順位へ ↓</button><ol id="ranking-dialog-list"></ol><button type="button" id="ranking-dialog-refresh">ランキングを更新 ↻</button></div></div>
  <section id="tuning" hidden><div class="tuning-heading"><div><p class="eyebrow">GAME FEEL LAB</p><h2>感覚を、調整する。</h2><p>調整中は一時停止します。数値はこのブラウザに保存されます。</p></div><button id="reset-config">初期値に戻す</button></div><div id="sliders"></div></section>
 </main>
-<script src="js/config.js"></script><script src="js/kits.js"></script><script src="js/engine.js?v=059"></script><script src="vendor/three.min.js"></script><script src="js/world-arena.js?v=premium-1"></script><script src="js/player-model.js?v=premium-3"></script><script src="js/renderer3d.js?v=premium-1"></script><script src="js/bonus-guide.js?v=1"></script><script src="js/ranking.js?v=next-level-1"></script><script src="js/touch.js?v=0521"></script><script src="game.js?v=0530"></script><script src="js/admin.js?v=0514"></script>
+<script src="js/config.js"></script><script src="js/kits.js"></script><script src="js/engine.js?v=059"></script><script src="vendor/three.min.js"></script><script src="js/world-arena.js?v=premium-1"></script><script src="js/player-model.js?v=premium-3"></script><script src="js/renderer3d.js?v=premium-1"></script><script src="js/bonus-guide.js?v=1"></script><script src="js/ranking.js?v=next-level-2"></script><script src="js/touch.js?v=0521"></script><script src="game.js?v=0530"></script><script src="js/admin.js?v=0514"></script>
 <script>
 (function(){
  const dialog=document.getElementById('game-menu-dialog');
@@ -110,4 +118,4 @@
  }
 })();
 </script>
-</body></html>
+<div id="title-profile-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="title-profile-heading"><div class="ranking-dialog-card title-profile-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">PLAYER TITLE COLLECTION</p><h2 id="title-profile-heading">称号一覧</h2><p id="title-profile-summary"></p></div><button type="button" id="title-profile-close">✕ 閉じる</button></div><ol id="title-profile-list" class="title-profile-list"></ol></div></div></body></html>
