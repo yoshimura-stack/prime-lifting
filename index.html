@@ -1,6 +1,16 @@
 <!doctype html>
 <html lang="ja">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>PRIME / Lifting Lab</title><link rel="stylesheet" href="style.css?v=high-skill-guide-laptop-2"><link rel="stylesheet" href="mobile-ranking.css?v=laptop-stage-flow-1"><link rel="stylesheet" href="mobile-result.css?v=0535"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>PRIME / Lifting Lab</title><link rel="stylesheet" href="style.css?v=high-skill-guide-laptop-2"><link rel="stylesheet" href="mobile-ranking.css?v=laptop-stage-flow-1"><link rel="stylesheet" href="mobile-result.css?v=0535"><style>
+/* Collapsed utility controls: keep the left guide visible on notebook screens. */
+.controls-panel .game-menu-launcher{flex:0 0 auto;margin-top:auto;padding-top:8px;padding-bottom:8px}
+.game-menu-launcher #game-menu-open{display:block;width:100%;min-height:38px;text-align:center;font-weight:800;letter-spacing:.04em;cursor:pointer}
+.game-menu-dialog-card{width:min(440px,calc(100vw - 32px));max-height:min(82dvh,680px);overflow:auto}
+.game-menu-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
+.game-menu-actions button{min-width:0;min-height:45px;padding:10px;border:1px solid rgba(159,215,181,.35);border-radius:7px;background:#19382f;color:#e7f8e6;font:inherit;font-weight:700;cursor:pointer}
+.game-menu-actions button:hover,.game-menu-actions button:focus-visible{border-color:#d9ff70;background:#264b39}
+@media(max-width:480px){.game-menu-actions{grid-template-columns:1fr}}
+</style>
+</head>
 <body>
 <main class="game-app">
  <aside class="side-panel controls-panel" aria-label="操作ガイド">
@@ -17,9 +27,8 @@
   </div>
   <div class="panel-block title-guide-block"><p class="panel-kicker">TITLE COLLECTION</p><h2>称号リザルト</h2><p class="title-guide-copy">全8称号に挑戦！獲得条件をチェック。</p><button type="button" id="title-guide-open" class="title-guide-open">🏅 称号の獲得条件を見る ↗</button></div>
   </div>
-  <div class="panel-block utility-block">
-   <p class="panel-kicker">GAME MENU</p>
-   <button id="pause">一時停止 <em>ESC</em></button><button id="sound" aria-pressed="true">音 ON</button><button id="debug" aria-pressed="false">判定表示 <em>F2</em></button><button id="kit-change">ユニフォーム</button><button id="tune" aria-expanded="false">調整パネル</button><button type="button" id="admin-open">管理者</button>
+  <div class="panel-block utility-block game-menu-launcher">
+   <button type="button" id="game-menu-open" aria-haspopup="dialog" aria-controls="game-menu-dialog" aria-expanded="false">☰ ゲームメニュー</button>
   </div>
  </aside>
 
@@ -66,10 +75,39 @@
   </div>
  </div>
 
+ <div id="game-menu-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="game-menu-heading"><div class="ranking-dialog-card game-menu-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">GAME MENU</p><h2 id="game-menu-heading">ゲームメニュー</h2></div><button type="button" id="game-menu-close">✕ 閉じる</button></div><div class="game-menu-actions"><button id="pause">一時停止 <em>ESC</em></button><button id="sound" aria-pressed="true">音 ON</button><button id="debug" aria-pressed="false">判定表示 <em>F2</em></button><button id="kit-change">ユニフォーム</button><button id="tune" aria-expanded="false">調整パネル</button><button type="button" id="admin-open">管理者</button></div></div></div>
  <div id="title-guide-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="title-guide-heading"><div class="ranking-dialog-card title-guide-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">TITLE COLLECTION</p><h2 id="title-guide-heading">称号リザルト・獲得条件</h2></div><button type="button" id="title-guide-close">✕ 閉じる</button></div><p class="title-guide-intro">1回のプレイで条件を達成すると称号を獲得！</p><div id="title-guide-list" class="title-guide-list"></div></div></div>
  <div id="admin-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="admin-title"><div class="ranking-dialog-card admin-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">HOST ONLY</p><h2 id="admin-title">管理者メニュー</h2></div><button type="button" id="admin-close">✕ 閉じる</button></div><form id="admin-login-form"><label>管理者ID<input id="admin-username" autocomplete="off" value="host" required></label><label>パスワード<input id="admin-password" type="password" autocomplete="off" required></label><button type="submit">管理者認証</button></form><div id="admin-actions" hidden><p>全プレイヤーのアカウント・PIN情報・最高スコアを完全に削除します。</p><button type="button" id="admin-reset" class="admin-danger">ランキングを全削除</button></div><p id="admin-status" role="status"></p></div></div>
  <div id="ranking-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="ranking-dialog-title"><div class="ranking-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">ONLINE LEADERBOARD</p><h2 id="ranking-dialog-title">現在のランキング</h2></div><button type="button" id="close-ranking" aria-label="ランキングを閉じる">✕ 閉じる</button></div><p id="ranking-dialog-status" role="status"></p><section id="next-rival" class="next-rival" hidden aria-label="次のライバル"><span class="next-rival-label">🎯 NEXT RIVAL</span><span id="next-rival-name"></span><strong id="next-rival-gap"></strong></section><button type="button" id="ranking-jump-self" hidden>自分の順位へ ↓</button><ol id="ranking-dialog-list"></ol><button type="button" id="ranking-dialog-refresh">ランキングを更新 ↻</button></div></div>
  <section id="tuning" hidden><div class="tuning-heading"><div><p class="eyebrow">GAME FEEL LAB</p><h2>感覚を、調整する。</h2><p>調整中は一時停止します。数値はこのブラウザに保存されます。</p></div><button id="reset-config">初期値に戻す</button></div><div id="sliders"></div></section>
 </main>
 <script src="js/config.js"></script><script src="js/kits.js"></script><script src="js/engine.js?v=059"></script><script src="vendor/three.min.js"></script><script src="js/world-arena.js?v=premium-1"></script><script src="js/player-model.js?v=premium-3"></script><script src="js/renderer3d.js?v=premium-1"></script><script src="js/bonus-guide.js?v=1"></script><script src="js/ranking.js?v=shoulder-ace-three-1"></script><script src="js/touch.js?v=0521"></script><script src="game.js?v=0530"></script><script src="js/admin.js?v=0514"></script>
+<script>
+(function(){
+ const dialog=document.getElementById('game-menu-dialog');
+ const open=document.getElementById('game-menu-open');
+ const close=document.getElementById('game-menu-close');
+ if(!dialog||!open||!close)return;
+ let previousFocus=null;
+ function hide(){if(dialog.hidden)return;dialog.hidden=true;open.setAttribute('aria-expanded','false');(previousFocus&&previousFocus.isConnected?previousFocus:open).focus();}
+ function show(){previousFocus=document.activeElement;dialog.hidden=false;open.setAttribute('aria-expanded','true');close.focus();}
+ open.addEventListener('click',show);
+ close.addEventListener('click',hide);
+ dialog.addEventListener('click',e=>{if(e.target===dialog)hide();});
+ document.addEventListener('keydown',e=>{
+  if(dialog.hidden)return;
+  if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();hide();return;}
+  if(e.key!=='Tab')return;
+  const items=Array.from(dialog.querySelectorAll('button:not([disabled])')).filter(el=>el.getClientRects().length);
+  if(!items.length)return;
+  const first=items[0],last=items[items.length-1];
+  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+ },true);
+ // Close when launching a separate panel; preserve the existing button IDs and handlers.
+ for(const id of ['kit-change','tune','admin-open']){
+  document.getElementById(id)?.addEventListener('click',()=>hide());
+ }
+})();
+</script>
 </body></html>
