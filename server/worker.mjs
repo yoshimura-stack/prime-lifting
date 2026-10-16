@@ -88,7 +88,7 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
    const entries=players.map(v=>{
     const mask=masks[v.id],valid=Number.isInteger(mask)&&mask>=0&&mask<=255;
     const count=valid?mask.toString(2).replace(/0/g,'').length:0;
-    return {name:v.name,score:v.best,rank:v.rank,device:v.bestDevice,achievementCount:count,master:valid&&mask===255,nextAchievementCount:Number.isInteger(nextMasks[v.id])&&nextMasks[v.id]>=0&&nextMasks[v.id]<=255?nextMasks[v.id].toString(2).replace(/0/g,'').length:0,liftingGod:nextMasks[v.id]===255&&mask===255};
+    return {name:v.name,score:v.best,rank:v.rank,device:v.bestDevice,achievementCount:count,baseTitleMask:valid?mask:0,master:valid&&mask===255,nextTitleMask:Number.isInteger(nextMasks[v.id])&&nextMasks[v.id]>=0&&nextMasks[v.id]<=255?nextMasks[v.id]:0,nextAchievementCount:Number.isInteger(nextMasks[v.id])&&nextMasks[v.id]>=0&&nextMasks[v.id]<=255?nextMasks[v.id].toString(2).replace(/0/g,'').length:0,liftingGod:nextMasks[v.id]===255&&mask===255};
    });
    return json(path==='/api/champion'?{champion:entries[0]||null}:{entries});
   }
