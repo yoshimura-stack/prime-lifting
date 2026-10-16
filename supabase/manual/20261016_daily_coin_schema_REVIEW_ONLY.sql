@@ -21,10 +21,10 @@ create table if not exists public.lifting_coin_ledger (
  player_id uuid not null references public.lifting_players(id) on delete cascade,
  run_id uuid unique references public.lifting_runs(run_id),
  day_jst date not null,
- amount integer not null check(amount between 0 and 2000),
+ amount integer not null check(amount between -100000000 and 2000),
  reason text not null check(reason in ('play','purchase')),
  created_at timestamptz not null default now(),
- constraint lifting_coin_ledger_run_reason check ((reason='play' and run_id is not null and amount>0) or (reason='purchase' and run_id is null))
+ constraint lifting_coin_ledger_run_reason check ((reason='play' and run_id is not null and amount>0) or (reason='purchase' and run_id is null and amount<0))
 );
 create index if not exists lifting_coin_ledger_daily_idx
  on public.lifting_coin_ledger(player_id,day_jst,reason);
