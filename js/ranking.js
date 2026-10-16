@@ -2,7 +2,7 @@
 'use strict';
 const $=id=>document.getElementById(id);
 let player=null,ticket=null,pending=null,generation=0,saving=false,authBusy=false,progressGeneration=0;
-let cumulativeEarned=new Set(),progressOwner=null;
+let cumulativeEarned=new Set(),progressOwner=null,nextEarned=new Set();
 async function api(path,body){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
  try{const response=await fetch(path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,signal:controller.signal,cache:'no-store',credentials:'same-origin'});
@@ -14,8 +14,8 @@ function account(){
  $('account-form').hidden=!!player;$('logout').hidden=!player;
 }
 function renderProgress(progress){
- if(!player||!progress){cumulativeEarned=new Set();progressOwner=null;}
- else {cumulativeEarned=new Set(Array.isArray(progress.earned)?progress.earned:[]);progressOwner=player.id;}
+ if(!player||!progress){cumulativeEarned=new Set();nextEarned=new Set();progressOwner=null;}
+ else {cumulativeEarned=new Set(Array.isArray(progress.earned)?progress.earned:[]);progressOwner=player.id;nextEarned=new Set(progress.next?.earned||[]);window.dispatchEvent(new CustomEvent('prime:next-progress',{detail:{earned:[...nextEarned],god:!!progress.next?.god}}));}
  if(typeof renderLive==='function')renderLive(lastLiveStats,false);
  window.dispatchEvent(new CustomEvent('prime:progress',{detail:{master:!!(player&&progress&&progress.master),earned:[...cumulativeEarned]}}));
  let el=$('master-progress');
@@ -26,6 +26,7 @@ function renderProgress(progress){
  const count=progress.earned?.length??0;
  el.textContent=progress.master?'💠 LIFTING MASTER 解放！':`累計称号 ${count}/8 ／ 💠 LIFTING MASTERまであと${8-count}`;
  el.classList.toggle('master-unlocked',!!progress.master);
+ if(progress.master){el.textContent+=(progress.next?' ／ NEXT LEVEL '+nextEarned.size+'/8'+(progress.next.god?' ／ 👑 LIFTING GOD':''):' ／ NEXT LEVEL 準備中');}
  if(progress.master&&!el.dataset.announced){el.dataset.announced='true';el.classList.add('master-celebrate');setTimeout(()=>el.classList.remove('master-celebrate'),3500);}
  if(!progress.master)delete el.dataset.announced;
 }
@@ -55,6 +56,7 @@ function rankName(entry,prefix=''){
   progress.title=entry.master?'LIFTING MASTER：全8称号獲得':'累計獲得称号 '+entry.achievementCount+'/8';
   progress.setAttribute('aria-label',progress.title);
   name.append(progress);
+  const next=document.createElement('span');next.className='rank-title-count rank-next-title-count';next.textContent='👑 '+(Number.isInteger(entry.nextAchievementCount)?entry.nextAchievementCount:0)+'/8';next.title=entry.liftingGod?'LIFTING GOD：NEXT LEVEL全8称号獲得':'NEXT LEVEL獲得称号 '+(entry.nextAchievementCount||0)+'/8';next.setAttribute('aria-label',next.title);name.append(next);
  }
  return name;
 }
