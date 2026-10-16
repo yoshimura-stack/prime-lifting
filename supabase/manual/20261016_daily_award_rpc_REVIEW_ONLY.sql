@@ -30,7 +30,7 @@ begin
     or jsonb_array_length(v_ids)>3 then raise exception 'Invalid award request'; end if;
  -- Lock per player to serialize multiple accepted runs and enforce coin cap.
  perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(v_player::text, 71933));
- select score into v_score from public.lifting_runs
+ select score, (created_at at time zone 'Asia/Tokyo')::date into v_score, v_day from public.lifting_runs
  where run_id=v_run and player_id=v_player;
  if not found then raise exception 'Run not accepted'; end if;
  insert into public.lifting_coin_wallets(player_id,balance)
