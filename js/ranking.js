@@ -14,7 +14,7 @@ function account(){
  $('account-form').hidden=!!player;$('logout').hidden=!player;
 }
 function renderProgress(progress){
- if(!player||!progress){cumulativeEarned=new Set();nextEarned=new Set();progressOwner=null;}
+ if(!player||!progress){cumulativeEarned=new Set();nextEarned=new Set();progressOwner=null;renderNextCollection();}
  else {cumulativeEarned=new Set(Array.isArray(progress.earned)?progress.earned:[]);progressOwner=player.id;nextEarned=new Set(progress.next?.earned||[]);window.dispatchEvent(new CustomEvent('prime:next-progress',{detail:{earned:[...nextEarned],god:!!progress.next?.god}}));}
  if(typeof renderLive==='function')renderLive(lastLiveStats,false);
  window.dispatchEvent(new CustomEvent('prime:progress',{detail:{master:!!(player&&progress&&progress.master),earned:[...cumulativeEarned]}}));
@@ -48,6 +48,47 @@ function deviceIcon(device){
 const nextTitleNames=['FOOT MASTER','KNEE MASTER','TRAP MASTER','HEADING MASTER','SPIN MASTER','JUMP MASTER','SHOULDER MASTER','LIFTING LEGEND'];
 const baseTitleNames=['30 KEEPS CLUB','AIR MASTER','SPIN KING','SHOULDER ACE','SCORE HUNTER','QUAD MASTER','AIR QUAD','DOUBLE AIR'];
 const nextTitleDescriptions=['全成功タッチが足・20回以上','全成功タッチが膝・20回以上','全成功タッチが胸・20回以上','全成功タッチが頭・20回以上','全成功タッチにスピン・20回以上','全成功タッチにジャンプアクション・20回以上','肩タッチ10回成功','足・膝・胸・頭・肩・スピン・ジャンプを各4回以上'];
+let nextDialogReturnFocus=null,previousGod=false,godToastTimer=null;
+function renderNextCollection(){
+ const list=$('next-level-list'),status=$('next-level-status'),god=$('next-level-god');
+ if(!list||!status||!god)return;
+ list.replaceChildren();
+ nextTitleNames.forEach((name,i)=>{
+  const earned=nextEarned.has(name),item=document.createElement('li');
+  item.className='title-profile-item'+(earned?' earned':'');
+  const label=document.createElement('strong');label.textContent=(earned?'✦ ':'🔒 ')+name;
+  const desc=document.createElement('small');desc.textContent=nextTitleDescriptions[i];
+  item.append(label,desc);list.append(item);
+ });
+ status.textContent=nextEarned.size+' / 8 MASTER TITLES';
+ god.classList.toggle('unlocked',nextEarned.size===8);
+ const button=$('next-level-open');if(button)button.textContent='👑 NEXT LEVEL 称号 '+nextEarned.size+'/8 ↗';
+}
+function closeNextDialog(){
+ const dialog=$('next-level-dialog');if(!dialog||dialog.hidden)return;
+ dialog.hidden=true;(nextDialogReturnFocus?.isConnected?nextDialogReturnFocus:$('next-level-open'))?.focus();
+}
+$('next-level-open')?.addEventListener('click',()=>{
+ const dialog=$('next-level-dialog');if(!dialog)return;
+ nextDialogReturnFocus=document.activeElement;renderNextCollection();dialog.hidden=false;$('next-level-close').focus();
+});
+$('next-level-close')?.addEventListener('click',closeNextDialog);
+$('next-level-dialog')?.addEventListener('click',e=>{if(e.target===$('next-level-dialog'))closeNextDialog();});
+document.addEventListener('keydown',e=>{
+ const dialog=$('next-level-dialog');if(!dialog||dialog.hidden)return;
+ if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();closeNextDialog();}
+ if(e.key==='Tab'){e.preventDefault();$('next-level-close').focus();}
+},true);
+function showGodUnlock(){
+ const toast=$('lifting-god-toast');if(!toast)return;
+ clearTimeout(godToastTimer);toast.hidden=false;godToastTimer=setTimeout(()=>toast.hidden=true,4000);
+}
+window.addEventListener('prime:next-progress',event=>{
+ const isGod=event.detail?.god===true;
+ renderNextCollection();
+ if(isGod&&!previousGod)showGodUnlock();
+ previousGod=isGod;
+});
 let titleProfileReturnFocus=null;
 function showTitleProfile(entry,group,trigger){
  const dialog=$('title-profile-dialog'),list=$('title-profile-list');
