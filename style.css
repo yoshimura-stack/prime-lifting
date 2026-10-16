@@ -194,3 +194,77 @@ main.game-app{width:100vw;height:100dvh;max-width:none;margin:0;padding:12px 14p
  body:not(.touch-landscape) .achievement-live-icon { width:1.2em; font-size:1.05em; }
  body:not(.touch-landscape) .achievement-unlock { top:calc(100% + 6px); font-size:10px; }
 }
+
+
+/* Laptop PC layout: keep all side-panel content reachable on short browser viewports. */
+@media (min-width:761px) {
+  /* Keep the gameplay field anchored while the guides scroll independently. */
+  .game-app > .side-panel {
+    min-height:0;
+    overflow-x:hidden;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    scrollbar-width:thin;
+    scrollbar-color:#657f70 transparent;
+    padding-right:3px;
+  }
+  .game-app > .side-panel::-webkit-scrollbar { width:5px; }
+  .game-app > .side-panel::-webkit-scrollbar-thumb {
+    background:#657f70;
+    border-radius:8px;
+  }
+  .game-app > .side-panel > * { flex-shrink:0; }
+}
+/* A narrow desktop sidebar cannot fit a two-column winners' podium. */
+@media (min-width:761px) and (max-width:1500px) {
+  .score-guide .bonus-card > strong {
+    white-space:normal;
+    overflow-wrap:anywhere;
+  }
+  .score-guide .record-card .podium-grid {
+    grid-template-columns:minmax(0,1fr);
+    gap:6px;
+  }
+  .score-guide .record-card .podium-runners {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .score-guide .record-card .podium-first > strong {
+    font-size:clamp(13px,1vw,16px);
+  }
+}
+/* On short laptop viewports, ranking and menu remain scroll-accessible. */
+@media (min-width:761px) and (max-height:740px) {
+  .controls-panel .utility-block { margin-top:12px; }
+  .score-guide .record-card { margin-top:8px; }
+}
+
+/* Keep GAME MENU visible on laptops: scroll the left guide, not its actions. */
+@media (min-width:761px) {
+  .game-app > .controls-panel {
+    overflow:hidden;
+  }
+  .controls-panel .controls-content-scroll {
+    flex:1 1 auto;
+    min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    overscroll-behavior:contain;
+    scrollbar-width:thin;
+    scrollbar-color:#657f70 transparent;
+    padding-right:3px;
+  }
+  .controls-panel .controls-content-scroll::-webkit-scrollbar {
+    width:5px;
+  }
+  .controls-panel .controls-content-scroll::-webkit-scrollbar-thumb {
+    background:#657f70;
+    border-radius:8px;
+  }
+  .controls-panel .utility-block {
+    flex:0 0 auto;
+    margin-top:0;
+    padding:9px 4px 4px;
+    border-top:1px solid var(--line);
+    background:#0d1916;
+  }
+}
