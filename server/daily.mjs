@@ -45,3 +45,15 @@ export function earnedPlayCoins(score,earnedToday=0){
  if(!Number.isSafeInteger(score)||score<0||!Number.isSafeInteger(earnedToday)||earnedToday<0)throw new TypeError('Invalid coin input');
  return Math.min(Math.floor(score/1000)*10,Math.max(0,2000-earnedToday));
 }
+
+// Rank uses play best plus unique daily completions; the coin wallet is separate.
+export function rankingTotal(playBest,dailyCompleted){
+ if(!Number.isSafeInteger(playBest)||playBest<0||!Number.isSafeInteger(dailyCompleted)||dailyCompleted<0)throw new TypeError('Invalid ranking input');
+ const total=playBest+dailyCompleted*100;
+ if(!Number.isSafeInteger(total))throw new RangeError('Ranking total overflow');
+ return total;
+}
+export function jstMonth(day){
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(day))throw new TypeError('Invalid JST day');
+ return day.slice(0,7);
+}
