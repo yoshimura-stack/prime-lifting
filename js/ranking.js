@@ -86,7 +86,7 @@ function showGodUnlock(){
 window.addEventListener('prime:next-progress',event=>{
  const isGod=event.detail?.god===true;
  renderNextCollection();
- if(isGod&&!previousGod)showGodUnlock();
+ if(isGod&&!previousGod&&progressOwner&&nextEarned.size===8)showGodUnlock();
  previousGod=isGod;
 });
 let titleProfileReturnFocus=null;
@@ -119,43 +119,14 @@ document.addEventListener('keydown',e=>{
  if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();closeTitleProfile();}
  if(e.key==='Tab'){e.preventDefault();$('title-profile-close').focus();}
 },true);
-function setupNextLevelCollection(){
- const dialog=$('next-level-dialog'),open=$('next-level-open'),close=$('next-level-close');
- if(!dialog||!open||!close)return;
- const render=()=>{
-  const list=$('next-level-list');if(!list)return;
-  list.replaceChildren();
-  nextTitleNames.forEach((name,i)=>{
-   const earned=nextEarned.has(name),item=document.createElement('li');
-   item.className='title-profile-item'+(earned?' earned':'');
-   const title=document.createElement('strong');title.textContent=(earned?'✦ ':'🔒 ')+name;
-   const description=document.createElement('small');description.textContent=nextTitleDescriptions[i];
-   item.append(title,description);list.append(item);
-  });
-  $('next-level-status').textContent=nextEarned.size+' / 8 MASTER TITLES';
-  $('next-level-god').classList.toggle('unlocked',nextEarned.size===8);
- };
- let returnFocus=null;
- function hide(){dialog.hidden=true;(returnFocus?.isConnected?returnFocus:open).focus();}
- open.addEventListener('click',()=>{returnFocus=document.activeElement;render();dialog.hidden=false;close.focus();});
- close.addEventListener('click',hide);
- dialog.addEventListener('click',e=>{if(e.target===dialog)hide();});
- document.addEventListener('keydown',e=>{if(dialog.hidden)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();hide();}else if(e.key==='Tab'){e.preventDefault();close.focus();}},true);
- window.addEventListener('prime:progress',e=>{const unlocked=e.detail?.master===true;open.hidden=!unlocked;if(!unlocked&&!dialog.hidden)hide();});
- let godShown=false;
- window.addEventListener('prime:next-progress',e=>{
-  const god=e.detail?.god===true;
-  open.textContent='👑 NEXT LEVEL 称号 '+nextEarned.size+'/8 ↗';
-  if(!dialog.hidden)render();
-  if(god&&!godShown){
-   godShown=true;
-   const toast=$('lifting-god-toast');
-   if(toast){toast.hidden=false;setTimeout(()=>{toast.hidden=true;},4000);}
-  }
-  if(!god)godShown=false;
- });
-}
-setupNextLevelCollection();
+// Unlock visibility is tied to verified base-title progress.
+window.addEventListener('prime:progress',event=>{
+ const button=$('next-level-open');
+ if(!button)return;
+ button.hidden=event.detail?.master!==true;
+ if(button.hidden)closeNextDialog();
+});
+
 function rankName(entry,prefix=''){
  const name=document.createElement('span');name.className='rank-player-name';
  const label=document.createElement('span');label.textContent=prefix+entry.name;name.append(label);
