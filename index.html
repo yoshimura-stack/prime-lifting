@@ -44,6 +44,12 @@
 .prime-coin-wallet-value small{font-size:9px}
 @media(max-width:850px){.prime-coin-wallet{padding:4px 5px}.prime-coin-wallet-label{font-size:9px}.prime-coin-wallet-value{font-size:12px}}
 @media(max-width:700px){.controls-panel .game-menu-launcher{flex-wrap:wrap}.prime-coin-wallet{flex-basis:100%}}
+</style><style>
+#ranking-dialog-list .rank-score-breakdown{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;text-align:right;font-variant-numeric:tabular-nums}
+#ranking-dialog-list .rank-score-breakdown .rank-total{font-size:15px;font-weight:900;color:#e8ff9b}
+#ranking-dialog-list .rank-score-breakdown .rank-play-score{font-size:11px;color:#d3e3d8}
+#ranking-dialog-list .rank-score-breakdown .rank-daily-score{font-size:10px;color:#a5dfa8}
+.daily-preview li.is-complete{color:#d7ff91;font-weight:800;text-shadow:0 0 7px #8cdb58}
 </style></head>
 <body>
 <main class="game-app">
@@ -141,7 +147,7 @@
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 })();
 </script>
-<script src="js/config.js"></script><script src="js/kits.js"></script><script src="js/engine.js?v=059"></script><script src="vendor/three.min.js"></script><script src="js/world-arena.js?v=premium-1"></script><script src="js/player-model.js?v=premium-3"></script><script src="js/renderer3d.js?v=premium-1"></script><script src="js/bonus-guide.js?v=1"></script><script src="js/ranking.js?v=next-30-keeps-1"></script><script src="js/touch.js?v=0521"></script><script src="game.js?v=0530"></script><script src="js/admin.js?v=0514"></script>
+<script src="js/config.js"></script><script src="js/kits.js"></script><script src="js/engine.js?v=059"></script><script src="vendor/three.min.js"></script><script src="js/world-arena.js?v=premium-1"></script><script src="js/player-model.js?v=premium-3"></script><script src="js/renderer3d.js?v=premium-1"></script><script src="js/bonus-guide.js?v=1"></script><script src="js/ranking.js?v=daily-breakdown-1"></script><script src="js/touch.js?v=0521"></script><script src="game.js?v=0530"></script><script src="js/admin.js?v=0514"></script>
 <script>
 (function(){
  const dialog=document.getElementById('game-menu-dialog');
