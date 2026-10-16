@@ -486,3 +486,31 @@
     clear:both;
   }
 }
+
+
+/* TOP3 podium: wide champion, two compact runners on notebook PC. */
+@media (min-width:761px) {
+ .score-guide .record-card .podium-grid {display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+ .score-guide .record-card .podium-first {width:100%;min-width:0;padding:9px 8px}
+ .score-guide .record-card .podium-runners {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;min-width:0}
+ .score-guide .record-card .podium-runner {min-width:0;padding:6px 4px;gap:3px;overflow:hidden}
+ .score-guide .record-card .podium-runner .podium-medal {font-size:10px}
+ .score-guide .record-card .podium-runner > strong {font-size:clamp(10px,.7vw,12px);letter-spacing:-.25px;overflow-wrap:anywhere;white-space:normal}
+ .score-guide .record-card .podium-runner > span:last-child {min-width:0;width:100%;font-size:10px;overflow:visible}
+ .score-guide .record-card .podium-runner .rank-player-name > span:first-child {overflow-wrap:anywhere;word-break:break-word;white-space:normal;line-height:1.3}
+ .score-guide .record-card .podium-runner .rank-player-name {display:flex;flex-wrap:wrap;gap:4px 2px;align-items:center;min-width:0}
+ .score-guide .record-card .podium-runner .rank-title-count {max-width:100%;padding:2px 3px;font-size:9px}
+ .score-guide .record-card .podium-clickable {cursor:pointer;transition:border-color .15s,background .15s}
+ .score-guide .record-card .podium-clickable:hover {border-color:#d9ff70;background:#284035}
+ .score-guide .record-card .podium-clickable:focus-visible {outline:2px solid #d9ff70;outline-offset:2px}
+}
+.rank-title-open {font-family:inherit;cursor:pointer;appearance:none}
+.rank-title-open:hover,.rank-title-open:focus-visible {outline:1px solid #d9ff70;outline-offset:1px}
+.player-title-row.unearned {filter:grayscale(1);opacity:.47;background:#17221e;border-color:#3c4b42}
+.player-title-row.earned {opacity:1}
+.player-title-row.unknown {filter:grayscale(1);opacity:.65}
+.player-title-state {display:inline-block;margin-top:5px;font-size:11px;font-weight:800;color:#c7e89e}
+.player-title-row.unearned .player-title-state {color:#c4cbc5}
+
+/* Player profile appears above the full leaderboard when opened from a row. */
+#player-titles-dialog:not([hidden]){z-index:10001}
