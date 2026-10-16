@@ -54,25 +54,13 @@ begin
    where player_id=v_player returning balance into v_wallet;
  end if;
  for v_id in select value #>> '{}' from jsonb_array_elements(v_ids) loop
-   if v_id !~ '^[a-z0-9]{3,40}
+   if v_id !~ '^[a-z0-9]{3,40}$' then raise exception 'Invalid mission id'; end if;
    insert into public.lifting_daily_completions(player_id,day_jst,mission_id)
    values(v_player,v_day,v_id) on conflict do nothing;
    if found then v_count:=v_count+1; end if;
  end loop;
  return jsonb_build_object('coinsEarned',v_award,'newMissions',v_count,'balance',v_wallet,'duplicate',false);
 end $$;
-
-
-revoke all on function public.lifting_api_daily_award(jsonb) from public,anon,authenticated;
-grant execute on function public.lifting_api_daily_award(jsonb) to service_role;
- then raise exception 'Invalid mission id'; end if;
-   insert into public.lifting_daily_completions(player_id,day_jst,mission_id)
-   values(v_player,v_day,v_id) on conflict do nothing;
-   if found then v_count:=v_count+1; end if;
- end loop;
- return jsonb_build_object('coinsEarned',v_award,'newMissions',v_count,'balance',v_wallet,'duplicate',false);
-end $$;
-
 
 revoke all on function public.lifting_api_daily_award(jsonb) from public,anon,authenticated;
 grant execute on function public.lifting_api_daily_award(jsonb) to service_role;
