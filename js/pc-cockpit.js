@@ -31,7 +31,7 @@
   ['🪙','PRIME COIN',[],'prime-coin-info-open']
  ]);
  const b=setup(right,'right',[
-  ['⚽','得点とボーナス',['.score-guide > .panel-block:not(.stage-block)','.score-guide > .bonus-card']],
+  ['⚽','得点とボーナス',['.panel-block:not(.stage-block)','.bonus-card']],
   ['🏟','ステージ',['.stage-block']],
   ['🏆','TOP3ランキング',['.record-card']]
  ]);
