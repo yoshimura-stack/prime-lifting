@@ -1,4 +1,4 @@
-import {dailyChallenges,jstDay} from './daily.mjs';
+import {dailyChallenges,jstDay,completedDailyChallenges} from './daily.mjs';
 import {ApiError,normalizeName,replay,validKit,RULESET,VERSION} from './replay.mjs';
 import {createDatabase} from './supabase.mjs';
 import {achievementMask,publicProgress,nextLevelMask,NEXT_TITLES} from './achievements.mjs';
@@ -119,7 +119,12 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   try{progress=publicProgress(await db.call('achievement_merge',{playerId:session.sub,mask:achievementMask(result,score)}));}catch{throw new ApiError(503,'称号の保存確認ができませんでした。同じプレイの保存を再試行してください。');}
   let next=null;
   if(progress.master){try{const data=await db.call('next_achievement_merge',{playerId:session.sub,mask:nextLevelMask(result)});const mask=data?.mask;if(Number.isInteger(mask)&&mask>=0&&mask<=255)next={mask,earned:NEXT_TITLES.filter((_,i)=>!!(mask&(1<<i))),god:mask===255};}catch{throw new ApiError(503,'NEXT LEVEL称号の保存確認ができませんでした。同じプレイの保存を再試行してください。');}}
-  return json({player:publicPlayer(saved.player),score,personalBest:saved.personalBest===true,newChampion:saved.newChampion===true,progress:{...progress,next}});
+  // Only a replay-verified and accepted run can earn daily credit.
+  // Missing RPC is not silently treated as success; retry uses the same run ID.
+  let daily=null;
+  try{daily=await db.call('daily_award',{playerId:session.sub,runId:run.id,completedIds:completedDailyChallenges(jstDay(time),result)});}
+  catch{throw new ApiError(503,'デイリー報酬の保存確認ができませんでした。同じプレイを再送信してください。');}
+  return json({daily,player:publicPlayer(saved.player),score,personalBest:saved.personalBest===true,newChampion:saved.newChampion===true,progress:{...progress,next}});
  }catch(error){return json({error:error instanceof ApiError?error.message:'ランキング処理に失敗しました。再試行してください。'},error instanceof ApiError?error.status:503);}
  }};}
 export default createWorker();
