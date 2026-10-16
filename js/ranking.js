@@ -49,11 +49,13 @@ function rankName(entry,prefix=''){
  const label=document.createElement('span');label.textContent=prefix+entry.name;name.append(label);
  const badge=deviceIcon(entry.device);if(badge)name.append(badge);
  if(Number.isInteger(entry.achievementCount)){
-  const progress=document.createElement('span');
-  progress.className='rank-title-count'+(entry.master?' platinum':'');
+  const progress=document.createElement('button');progress.type='button';
+  progress.className='rank-title-count rank-title-open'+(entry.master?' platinum':'');
   progress.textContent=(entry.master?'💠 ':'🏅 ')+entry.achievementCount+'/8';
   progress.title=entry.master?'LIFTING MASTER：全8称号獲得':'累計獲得称号 '+entry.achievementCount+'/8';
   progress.setAttribute('aria-label',progress.title);
+  progress.setAttribute('aria-haspopup','dialog');
+  progress.addEventListener('click',e=>{e.stopPropagation();showPlayerTitles(entry,progress);});
   name.append(progress);
  }
  return name;
@@ -81,6 +83,16 @@ function champion(entries){
  for(const [position,entry] of [['second',second],['third',third]]){
   $('leader-'+position+'-score').textContent=entry?entry.score.toLocaleString()+' PTS':'--- PTS';
   $('leader-'+position+'-name').replaceChildren(...(entry?[rankName(entry)]:[document.createTextNode('未登録')]));
+ }
+ for(const [selector,entry] of [['.podium-first',first],['.podium-runners .podium-runner:first-child',second],['.podium-runners .podium-runner:last-child',third]]){
+  const card=document.querySelector('.record-card '+selector);if(!card)continue;
+  card.classList.toggle('podium-clickable',!!entry);
+  if(entry){
+   card.setAttribute('role','button');card.setAttribute('tabindex','0');
+   card.setAttribute('aria-label',entry.rank+'位 '+entry.name+' の称号獲得状況を表示');
+   card.onclick=e=>{if(e.target.closest('.rank-title-open'))return;showPlayerTitles(entry,card);};
+   card.onkeydown=e=>{if(e.target!==card)return;if(e.key==='Enter'||e.key===' '){e.preventDefault();showPlayerTitles(entry,card);}};
+  }else{card.removeAttribute('role');card.removeAttribute('tabindex');card.removeAttribute('aria-label');card.onclick=null;card.onkeydown=null;}
  }
  $('mobile-best').textContent=first?`🏆 ${first.score.toLocaleString()} PTS · ${first.name}`:'最高記録：未取得';
 }
@@ -179,6 +191,44 @@ const titleDescriptions={
 'AIR QUAD':'ジャンプ1回＋4回転後にボールタッチ成功',
 'DOUBLE AIR':'2回連続ジャンプ後にボールタッチ成功'
 };
+let playerTitleReturnFocus=null;
+function showPlayerTitles(entry,trigger){
+ const dialog=$('player-titles-dialog'),list=$('player-titles-list'),close=$('player-titles-close');
+ if(!dialog||!entry)return;
+ playerTitleReturnFocus=trigger||document.activeElement;
+ const earned=Array.isArray(entry.earnedTitles)?new Set(entry.earnedTitles):null;
+ $('player-titles-heading').textContent=entry.name+' の称号リザルト';
+ $('player-titles-summary').textContent=earned
+  ?'獲得済み '+earned.size+'/8 ／ カラー：獲得済み・グレー：未獲得'
+  :'獲得状況を取得できませんでした。時間をおいてランキングを更新してください。';
+ list.replaceChildren();
+ for(const a of achievementDefinitions){
+  const has=earned?.has(a.name);
+  const row=document.createElement('div');
+  row.className='title-guide-row player-title-row'+(a.legendary?' legendary':'')+(earned?(has?' earned':' unearned'):' unknown');
+  const icon=document.createElement('span');icon.className='title-guide-icon';icon.textContent=a.icon;
+  const info=document.createElement('div');
+  const title=document.createElement('strong');title.textContent=a.name;
+  const desc=document.createElement('p');desc.textContent=titleDescriptions[a.name];
+  const state=document.createElement('span');state.className='player-title-state';
+  state.textContent=earned?(has?'✓ 獲得済み':'未獲得'):'確認できません';
+  info.append(title,desc,state);row.append(icon,info);list.append(row);
+ }
+ dialog.hidden=false;close.focus();
+}
+function closePlayerTitles(){
+ const dialog=$('player-titles-dialog');if(dialog.hidden)return;
+ dialog.hidden=true;
+ if(playerTitleReturnFocus?.isConnected)playerTitleReturnFocus.focus();
+ playerTitleReturnFocus=null;
+}
+$('player-titles-close').addEventListener('click',closePlayerTitles);
+$('player-titles-dialog').addEventListener('click',e=>{if(e.target===$('player-titles-dialog'))closePlayerTitles();});
+document.addEventListener('keydown',e=>{
+ if($('player-titles-dialog').hidden)return;
+ if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();closePlayerTitles();}
+ if(e.key==='Tab'){e.preventDefault();$('player-titles-close').focus();}
+},true);
 function initTitleGuide(){
  const dialog=document.getElementById('title-guide-dialog'),list=document.getElementById('title-guide-list'),open=document.getElementById('title-guide-open'),close=document.getElementById('title-guide-close');
  for(const a of achievementDefinitions){const row=document.createElement('div');row.className='title-guide-row'+(a.legendary?' legendary':'');
