@@ -47,7 +47,7 @@ function deviceIcon(device){
 }
 const nextTitleNames=['FOOT MASTER','KNEE MASTER','TRAP MASTER','HEADING MASTER','SPIN MASTER','JUMP MASTER','SHOULDER MASTER','LIFTING LEGEND'];
 const baseTitleNames=['30 KEEPS CLUB','AIR MASTER','SPIN KING','SHOULDER ACE','SCORE HUNTER','QUAD MASTER','AIR QUAD','DOUBLE AIR'];
-const nextTitleDescriptions=['全成功タッチが足・20回以上','全成功タッチが膝・20回以上','全成功タッチが胸・20回以上','全成功タッチが頭・20回以上','全成功タッチにスピン・20回以上','全成功タッチにジャンプアクション・20回以上','肩タッチ10回成功','足・膝・胸・頭・肩・スピン・ジャンプを各4回以上'];
+const nextTitleDescriptions=['30キープまで足以外のタッチ禁止！達成後は自由','30キープまで膝以外のタッチ禁止！達成後は自由','30キープまで胸以外のタッチ禁止！達成後は自由','30キープまで頭以外のタッチ禁止！達成後は自由','30キープまで全タッチでスピン必須！達成後は自由','30キープまで全タッチでジャンプ必須！達成後は自由','肩タッチ10回成功','足・膝・胸・頭・肩・スピン・ジャンプを各4回以上'];
 let nextDialogReturnFocus=null,previousGod=false,godToastTimer=null;
 function renderNextCollection(){
  const list=$('next-level-list'),status=$('next-level-status'),god=$('next-level-god');
