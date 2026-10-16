@@ -1,6 +1,6 @@
 import {ApiError,normalizeName,replay,validKit,RULESET,VERSION} from './replay.mjs';
 import {createDatabase} from './supabase.mjs';
-import {achievementMask,publicProgress} from './achievements.mjs';
+import {achievementMask,publicProgress,TITLES} from './achievements.mjs';
 const encoder=new TextEncoder();
 const encode=bytes=>btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 const decode=s=>Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
@@ -87,7 +87,7 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
    const entries=players.map(v=>{
     const mask=masks[v.id],valid=Number.isInteger(mask)&&mask>=0&&mask<=255;
     const count=valid?mask.toString(2).replace(/0/g,'').length:0;
-    return {name:v.name,score:v.best,rank:v.rank,device:v.bestDevice,achievementCount:count,master:valid&&mask===255};
+    return {name:v.name,score:v.best,rank:v.rank,device:v.bestDevice,achievementCount:count,master:valid&&mask===255,earnedTitles:valid?TITLES.filter((_,i)=>!!(mask&(1<<i))):null};
    });
    return json(path==='/api/champion'?{champion:entries[0]||null}:{entries});
   }
