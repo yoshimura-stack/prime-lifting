@@ -34,6 +34,16 @@
 .daily-preview{position:absolute;z-index:5;right:12px;top:106px;width:min(235px,27%);padding:10px;background:rgba(8,25,21,.86);border:1px solid #9ecf8255;border-radius:10px;color:#eaffd8;pointer-events:none;font-size:11px}
 .daily-preview strong{display:block;font-size:12px;letter-spacing:.07em;color:#d9ff77}.daily-preview ol{margin:7px 0 4px;padding-left:20px}.daily-preview li{margin:5px 0;line-height:1.35}.daily-preview small{color:#bed0c2}
 @media(max-width:700px){.daily-preview{top:88px;right:6px;width:min(195px,30%);padding:6px;font-size:9px}.daily-preview strong{font-size:10px}}
+</style><style>
+/* PRIME COIN shares the bottom utility row with the menu on desktop. */
+.controls-panel .game-menu-launcher{display:flex;align-items:stretch;gap:8px;min-width:0}
+.controls-panel .game-menu-launcher #game-menu-open{width:auto;flex:0 0 auto;min-width:0;padding-inline:10px}
+.prime-coin-wallet{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:5px 8px;border:1px solid #ad8d42;border-radius:7px;background:linear-gradient(110deg,#283624,#1c3027);color:#ffe69a}
+.prime-coin-wallet-label{font-size:10px;font-weight:800;letter-spacing:.035em;white-space:nowrap}
+.prime-coin-wallet-value{font-size:15px;font-weight:900;line-height:1.1;font-variant-numeric:tabular-nums}
+.prime-coin-wallet-value small{font-size:9px}
+@media(max-width:850px){.prime-coin-wallet{padding:4px 5px}.prime-coin-wallet-label{font-size:9px}.prime-coin-wallet-value{font-size:12px}}
+@media(max-width:700px){.controls-panel .game-menu-launcher{flex-wrap:wrap}.prime-coin-wallet{flex-basis:100%}}
 </style></head>
 <body>
 <main class="game-app">
@@ -53,6 +63,7 @@
   </div>
   <div class="panel-block utility-block game-menu-launcher">
    <button type="button" id="game-menu-open" aria-haspopup="dialog" aria-controls="game-menu-dialog" aria-expanded="false">☰ ゲームメニュー</button>
+   <div class="prime-coin-wallet" role="status" aria-label="PRIME COIN残高"><span class="prime-coin-wallet-label">🪙 PRIME COIN</span><span class="prime-coin-wallet-value" id="prime-coin-balance">— <small>PC</small></span></div>
   </div>
  </aside>
 
