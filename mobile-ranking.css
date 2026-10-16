@@ -414,3 +414,75 @@
  cursor:default;
 }
 .stage-block #stage-preview:focus-visible{outline:2px solid #a3d9cb;outline-offset:2px}
+
+
+/* Laptop stage selector: mobile-ranking.css loads AFTER style.css.
+   Earlier flex: 0 1 auto; min-height:0 allowed the stage to collapse beneath
+   the leaderboard on short viewports. Keep it in normal flow and scroll the
+   entire right sidebar instead of shrinking the stage controls. */
+@media (min-width:761px) {
+  .game-app > .score-guide {
+    min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    overscroll-behavior:contain;
+  }
+  .game-app > .score-guide > .stage-block {
+    position:relative;
+    display:block;
+    flex:0 0 auto;
+    flex-shrink:0;
+    min-height:max-content;
+    height:auto;
+    overflow:visible;
+    padding:10px 3px 12px;
+    margin:0;
+    border-bottom:1px solid var(--line);
+    isolation:isolate;
+  }
+  .game-app > .score-guide > .stage-block .stage-buttons {
+    position:static;
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    gap:6px;
+    margin:8px 0;
+    width:100%;
+  }
+  .game-app > .score-guide > .stage-block .stage-buttons button {
+    position:static;
+    display:block;
+    box-sizing:border-box;
+    width:100%;
+    min-width:0;
+    min-height:34px;
+    padding:8px 7px;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    line-height:1.3;
+  }
+  .game-app > .score-guide > .stage-block #stage-preview {
+    position:static;
+    display:block;
+    width:100%;
+    min-height:26px;
+    box-sizing:border-box;
+    margin:5px 0;
+  }
+  .game-app > .score-guide > .stage-block #stage-hint {
+    position:static;
+    display:block;
+    margin:5px 0 0;
+    min-height:0;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    line-height:1.4;
+  }
+  .game-app > .score-guide > .record-card {
+    position:relative;
+    flex:0 0 auto;
+    flex-shrink:0;
+    min-height:max-content;
+    margin:10px 0 10px;
+    clear:both;
+  }
+}
