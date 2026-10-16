@@ -122,7 +122,7 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   // Only a replay-verified and accepted run can earn daily credit.
   // Missing RPC is not silently treated as success; retry uses the same run ID.
   let daily=null;
-  try{daily=await db.call('daily_award',{playerId:session.sub,runId:run.id,completedIds:completedDailyChallenges(jstDay(time),result)});}
+  try{daily=await db.call('daily_award',{playerId:session.sub,runId:run.id,completedIds:completedDailyChallenges(jstDay(run.started),result)});}
   catch{throw new ApiError(503,'デイリー報酬の保存確認ができませんでした。同じプレイを再送信してください。');}
   return json({daily,player:publicPlayer(saved.player),score,personalBest:saved.personalBest===true,newChampion:saved.newChampion===true,progress:{...progress,next}});
  }catch(error){return json({error:error instanceof ApiError?error.message:'ランキング処理に失敗しました。再試行してください。'},error instanceof ApiError?error.status:503);}
