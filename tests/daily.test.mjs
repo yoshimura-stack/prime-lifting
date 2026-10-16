@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {jstDay,dailyChallenges,completedDailyChallenges,earnedPlayCoins} from '../server/daily.mjs';
+import {jstDay,dailyChallenges,completedDailyChallenges,earnedPlayCoins,rankingTotal,jstMonth} from '../server/daily.mjs';
 test('JST day boundary, not UTC',()=>{
  assert.equal(jstDay(Date.parse('2026-10-16T14:59:59Z')),'2026-10-16');
  assert.equal(jstDay(Date.parse('2026-10-16T15:00:00Z')),'2026-10-17');
@@ -25,4 +25,12 @@ test('coin conversion and daily cap',()=>{
  assert.equal(earnedPlayCoins(70000,1900),100);
  assert.equal(earnedPlayCoins(70000,2000),0);
  assert.throws(()=>earnedPlayCoins(-1));
+});
+
+test('daily bonus can overtake a higher play best',()=>{
+ assert.equal(rankingTotal(67000,40),71000);
+ assert.ok(rankingTotal(67000,40)>rankingTotal(70000,0));
+ assert.equal(jstMonth('2026-10-31'),'2026-10');
+ assert.equal(jstMonth('2026-11-01'),'2026-11');
+ assert.throws(()=>rankingTotal(-1,2));
 });
