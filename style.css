@@ -237,3 +237,34 @@ main.game-app{width:100vw;height:100dvh;max-width:none;margin:0;padding:12px 14p
   .controls-panel .utility-block { margin-top:12px; }
   .score-guide .record-card { margin-top:8px; }
 }
+
+/* Keep GAME MENU visible on laptops: scroll the left guide, not its actions. */
+@media (min-width:761px) {
+  .game-app > .controls-panel {
+    overflow:hidden;
+  }
+  .controls-panel .controls-content-scroll {
+    flex:1 1 auto;
+    min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    overscroll-behavior:contain;
+    scrollbar-width:thin;
+    scrollbar-color:#657f70 transparent;
+    padding-right:3px;
+  }
+  .controls-panel .controls-content-scroll::-webkit-scrollbar {
+    width:5px;
+  }
+  .controls-panel .controls-content-scroll::-webkit-scrollbar-thumb {
+    background:#657f70;
+    border-radius:8px;
+  }
+  .controls-panel .utility-block {
+    flex:0 0 auto;
+    margin-top:0;
+    padding:9px 4px 4px;
+    border-top:1px solid var(--line);
+    background:#0d1916;
+  }
+}
