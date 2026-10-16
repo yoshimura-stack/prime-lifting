@@ -51,13 +51,20 @@ function rankedInput(name){if(['countdown','playing'].includes(g.phase))rankEven
 let debug=false,muted=false,paused=false,audioContext=null,last=0,accumulator=0,effects=[],message='',messageTime=0;
 const mobileQuery=matchMedia('(orientation:landscape)');
 const touchQuery=matchMedia('(pointer:coarse)');
-// A touch screen alone must not force the mobile layout on hybrid Windows laptops.
-// Prefer the desktop cockpit when a fine pointer (mouse/trackpad) is available.
-const isMobile=()=>mobileQuery.matches&&matchMedia('(max-width:950px)').matches&&!matchMedia('(any-pointer: fine)').matches&&(touchQuery.matches||navigator.maxTouchPoints>0||'ontouchstart' in window);
-const refreshMobile=()=>{document.body.classList.toggle('touch-landscape',isMobile());draw();};
+const fineQuery=matchMedia('(any-pointer: fine)');
+// Use device input capability + orientation, NOT a width breakpoint: iPhone Safari
+// can expose different viewport widths when first loaded in portrait vs landscape.
+// Preserve desktop input on hybrid Surface/Windows devices with a fine pointer.
+const isMobile=()=>mobileQuery.matches&&!fineQuery.matches&&(touchQuery.matches||navigator.maxTouchPoints>0||'ontouchstart' in window);
+const refreshMobile=()=>{const mobile=isMobile();document.body.classList.toggle('touch-landscape',mobile);$('overlay-note').textContent=mobile?'打球はKICKボタン。複数の指で同時操作できます。':'打球はゲーム画面内でクリック';draw();};
 const touch=new PrimeTouchController($('touch-controls'),{enabled:()=>isMobile()&&!paused&&$('overlay').hidden&&$('kit-select').hidden,action:name=>{rankedInput(name);processEvents();draw();}});
-function syncMobile(){touch.clear();document.body.classList.toggle('touch-landscape',isMobile());$('overlay-note').textContent=isMobile()?'打球はKICKボタン。複数の指で同時操作できます。':'打球はゲーム画面内でクリック';pause(true);}
-mobileQuery.addEventListener('change',syncMobile);touchQuery.addEventListener('change',syncMobile);window.addEventListener('resize',refreshMobile);syncMobile();
+function syncMobile(){touch.clear();refreshMobile();pause(true);}
+mobileQuery.addEventListener('change',syncMobile);touchQuery.addEventListener('change',syncMobile);fineQuery.addEventListener('change',syncMobile);
+window.addEventListener('resize',refreshMobile);
+window.visualViewport?.addEventListener('resize',refreshMobile);
+window.addEventListener('pageshow',refreshMobile);
+window.addEventListener('orientationchange',()=>{syncMobile();requestAnimationFrame(refreshMobile);setTimeout(refreshMobile,180);});
+syncMobile();
 $('mobile-pause').onclick=()=>pause(true);
 function sound(type){if(muted)return;try{audioContext??=new (window.AudioContext||window.webkitAudioContext)();if(audioContext.state==='suspended')audioContext.resume();const t=audioContext.currentTime,osc=audioContext.createOscillator(),gain=audioContext.createGain();const tone={hit:270,CHEST:120,HEADER:370,JUMP_HEADER:480,SHOULDER:610,spin:650,miss:110,drop:80,start:740,end:220}[type]||270;osc.type=type==='spin'?'sine':'triangle';osc.frequency.setValueAtTime(tone,t);osc.frequency.exponentialRampToValueAtTime(Math.max(40,tone*(type==='start'?1.5:0.45)),t+0.13);gain.gain.setValueAtTime(0.065,t);gain.gain.exponentialRampToValueAtTime(0.001,t+0.17);osc.connect(gain);gain.connect(audioContext.destination);osc.start(t);osc.stop(t+0.18);}catch{}}
 function showOverlay(label,title,copy,button){$('overlay').classList.remove('intro-overlay');$('overlay').hidden=false;$('overlay-label').textContent=label;$('overlay-title').textContent=title;$('overlay-copy').textContent=copy;$('start').innerHTML=button+' <span>↗</span>';}
