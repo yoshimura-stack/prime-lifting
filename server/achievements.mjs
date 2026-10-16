@@ -6,7 +6,7 @@ export function achievementMask(result,finalScore){
  return (result.combo>=30?1:0)
  |(p.maxAirStreak>=3?2:0)
  |(p.spinKing===true?4:0)
- |(p.shoulderHits>=1?8:0)
+ |(p.shoulderHits>=3?8:0)
  |(finalScore>=50000?16:0)
  |(p.quadMaster===true?32:0)
  |(p.airQuad===true?64:0)
