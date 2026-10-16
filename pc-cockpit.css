@@ -1,0 +1,38 @@
+/* PC cockpit: independent narrow rails, field-first. Touch landscape remains unchanged. */
+@media (min-width:951px) {
+ body:not(.touch-landscape) main.game-app{position:relative;grid-template-columns:52px minmax(0,1fr) 52px!important;gap:6px!important;padding:6px!important}
+ body:not(.touch-landscape) .side-panel{position:relative;min-width:52px;overflow:visible;z-index:45;background:#0d1916}
+ body:not(.touch-landscape) .side-panel .side-brand,
+ body:not(.touch-landscape) .side-panel .controls-content-scroll,
+ body:not(.touch-landscape) .side-panel .utility-block,
+ body:not(.touch-landscape) .score-guide>.build-label,
+ body:not(.touch-landscape) .score-guide>.panel-block,
+ body:not(.touch-landscape) .score-guide>.bonus-card,
+ body:not(.touch-landscape) .score-guide>.record-card{display:none!important}
+ body:not(.touch-landscape) .pc-rail{display:flex;flex-direction:column;align-items:center;gap:8px;padding:7px 3px;min-height:0;overflow-y:auto;scrollbar-width:none}
+ body:not(.touch-landscape) .pc-rail::-webkit-scrollbar{display:none}
+ body:not(.touch-landscape) .pc-rail button{width:42px;height:44px;flex:0 0 44px;padding:0;border:1px solid #8ab05a;border-radius:8px;background:#18352b;color:#dfff65;font-size:22px;display:grid;place-items:center}
+ body:not(.touch-landscape) .pc-rail button:hover,body:not(.touch-landscape) .pc-rail button:focus-visible{background:#2a5140}
+ body:not(.touch-landscape) .pc-panel{position:fixed;z-index:70;top:8px;bottom:8px;width:min(310px,calc(100vw - 115px));padding:12px;overflow:auto;overscroll-behavior:contain;border:1px solid #a6d775;border-radius:10px;background:#0e201bcc;backdrop-filter:blur(16px);box-shadow:0 10px 35px #000b}
+ body:not(.touch-landscape) .pc-panel[hidden]{display:none!important}
+ body:not(.touch-landscape) .pc-panel.pc-left{left:61px}
+ body:not(.touch-landscape) .pc-panel.pc-right{right:61px}
+ body:not(.touch-landscape) .pc-panel-head{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#dfff65;font-weight:800;margin-bottom:10px}
+ body:not(.touch-landscape) .pc-panel-head button{min-width:38px;min-height:38px}
+ body:not(.touch-landscape) .pc-panel-content>*{margin-bottom:12px}
+ body:not(.touch-landscape) .pc-panel-content .panel-block,body:not(.touch-landscape) .pc-panel-content .bonus-card,body:not(.touch-landscape) .pc-panel-content .record-card{display:block!important;position:static!important;width:auto!important;max-height:none!important;overflow:visible!important}
+ body:not(.touch-landscape) .center-stage{min-width:0;min-height:0}
+ body:not(.touch-landscape) .center-stage .game-shell{width:100%;max-width:100%;min-width:0}
+ body:not(.touch-landscape) .game-shell .scorebar{left:0;right:0;padding-left:clamp(10px,1.4vw,24px);padding-right:clamp(10px,1.4vw,24px)}
+ body:not(.touch-landscape) #achievement-board{left:clamp(8px,1vw,18px)}
+ body:not(.touch-landscape) #daily-preview{right:clamp(8px,1vw,18px)}
+ body:not(.touch-landscape) .field-bottom{bottom:30px}
+ body:not(.touch-landscape) .pc-king-ticker{position:absolute;z-index:7;left:0;right:0;bottom:0;height:30px;display:flex;align-items:center;overflow:hidden;background:#dfff65;color:#122018;font:800 12px Arial,sans-serif;cursor:pointer;border:0;border-radius:0;padding:0}
+ body:not(.touch-landscape) .pc-ticker-label{flex:0 0 auto;height:100%;display:flex;align-items:center;padding:0 10px;background:#111c16;color:#dfff65;white-space:nowrap}
+ body:not(.touch-landscape) .pc-ticker-window{flex:1;min-width:0;overflow:hidden;white-space:nowrap}
+ body:not(.touch-landscape) .pc-ticker-track{display:flex;width:max-content;gap:48px;animation:prime-king-marquee 28s linear infinite;will-change:transform}
+ body:not(.touch-landscape) .pc-king-ticker:hover .pc-ticker-track{animation-play-state:paused}
+ @keyframes prime-king-marquee{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+ @media(prefers-reduced-motion:reduce){body:not(.touch-landscape) .pc-ticker-track{animation:none}}
+}
+@media(max-width:950px){.pc-rail,.pc-panel,.pc-king-ticker{display:none!important}}
