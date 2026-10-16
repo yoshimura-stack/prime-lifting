@@ -75,6 +75,18 @@ button.prime-coin-wallet:hover,button.prime-coin-wallet:focus-visible{border-col
 .prime-coin-wallet-label{font-size:8px}
 .prime-coin-wallet-value{font-size:11px}
 }
+</style><style>
+/* Notebook sidebar: deliberately use a short, readable wallet label. */
+.controls-panel .game-menu-launcher{gap:5px}
+.controls-panel .game-menu-launcher #game-menu-open{flex:1 1 48%;width:auto;max-width:52%;min-width:0;padding-inline:3px;font-size:clamp(8px,.75vw,11px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.controls-panel .game-menu-launcher .prime-coin-wallet{flex:1 1 48%;min-width:0;max-width:52%;box-sizing:border-box;padding:4px 5px;overflow:hidden}
+.prime-coin-wallet-label{display:block;font-size:clamp(9px,.8vw,11px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0}
+.prime-coin-wallet-value{font-size:clamp(11px,1vw,15px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.daily-preview{pointer-events:none}
+.daily-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.daily-heading strong{min-width:0}
+.daily-heading button{pointer-events:auto;flex:0 0 auto;min-width:25px;min-height:25px;border:1px solid #b7e68b;border-radius:50%;background:#29432e;color:#eaffb1;font-weight:900;cursor:pointer}
+.daily-heading button:hover,.daily-heading button:focus-visible{background:#416543;outline:2px solid #d9ff77}
 </style></head>
 <body>
 <main class="game-app">
@@ -94,7 +106,7 @@ button.prime-coin-wallet:hover,button.prime-coin-wallet:focus-visible{border-col
   </div>
   <div class="panel-block utility-block game-menu-launcher">
    <button type="button" id="game-menu-open" aria-haspopup="dialog" aria-controls="game-menu-dialog" aria-expanded="false">☰ ゲームメニュー</button>
-   <button type="button" class="prime-coin-wallet" id="prime-coin-info-open" aria-haspopup="dialog" aria-controls="prime-coin-info-dialog" aria-expanded="false" aria-label="PRIME COINの残高と説明を見る"><span class="prime-coin-wallet-label">🪙 PRIME COIN ↗</span><span class="prime-coin-wallet-value" id="prime-coin-balance">— <small>PC</small></span></button>
+   <button type="button" class="prime-coin-wallet" id="prime-coin-info-open" aria-haspopup="dialog" aria-controls="prime-coin-info-dialog" aria-expanded="false" aria-label="PRIME COINの残高と説明を見る"><span class="prime-coin-wallet-label">🪙 COIN ↗</span><span class="prime-coin-wallet-value" id="prime-coin-balance">— <small>PC</small></span></button>
   </div>
  </aside>
 
@@ -109,7 +121,7 @@ button.prime-coin-wallet:hover,button.prime-coin-wallet:focus-visible{border-col
     </div>
    </div>
    <div class="scorebar"><div><small>SCORE</small><strong id="score">000000</strong></div><div class="chain"><small>KEEP UPS</small><strong id="combo">0</strong></div><div><small>TIME LEFT</small><strong id="time">60<span>.0</span></strong></div></div>
-   <section id="daily-preview" class="daily-preview" aria-label="今日のデイリーチャレンジ"><strong>DAILY CHALLENGE</strong><small id="daily-day">読み込み中</small><ol id="daily-preview-list"></ol><small>報酬・達成記録は準備中</small></section><div id="achievement-board" class="achievement-board"><div class="achievement-board-heading">称号リザルト <span id="achievement-count">0/8</span></div><div id="achievement-live-list"></div><div id="achievement-unlock" class="achievement-unlock" aria-live="polite"></div></div><canvas id="scene" width="1000" height="620" aria-hidden="true"></canvas>
+   <section id="daily-preview" class="daily-preview" aria-label="今日のデイリーチャレンジ"><div class="daily-heading"><strong>DAILY CHALLENGE</strong><button type="button" id="daily-help-open" aria-haspopup="dialog" aria-controls="daily-help-dialog" aria-expanded="false" aria-label="デイリーチャレンジのルールを表示">？</button></div><small id="daily-day">読み込み中</small><ol id="daily-preview-list"></ol><small>報酬・達成記録は準備中</small></section><div id="achievement-board" class="achievement-board"><div class="achievement-board-heading">称号リザルト <span id="achievement-count">0/8</span></div><div id="achievement-live-list"></div><div id="achievement-unlock" class="achievement-unlock" aria-live="polite"></div></div><canvas id="scene" width="1000" height="620" aria-hidden="true"></canvas>
    <canvas id="game" width="1000" height="620" tabindex="0" aria-label="AとDで移動、スペースでジャンプ、左クリックで打球、右クリックで回転"></canvas>
    <div id="overlay" class="overlay"><p class="eyebrow" id="overlay-label">THE LIFTING CHALLENGE</p><h2 id="overlay-title">ボールを、落とすな。</h2><p id="overlay-copy">移動も、打球も、あなたの操作で。<br>60秒間のリフティング・スコアアタック。</p><section id="account-panel"><p id="account-status" role="status">ゲストプレイ（保存なし）</p><div class="account-help" id="account-help"><div><b>はじめての方</b><span>名前と6〜12桁の数字PINを入力して「新規登録」</span></div><div><b>登録済みの方</b><span>同じ名前・PINで「ログイン」して記録を引き継ぐ</span></div><small>登録せず遊ぶ場合は「プレイする」（記録は保存されません）。オンライン機能は接続設定完了後に利用できます。</small></div><form id="account-form"><input id="player-name" aria-label="プレイヤー名" maxlength="16" autocomplete="username" placeholder="プレイヤー名" required><input id="player-pin" aria-label="PIN（6〜12桁）" type="password" inputmode="numeric" pattern="[0-9]{6,12}" minlength="6" maxlength="12" autocomplete="current-password" placeholder="PIN（6〜12桁）" required><button name="mode" value="login">ログイン</button><button name="mode" value="register">新規登録</button></form><button id="logout" hidden>ログアウト</button></section><section id="result-ranking" hidden><strong id="record-banner"></strong><p id="personal-result"></p><button type="button" id="mobile-result-ranking" class="mobile-ranking-entry">🏆 全体ランキング・自分の順位を見る ↗</button><section id="achievement-panel" hidden aria-label="今回の獲得称号"><h3>🏅 今回の獲得称号</h3><div id="achievement-badges"></div></section><section id="result-next-rival" class="next-rival" hidden aria-label="次のライバル"><span class="next-rival-label">🎯 NEXT RIVAL</span><span id="result-next-rival-name"></span><strong id="result-next-rival-gap"></strong></section><p id="save-feedback" role="status"></p><button id="save-retry" hidden>保存を再試行</button><div id="result-top"><h3>TOP 10</h3><p id="rank-message" role="status"></p><button id="rank-refresh">ランキングを再取得</button><ol id="rank-rows"></ol></div></section><button type="button" id="mobile-intro-ranking" class="mobile-ranking-entry">🏆 現在のランキングを見る ↗</button><p id="preflight-status" role="status" aria-live="polite"></p><button id="preflight-retry" type="button" hidden>通信を再試行</button><p id="preflight-contact" role="alert" hidden>⚠️ 通信エラーが続いています。運営担当者に直接お問い合わせください。</p><button id="start" class="primary">プレイする <span>↗</span></button><small id="overlay-note">打球はゲーム画面内でクリック</small></div>
    <div id="mobile-score-left" class="mobile-score-panel" aria-label="基本得点"><b>基本得点</b><span>キック <strong>+100</strong></span><span>ひざ <strong>+150</strong></span><span>むね <strong>+200</strong></span><span>ヘッド <strong>+250</strong></span><span>Jヘッド <strong>+500</strong></span><span>肩（左右） <strong>+1000</strong></span></div><div id="mobile-score-right" class="mobile-score-panel" aria-label="連続ボーナス"><b>連続ボーナス</b><span>ジャンプ <strong>+150×</strong></span><small>空中タッチ成功</small><span>スピン <strong>+100/回</strong></span><small>4回転 +1000！</small><small>AIRと同時加点OK</small></div><div id="mobile-record"><span id="mobile-best">最高記録：未取得</span><button id="mobile-pause" aria-label="一時停止">Ⅱ</button></div><div id="touch-controls" hidden aria-label="タッチコントローラー"><div class="touch-stick" data-action="stick" role="group" aria-label="左右移動スティック"><span class="touch-stick-knob" aria-hidden="true"></span></div><div class="touch-actions"><div><button data-action="jump">JUMP</button><button data-action="spin">SPIN</button></div><button class="touch-kick" data-action="act">KICK</button></div></div><div class="field-bottom"><span><i></i> MANUAL CONTROL ONLY</span><span id="status">READY TO PLAY</span></div>
@@ -141,7 +153,7 @@ button.prime-coin-wallet:hover,button.prime-coin-wallet:focus-visible{border-col
   </div>
  </div>
 
- <div id="prime-coin-info-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="prime-coin-info-heading">
+ <div id="daily-help-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="daily-help-heading"><div class="ranking-dialog-card game-menu-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">DAILY CHALLENGE</p><h2 id="daily-help-heading">今日の3つに挑戦！</h2></div><button type="button" id="daily-help-close">✕ 閉じる</button></div><p>毎日、ランダムに3つのミッションが登場します。</p><ul class="prime-coin-info-list"><li>各ミッションをクリアすると<strong>100 PTS</strong>、1日最大<strong>300 PTS</strong>。</li><li>達成したミッションは点灯し、同じ日の同じミッションは重複加点されません。</li><li>デイリーの獲得ポイントは<strong>月末まで累積</strong>。ランキングは「最高プレイスコア＋当月のデイリー加点」で競います。</li><li>翌日は新しい3問に挑戦！ 月が変わるとデイリー累計は0から再スタートします。</li></ul><p class="prime-coin-info-note">※達成判定とランキング加点は現在準備中です。稼働開始後に自動反映されます。</p></div></div><div id="prime-coin-info-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="prime-coin-info-heading">
  <div class="ranking-dialog-card game-menu-dialog-card" tabindex="-1">
   <div class="ranking-dialog-head"><div><p class="panel-kicker">PRIME COIN</p><h2 id="prime-coin-info-heading">🪙 遊んで、貯めよう。</h2></div><button type="button" id="prime-coin-info-close">✕ 閉じる</button></div>
   <p>PRIME COINは、PRIME LIFTING LABをプレイして獲得できるゲーム内通貨です。</p>
@@ -225,4 +237,15 @@ button.prime-coin-wallet:hover,button.prime-coin-wallet:focus-visible{border-col
  });
 })();
 </script>
-</body></html>
+<script>
+(function(){
+ const trigger=document.getElementById('daily-help-open'),dialog=document.getElementById('daily-help-dialog'),close=document.getElementById('daily-help-close');
+ if(!trigger||!dialog||!close)return;
+ let previous=null;
+ function hide(){if(dialog.hidden)return;dialog.hidden=true;trigger.setAttribute('aria-expanded','false');(previous?.isConnected?previous:trigger).focus();}
+ trigger.addEventListener('click',()=>{previous=document.activeElement;dialog.hidden=false;trigger.setAttribute('aria-expanded','true');close.focus();});
+ close.addEventListener('click',hide);
+ dialog.addEventListener('click',e=>{if(e.target===dialog)hide();});
+ dialog.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();hide();}else if(e.key==='Tab'){e.preventDefault();close.focus();}});
+})();
+</script></body></html>
