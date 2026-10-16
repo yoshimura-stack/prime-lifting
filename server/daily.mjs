@@ -24,7 +24,7 @@ export function jstDay(ms){
 }
 function hash(value){let n=2166136261;for(const c of value){n=Math.imul(n^c.charCodeAt(0),16777619)>>>0;}return n;}
 export function dailyChallenges(day){
- if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(day)||new Date(day+'T00:00:00Z').toISOString().slice(0,10)!==day)throw new TypeError('Invalid day');
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||new Date(day+'T00:00:00Z').toISOString().slice(0,10)!==day)throw new TypeError('Invalid day');
  return Object.entries(DAILY_POOLS).map(([difficulty,pool])=>({
   ...pool[hash(day+':'+difficulty)%pool.length],difficulty,reward:100,day
  }));
