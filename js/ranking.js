@@ -166,16 +166,33 @@ async function updateResultRival(){
  try{const data=await api('/api/leaderboard/all');renderNextRival(data.entries,'result-next-rival','result-next-rival-name','result-next-rival-gap');}
  catch{$('result-next-rival').hidden=true;}
 }
+function validDailyBreakdown(entry){
+ return !!entry&&Number.isSafeInteger(entry.score)&&Number.isSafeInteger(entry.playScore)&&Number.isSafeInteger(entry.dailyBonus)&&entry.playScore>=0&&entry.dailyBonus>=0&&entry.playScore+entry.dailyBonus===entry.score;
+}
+function renderPodiumScore(position,entry){
+ const el=$('leader-'+position+'-score');if(!el)return;
+ el.textContent=entry?entry.score.toLocaleString()+' PTS':'--- PTS';
+ const id='leader-'+position+'-breakdown';
+ let details=$(id);
+ if(!details){details=document.createElement('span');details.id=id;details.className='podium-score-breakdown';el.after(details);}
+ details.replaceChildren();
+ details.hidden=!validDailyBreakdown(entry);
+ if(details.hidden)return;
+ const play=document.createElement('small');play.className='podium-play-score';play.textContent='スコア '+entry.playScore.toLocaleString();
+ const daily=document.createElement('small');daily.className='podium-daily-score';daily.textContent='デイリー +'+entry.dailyBonus.toLocaleString();
+ details.append(play,daily);
+}
 function champion(entries){
  const [first,second,third]=entries||[];
- $('leader-best-score').textContent=first?first.score.toLocaleString()+' PTS':'--- PTS';
+ renderPodiumScore('best',first);
  $('leader-best-name').replaceChildren(...(first?[rankName(first)]:[document.createTextNode('未登録')]));
  for(const [position,entry] of [['second',second],['third',third]]){
-  $('leader-'+position+'-score').textContent=entry?entry.score.toLocaleString()+' PTS':'--- PTS';
+  renderPodiumScore(position,entry);
   $('leader-'+position+'-name').replaceChildren(...(entry?[rankName(entry)]:[document.createTextNode('未登録')]));
  }
  $('mobile-best').textContent=first?`🏆 ${first.score.toLocaleString()} PTS · ${first.name}`:'最高記録：未取得';
 }
+
 let refreshGeneration=0;
 const rankDialog=$('ranking-dialog');
 const rankOpen=$('view-ranking');
@@ -203,8 +220,18 @@ async function updateRankDialog(){
   if(current!==rankDialogGeneration||rankDialog.hidden)return;
   const list=$('ranking-dialog-list');list.replaceChildren();selfRankRow=null;jumpSelf.hidden=true;
   for(const e of data.entries){
-   const li=document.createElement('li'),score=document.createElement('strong');score.textContent=e.score.toLocaleString()+' PTS';
-   li.append(rankName(e,`${e.rank}. `),score);
+   const li=document.createElement('li'),score=document.createElement('strong');
+   const breakdown=document.createElement('span');breakdown.className='rank-score-breakdown';
+   const total=document.createElement('strong');total.className='rank-total';total.textContent=e.score.toLocaleString()+' PTS';
+   const play=document.createElement('small');play.className='rank-play-score';
+   const daily=document.createElement('small');daily.className='rank-daily-score';
+   // No invented daily credits: legacy API entries remain score-only until server rollout.
+   const hasBreakdown=Number.isSafeInteger(e.playScore)&&Number.isSafeInteger(e.dailyBonus)&&e.playScore>=0&&e.dailyBonus>=0&&e.playScore+e.dailyBonus===e.score;
+   play.textContent=hasBreakdown?'スコア '+e.playScore.toLocaleString():'';
+   daily.textContent=hasBreakdown?'デイリー +'+e.dailyBonus.toLocaleString():'';
+   breakdown.append(total);
+   if(hasBreakdown)breakdown.append(play,daily);
+   li.append(rankName(e,`${e.rank}. `),breakdown);
    if(player&&e.name===player.name){li.classList.add('rank-self');li.setAttribute('aria-current','true');selfRankRow=li;}
    list.append(li);
   }

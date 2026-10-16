@@ -44,6 +44,37 @@
 .prime-coin-wallet-value small{font-size:9px}
 @media(max-width:850px){.prime-coin-wallet{padding:4px 5px}.prime-coin-wallet-label{font-size:9px}.prime-coin-wallet-value{font-size:12px}}
 @media(max-width:700px){.controls-panel .game-menu-launcher{flex-wrap:wrap}.prime-coin-wallet{flex-basis:100%}}
+</style><style>
+#ranking-dialog-list .rank-score-breakdown{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;text-align:right;font-variant-numeric:tabular-nums}
+#ranking-dialog-list .rank-score-breakdown .rank-total{font-size:15px;font-weight:900;color:#e8ff9b}
+#ranking-dialog-list .rank-score-breakdown .rank-play-score{font-size:11px;color:#d3e3d8}
+#ranking-dialog-list .rank-score-breakdown .rank-daily-score{font-size:10px;color:#a5dfa8}
+.daily-preview li.is-complete{color:#d7ff91;font-weight:800;text-shadow:0 0 7px #8cdb58}
+</style><style>
+.podium-score-breakdown:not([hidden]){display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin:3px 0 4px;line-height:1.3;font-variant-numeric:tabular-nums}
+.podium-score-breakdown small{display:block;max-width:100%;overflow-wrap:anywhere}
+.podium-score-breakdown .podium-play-score{font-size:11px;color:#d4e4da}
+.podium-score-breakdown .podium-daily-score{font-size:10px;color:#a9e8a6}
+.podium-first .podium-score-breakdown .podium-play-score{font-size:12px}
+@media(max-width:850px){.podium-score-breakdown .podium-play-score{font-size:10px}.podium-score-breakdown .podium-daily-score{font-size:9px}}
+</style><style>
+button.prime-coin-wallet{font-family:inherit;text-align:left;cursor:pointer;appearance:none}
+button.prime-coin-wallet:hover,button.prime-coin-wallet:focus-visible{border-color:#ffe68c;box-shadow:0 0 0 2px #ffe68c44;outline:none}
+.prime-coin-info-list{padding-left:22px;line-height:1.8;color:#e5efdf}
+.prime-coin-info-list li{margin:8px 0}
+.prime-coin-info-list strong{color:#f5db8a}
+.prime-coin-info-note{font-size:12px;color:#b7cfbf;line-height:1.7}
+</style><style>
+/* Compact wallet and menu for narrow notebook sidebars. */
+.controls-panel .game-menu-launcher{gap:4px}
+.controls-panel .game-menu-launcher #game-menu-open{flex:0 1 49%;width:49%;min-width:0;padding-inline:3px;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.controls-panel .game-menu-launcher .prime-coin-wallet{flex:1 1 0;min-width:0;max-width:100%;box-sizing:border-box;padding:4px;overflow:hidden}
+.prime-coin-wallet-label,.prime-coin-wallet-value{display:block;min-width:0;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0}
+@media (max-width:1300px) and (min-width:701px){
+.controls-panel .game-menu-launcher #game-menu-open{font-size:9px}
+.prime-coin-wallet-label{font-size:8px}
+.prime-coin-wallet-value{font-size:11px}
+}
 </style></head>
 <body>
 <main class="game-app">
@@ -63,7 +94,7 @@
   </div>
   <div class="panel-block utility-block game-menu-launcher">
    <button type="button" id="game-menu-open" aria-haspopup="dialog" aria-controls="game-menu-dialog" aria-expanded="false">☰ ゲームメニュー</button>
-   <div class="prime-coin-wallet" role="status" aria-label="PRIME COIN残高"><span class="prime-coin-wallet-label">🪙 PRIME COIN</span><span class="prime-coin-wallet-value" id="prime-coin-balance">— <small>PC</small></span></div>
+   <button type="button" class="prime-coin-wallet" id="prime-coin-info-open" aria-haspopup="dialog" aria-controls="prime-coin-info-dialog" aria-expanded="false" aria-label="PRIME COINの残高と説明を見る"><span class="prime-coin-wallet-label">🪙 PRIME COIN ↗</span><span class="prime-coin-wallet-value" id="prime-coin-balance">— <small>PC</small></span></button>
   </div>
  </aside>
 
@@ -110,7 +141,15 @@
   </div>
  </div>
 
- <div id="game-menu-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="game-menu-heading"><div class="ranking-dialog-card game-menu-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">GAME MENU</p><h2 id="game-menu-heading">ゲームメニュー</h2></div><button type="button" id="game-menu-close">✕ 閉じる</button></div><div class="game-menu-actions"><button id="pause">一時停止 <em>ESC</em></button><button id="sound" aria-pressed="true">音 ON</button><button id="debug" aria-pressed="false">判定表示 <em>F2</em></button><button id="kit-change">ユニフォーム</button><button id="tune" aria-expanded="false">調整パネル</button><button type="button" id="admin-open">管理者</button></div></div></div>
+ <div id="prime-coin-info-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="prime-coin-info-heading">
+ <div class="ranking-dialog-card game-menu-dialog-card" tabindex="-1">
+  <div class="ranking-dialog-head"><div><p class="panel-kicker">PRIME COIN</p><h2 id="prime-coin-info-heading">🪙 遊んで、貯めよう。</h2></div><button type="button" id="prime-coin-info-close">✕ 閉じる</button></div>
+  <p>PRIME COINは、PRIME LIFTING LABをプレイして獲得できるゲーム内通貨です。</p>
+  <ul class="prime-coin-info-list"><li><strong>1,000スコアにつき10コイン</strong>（1,000点未満の端数は切り捨て）</li><li><strong>毎プレイ獲得</strong>。1日あたり最大2,000コインまで</li><li><strong>月が変わっても残高は引き継ぎ</strong></li><li><strong>2026年11月から使用開始予定</strong>。キャラクター・ユニフォーム・ボール・新技などを購入できるショップを準備中！</li></ul>
+  <p class="prime-coin-info-note">※現在の残高はサーバーとの連携後に表示されます。ショップ開始まではコインを使用できません。コインはランキング点数には加算されません。</p>
+ </div>
+</div>
+<div id="game-menu-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="game-menu-heading"><div class="ranking-dialog-card game-menu-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">GAME MENU</p><h2 id="game-menu-heading">ゲームメニュー</h2></div><button type="button" id="game-menu-close">✕ 閉じる</button></div><div class="game-menu-actions"><button id="pause">一時停止 <em>ESC</em></button><button id="sound" aria-pressed="true">音 ON</button><button id="debug" aria-pressed="false">判定表示 <em>F2</em></button><button id="kit-change">ユニフォーム</button><button id="tune" aria-expanded="false">調整パネル</button><button type="button" id="admin-open">管理者</button></div></div></div>
  <div id="title-guide-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="title-guide-heading"><div class="ranking-dialog-card title-guide-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">TITLE COLLECTION</p><h2 id="title-guide-heading">称号リザルト・獲得条件</h2></div><button type="button" id="title-guide-close">✕ 閉じる</button></div><p class="title-guide-intro">1回のプレイで条件を達成すると称号を獲得！</p><div id="title-guide-list" class="title-guide-list"></div></div></div>
  <div id="admin-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="admin-title"><div class="ranking-dialog-card admin-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">HOST ONLY</p><h2 id="admin-title">管理者メニュー</h2></div><button type="button" id="admin-close">✕ 閉じる</button></div><form id="admin-login-form"><label>管理者ID<input id="admin-username" autocomplete="off" value="host" required></label><label>パスワード<input id="admin-password" type="password" autocomplete="off" required></label><button type="submit">管理者認証</button></form><div id="admin-actions" hidden><p>全プレイヤーのアカウント・PIN情報・最高スコアを完全に削除します。</p><button type="button" id="admin-reset" class="admin-danger">ランキングを全削除</button></div><p id="admin-status" role="status"></p></div></div>
  <div id="ranking-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="ranking-dialog-title"><div class="ranking-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">ONLINE LEADERBOARD</p><h2 id="ranking-dialog-title">現在のランキング</h2></div><button type="button" id="close-ranking" aria-label="ランキングを閉じる">✕ 閉じる</button></div><p id="ranking-dialog-status" role="status"></p><section id="next-rival" class="next-rival" hidden aria-label="次のライバル"><span class="next-rival-label">🎯 NEXT RIVAL</span><span id="next-rival-name"></span><strong id="next-rival-gap"></strong></section><button type="button" id="ranking-jump-self" hidden>自分の順位へ ↓</button><ol id="ranking-dialog-list"></ol><button type="button" id="ranking-dialog-refresh">ランキングを更新 ↻</button></div></div>
@@ -141,7 +180,7 @@
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 })();
 </script>
-<script src="js/config.js"></script><script src="js/kits.js"></script><script src="js/engine.js?v=059"></script><script src="vendor/three.min.js"></script><script src="js/world-arena.js?v=premium-1"></script><script src="js/player-model.js?v=premium-3"></script><script src="js/renderer3d.js?v=premium-1"></script><script src="js/bonus-guide.js?v=1"></script><script src="js/ranking.js?v=next-30-keeps-1"></script><script src="js/touch.js?v=0521"></script><script src="game.js?v=0530"></script><script src="js/admin.js?v=0514"></script>
+<script src="js/config.js"></script><script src="js/kits.js"></script><script src="js/engine.js?v=059"></script><script src="vendor/three.min.js"></script><script src="js/world-arena.js?v=premium-1"></script><script src="js/player-model.js?v=premium-3"></script><script src="js/renderer3d.js?v=premium-1"></script><script src="js/bonus-guide.js?v=1"></script><script src="js/ranking.js?v=daily-podium-1"></script><script src="js/touch.js?v=0521"></script><script src="game.js?v=0530"></script><script src="js/admin.js?v=0514"></script>
 <script>
 (function(){
  const dialog=document.getElementById('game-menu-dialog');
@@ -168,6 +207,22 @@
  for(const id of ['kit-change','tune','admin-open']){
   document.getElementById(id)?.addEventListener('click',()=>hide());
  }
+})();
+</script>
+<script>
+(function(){
+ const open=document.getElementById('prime-coin-info-open'),dialog=document.getElementById('prime-coin-info-dialog'),close=document.getElementById('prime-coin-info-close');
+ if(!open||!dialog||!close)return;
+ let previous=null;
+ function hide(){if(dialog.hidden)return;dialog.hidden=true;open.setAttribute('aria-expanded','false');(previous?.isConnected?previous:open).focus();}
+ open.addEventListener('click',()=>{previous=document.activeElement;dialog.hidden=false;open.setAttribute('aria-expanded','true');close.focus();});
+ close.addEventListener('click',hide);
+ dialog.addEventListener('click',event=>{if(event.target===dialog)hide();});
+ dialog.addEventListener('keydown',event=>{
+  if(event.key==='Escape'){event.preventDefault();event.stopPropagation();hide();return;}
+  if(event.key!=='Tab')return;
+  const controls=[close];const first=controls[0];if(document.activeElement===first){event.preventDefault();first.focus();}
+ });
 })();
 </script>
 </body></html>
