@@ -87,6 +87,17 @@ button.prime-coin-wallet:hover,button.prime-coin-wallet:focus-visible{border-col
 .daily-heading strong{min-width:0}
 .daily-heading button{pointer-events:auto;flex:0 0 auto;min-width:25px;min-height:25px;border:1px solid #b7e68b;border-radius:50%;background:#29432e;color:#eaffb1;font-weight:900;cursor:pointer}
 .daily-heading button:hover,.daily-heading button:focus-visible{background:#416543;outline:2px solid #d9ff77}
+</style><style>
+/* Keep the three daily goals visible while reducing field occlusion on notebooks. */
+.daily-preview{top:92px;right:9px;width:min(192px,23%);padding:6px 8px;font-size:9px;line-height:1.2;border-radius:8px;background:rgba(8,25,21,.78)}
+.daily-preview .daily-heading{gap:4px}
+.daily-preview .daily-heading strong{font-size:10px;letter-spacing:0}
+.daily-preview .daily-heading button{min-width:19px;min-height:19px;width:19px;height:19px;padding:0;font-size:11px}
+.daily-preview ol{margin:4px 0 3px;padding-left:15px}
+.daily-preview li{margin:2px 0;line-height:1.25}
+.daily-preview small{font-size:8px}
+@media(max-width:1200px){.daily-preview{top:80px;right:7px;width:min(175px,23%);padding:5px 6px;font-size:8px}.daily-preview .daily-heading strong{font-size:9px}}
+@media(max-width:700px){.daily-preview{top:75px;right:5px;width:min(148px,31%);padding:4px 5px;font-size:8px}}
 </style></head>
 <body>
 <main class="game-app">
