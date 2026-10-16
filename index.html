@@ -139,6 +139,30 @@ button.prime-coin-wallet:hover,button.prime-coin-wallet:focus-visible{border-col
  #daily-preview #daily-preview-list li{margin:2px 0;line-height:1.22}
  #daily-preview>small:last-child{display:none!important}
 }
+</style><style>
+/* Desktop: match the unobtrusive mobile daily mission text overlay. */
+@media (min-width:951px){
+ #daily-preview,#daily-preview.daily-expanded{
+  top:92px;right:12px;width:min(235px,26%);max-width:26%;
+  padding:0;border:0;border-radius:0;box-shadow:none;
+  background:transparent!important;backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;color:#f5ffe9;
+  font-size:11px;line-height:1.3;pointer-events:none;
+  text-shadow:0 1px 3px #09231d,0 0 5px #09231d;
+ }
+ #daily-preview .daily-heading{justify-content:flex-start;gap:7px}
+ #daily-preview .daily-heading strong{font-size:11px}
+ #daily-preview #daily-help-open{pointer-events:auto}
+ #daily-preview #daily-day{font-size:9px}
+ #daily-preview #daily-preview-list{margin:5px 0 3px;padding-left:18px}
+ #daily-preview #daily-preview-list li{margin:3px 0;line-height:1.3}
+ #daily-preview>small:last-child{display:none}
+}
+@media (min-width:951px) and (max-width:1200px){
+ #daily-preview,#daily-preview.daily-expanded{top:80px;right:8px;width:min(185px,24%);max-width:24%;font-size:9px}
+ #daily-preview .daily-heading strong{font-size:10px}
+ #daily-preview #daily-day{font-size:8px}
+}
 </style></head>
 <body>
 <main class="game-app">
