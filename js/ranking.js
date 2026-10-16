@@ -45,6 +45,39 @@ function deviceIcon(device){
  badge.innerHTML=device==='mobile'?'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.2"/><path d="M10 18.5h4"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="3.5" width="19" height="13" rx="1.6"/><path d="M8 20.5h8M12 16.5v4"/></svg>';
  return badge;
 }
+const nextTitleNames=['FOOT MASTER','KNEE MASTER','TRAP MASTER','HEADING MASTER','SPIN MASTER','JUMP MASTER','SHOULDER MASTER','LIFTING LEGEND'];
+const baseTitleNames=['30 KEEPS CLUB','AIR MASTER','SPIN KING','SHOULDER ACE','SCORE HUNTER','QUAD MASTER','AIR QUAD','DOUBLE AIR'];
+const nextTitleDescriptions=['全成功タッチが足・20回以上','全成功タッチが膝・20回以上','全成功タッチが胸・20回以上','全成功タッチが頭・20回以上','全成功タッチにスピン・20回以上','全成功タッチにジャンプアクション・20回以上','肩タッチ10回成功','足・膝・胸・頭・肩・スピン・ジャンプを各4回以上'];
+let titleProfileReturnFocus=null;
+function showTitleProfile(entry,group,trigger){
+ const dialog=$('title-profile-dialog'),list=$('title-profile-list');
+ if(!dialog||!list)return;
+ const names=group==='next'?nextTitleNames:baseTitleNames;
+ const mask=group==='next'?entry.nextTitleMask:entry.baseTitleMask;
+ $('title-profile-heading').textContent=entry.name+' ／ '+(group==='next'?'NEXT LEVEL':'基本称号');
+ $('title-profile-summary').textContent=(Number.isInteger(mask)?mask.toString(2).replace(/0/g,'').length:0)+'/8'+(entry.liftingGod?' ／ 👑 LIFTING GOD':'');
+ list.replaceChildren();
+ names.forEach((name,i)=>{
+  const earned=Number.isInteger(mask)&&!!(mask&(1<<i));
+  const item=document.createElement('li');item.className='title-profile-item'+(earned?' earned':'');
+  const label=document.createElement('strong');label.textContent=(earned?'✦ ':'🔒 ')+name;
+  const desc=document.createElement('small');desc.textContent=group==='next'?nextTitleDescriptions[i]:(earned?'獲得済み':'未獲得');
+  item.append(label,desc);list.append(item);
+ });
+ titleProfileReturnFocus=trigger||document.activeElement;
+ dialog.hidden=false;$('title-profile-close').focus();
+}
+function closeTitleProfile(){
+ const dialog=$('title-profile-dialog');if(!dialog||dialog.hidden)return;
+ dialog.hidden=true;if(titleProfileReturnFocus?.isConnected)titleProfileReturnFocus.focus();
+}
+$('title-profile-close')?.addEventListener('click',closeTitleProfile);
+$('title-profile-dialog')?.addEventListener('click',e=>{if(e.target===$('title-profile-dialog'))closeTitleProfile();});
+document.addEventListener('keydown',e=>{
+ const dialog=$('title-profile-dialog');if(!dialog||dialog.hidden)return;
+ if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();closeTitleProfile();}
+ if(e.key==='Tab'){e.preventDefault();$('title-profile-close').focus();}
+},true);
 function rankName(entry,prefix=''){
  const name=document.createElement('span');name.className='rank-player-name';
  const label=document.createElement('span');label.textContent=prefix+entry.name;name.append(label);
@@ -56,7 +89,15 @@ function rankName(entry,prefix=''){
   progress.title=entry.master?'LIFTING MASTER：全8称号獲得':'累計獲得称号 '+entry.achievementCount+'/8';
   progress.setAttribute('aria-label',progress.title);
   name.append(progress);
+  progress.setAttribute('role','button');progress.tabIndex=0;progress.style.cursor='pointer';
+  const openBase=e=>{e.stopPropagation();showTitleProfile(entry,'base',progress);};
+  progress.addEventListener('click',openBase);
+  progress.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openBase(e);}});
   const next=document.createElement('span');next.className='rank-title-count rank-next-title-count';next.textContent='👑 '+(Number.isInteger(entry.nextAchievementCount)?entry.nextAchievementCount:0)+'/8';next.title=entry.liftingGod?'LIFTING GOD：NEXT LEVEL全8称号獲得':'NEXT LEVEL獲得称号 '+(entry.nextAchievementCount||0)+'/8';next.setAttribute('aria-label',next.title);name.append(next);
+  next.setAttribute('role','button');next.tabIndex=0;next.style.cursor='pointer';
+  const openNext=e=>{e.stopPropagation();showTitleProfile(entry,'next',next);};
+  next.addEventListener('click',openNext);
+  next.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openNext(e);}});
  }
  return name;
 }
