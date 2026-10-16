@@ -143,7 +143,7 @@ rankClose.addEventListener('click',closeRankDialog);
 $('ranking-dialog-refresh').addEventListener('click',updateRankDialog);
 rankDialog.addEventListener('click',e=>{if(e.target===rankDialog)closeRankDialog();});
 document.addEventListener('keydown',e=>{
- if(rankDialog.hidden)return;
+ if(rankDialog.hidden||!$('player-titles-dialog').hidden)return;
  if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();closeRankDialog();}
  if(e.key==='Tab'){
   const controls=[rankClose,...(jumpSelf.hidden?[]:[jumpSelf]),$('ranking-dialog-refresh')];
