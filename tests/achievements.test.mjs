@@ -35,21 +35,16 @@ test('SHOULDER ACE requires three shoulder hits in a single verified run',()=>{
  assert.equal(achievementMask({combo:0,achievementProof:{shoulderHits:4}},0)&8,8);
 });
 
-test('NEXT LEVEL masters require every successful touch across the entire run',()=>{
+test('six masters unlock at 30 uninterrupted matching keeps and remain earned afterward',()=>{
  assert.equal(NEXT_TITLES.length,8);
- for(const [part,bit] of [['foot',1],['knee',2],['chest',4],['heading',8]]){
-  const proof={totalHits:20,[part]:20};
-  assert.equal(nextLevelMask({nextProof:proof})&bit,bit);
-  assert.equal(nextLevelMask({nextProof:{...proof,totalHits:21}})&bit,0);
-  assert.equal(nextLevelMask({nextProof:{...proof,totalHits:19,[part]:19}})&bit,0);
+ for(const [key,bit] of [['foot',1],['knee',2],['chest',4],['heading',8],['spin',16],['jump',32]]){
+  const prefix={hits:30,unbroken:true,[key]:30};
+  assert.equal(nextLevelMask({nextProof:{totalHits:30,first30:prefix}})&bit,bit);
+  assert.equal(nextLevelMask({nextProof:{totalHits:50,first30:prefix}})&bit,bit);
+  assert.equal(nextLevelMask({nextProof:{totalHits:29,first30:null}})&bit,0);
+  assert.equal(nextLevelMask({nextProof:{totalHits:30,first30:{...prefix,[key]:29}}})&bit,0);
+  assert.equal(nextLevelMask({nextProof:{totalHits:30,first30:{...prefix,unbroken:false}}})&bit,0);
  }
-});
-test('spin and jump masters require action on every touch, not merely airborne',()=>{
- const p={totalHits:20,spin:20,jump:20,allSpin:true,allJump:true};
- assert.equal(nextLevelMask({nextProof:p})&48,48);
- assert.equal(nextLevelMask({nextProof:{...p,jump:19}})&32,0);
- assert.equal(nextLevelMask({nextProof:{...p,allJump:false}})&32,0);
- assert.equal(nextLevelMask({nextProof:{...p,spin:19}})&16,0);
 });
 test('shoulder master needs ten; legend needs four each',()=>{
  const p={totalHits:28,foot:4,knee:4,chest:4,heading:4,shoulder:4,spin:4,jump:4};
