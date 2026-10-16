@@ -7,8 +7,6 @@ create table if not exists public.lifting_daily_awarded_runs (
 );
 alter table public.lifting_daily_awarded_runs enable row level security;
 revoke all on public.lifting_daily_awarded_runs from anon,authenticated;
-revoke all on function public.lifting_api_daily_award(jsonb) from public,anon,authenticated;
-grant execute on function public.lifting_api_daily_award(jsonb) to service_role;
 
 -- Apply only after the additive schema migration is reviewed and applied.
 -- Called only from Cloudflare Worker with service-role credentials.
@@ -64,3 +62,6 @@ begin
  return jsonb_build_object('coinsEarned',v_award,'newMissions',v_count,'balance',v_wallet,'duplicate',false);
 end $$;
 
+
+revoke all on function public.lifting_api_daily_award(jsonb) from public,anon,authenticated;
+grant execute on function public.lifting_api_daily_award(jsonb) to service_role;
