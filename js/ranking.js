@@ -323,8 +323,24 @@ function renderLive(stats,animate=true){
  const fresh=achievementDefinitions.filter(a=>a.earned(stats)&&!unlocked.has(a.name)&&!persistent.has(a.name));
  for(const a of achievementDefinitions)if(a.earned(stats))unlocked.add(a.name);
  list.replaceChildren();
- for(const a of achievementDefinitions){const row=document.createElement('div');row.className='achievement-live-row'+((unlocked.has(a.name)||persistent.has(a.name))?' earned':'')+(a.legendary?' legendary':'');const icon=document.createElement('span');icon.className='achievement-live-icon';icon.textContent=a.icon;const label=document.createElement('span');label.textContent=a.name;row.append(icon,label);list.append(row);}
- document.getElementById('achievement-count').textContent=new Set([...unlocked,...persistent]).size+'/8';
+ // The field HUD switches to NEXT LEVEL after all eight original titles are earned.
+ // This affects display only, not scoring or stored achievements.
+ const isNextLevel=!!player&&progressOwner===player.id&&achievementDefinitions.every(a=>cumulativeEarned.has(a.name));
+ const heading=document.querySelector('#achievement-board .achievement-board-heading');
+ if(heading&&heading.firstChild)heading.firstChild.textContent=isNextLevel?'NEXT LEVEL ':'称号リザルト ';
+ if(isNextLevel){
+  for(let i=0;i<nextTitleNames.length;i++){
+   const name=nextTitleNames[i],earned=nextEarned.has(name),row=document.createElement('div');
+   row.className='achievement-live-row'+(earned?' earned':'');
+   row.title=nextTitleDescriptions[i];
+   const icon=document.createElement('span');icon.className='achievement-live-icon';icon.textContent=earned?'👑':'◇';
+   const label=document.createElement('span');label.textContent=name;row.append(icon,label);list.append(row);
+  }
+  document.getElementById('achievement-count').textContent=nextEarned.size+'/8';
+ }else{
+  for(const a of achievementDefinitions){const row=document.createElement('div');row.className='achievement-live-row'+((unlocked.has(a.name)||persistent.has(a.name))?' earned':'')+(a.legendary?' legendary':'');const icon=document.createElement('span');icon.className='achievement-live-icon';icon.textContent=a.icon;const label=document.createElement('span');label.textContent=a.name;row.append(icon,label);list.append(row);}
+  document.getElementById('achievement-count').textContent=new Set([...unlocked,...persistent]).size+'/8';
+ }
  if(animate&&fresh.length){const a=fresh[fresh.length-1],toast=document.getElementById('achievement-unlock');toast.textContent=(a.legendary?'✦ LEGENDARY UNLOCK! ✦ ':'✦ UNLOCK! ✦ ')+a.name;toast.className='achievement-unlock show'+(a.legendary?' legendary':'');clearTimeout(unlockTimer);unlockTimer=setTimeout(()=>toast.className='achievement-unlock',1500);}
 }
 function resetAchievements(){unlocked.clear();lastLiveStats=emptyLiveStats();clearTimeout(unlockTimer);const toast=document.getElementById('achievement-unlock');toast.className='achievement-unlock';toast.textContent='';renderLive(lastLiveStats,false);document.getElementById('achievement-panel').hidden=true;document.getElementById('achievement-badges').replaceChildren();}
