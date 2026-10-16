@@ -17,3 +17,21 @@ export function publicProgress(data){
  if(!Number.isInteger(mask)||mask<0||mask>255)throw new Error('Invalid achievement progress');
  return {mask,master:mask===255,earned:TITLES.filter((_,i)=>!!(mask&(1<<i)))};
 }
+
+/** NEXT LEVEL titles are an independent eight-bit mask; never overwrite base titles. */
+export const NEXT_TITLES=['FOOT MASTER','KNEE MASTER','TRAP MASTER','HEADING MASTER','SPIN MASTER','JUMP MASTER','SHOULDER MASTER','LIFTING LEGEND'];
+export function nextLevelMask(result){
+ const p=result?.nextProof;
+ if(!p||!Number.isInteger(p.totalHits)||p.totalHits<0)return 0;
+ const n=p.totalHits;
+ const exact=key=>n>=20&&p[key]===n;
+ const legend=['foot','knee','chest','heading','shoulder','spin','jump'].every(key=>Number.isInteger(p[key])&&p[key]>=4);
+ return (exact('foot')?1:0)
+  |(exact('knee')?2:0)
+  |(exact('chest')?4:0)
+  |(exact('heading')?8:0)
+  |(n>=20&&p.allSpin===true&&p.spin===n?16:0)
+  |(n>=20&&p.allJump===true&&p.jump===n?32:0)
+  |(p.shoulder>=10?64:0)
+  |(legend?128:0);
+}

@@ -2,7 +2,7 @@
 'use strict';
 const $=id=>document.getElementById(id);
 let player=null,ticket=null,pending=null,generation=0,saving=false,authBusy=false,progressGeneration=0;
-let cumulativeEarned=new Set(),progressOwner=null;
+let cumulativeEarned=new Set(),progressOwner=null,nextEarned=new Set();
 async function api(path,body){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
  try{const response=await fetch(path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,signal:controller.signal,cache:'no-store',credentials:'same-origin'});
@@ -14,8 +14,8 @@ function account(){
  $('account-form').hidden=!!player;$('logout').hidden=!player;
 }
 function renderProgress(progress){
- if(!player||!progress){cumulativeEarned=new Set();progressOwner=null;}
- else {cumulativeEarned=new Set(Array.isArray(progress.earned)?progress.earned:[]);progressOwner=player.id;}
+ if(!player||!progress){cumulativeEarned=new Set();nextEarned=new Set();progressOwner=null;renderNextCollection();}
+ else {cumulativeEarned=new Set(Array.isArray(progress.earned)?progress.earned:[]);progressOwner=player.id;nextEarned=new Set(progress.next?.earned||[]);window.dispatchEvent(new CustomEvent('prime:next-progress',{detail:{earned:[...nextEarned],god:!!progress.next?.god}}));}
  if(typeof renderLive==='function')renderLive(lastLiveStats,false);
  window.dispatchEvent(new CustomEvent('prime:progress',{detail:{master:!!(player&&progress&&progress.master),earned:[...cumulativeEarned]}}));
  let el=$('master-progress');
@@ -26,6 +26,7 @@ function renderProgress(progress){
  const count=progress.earned?.length??0;
  el.textContent=progress.master?'💠 LIFTING MASTER 解放！':`累計称号 ${count}/8 ／ 💠 LIFTING MASTERまであと${8-count}`;
  el.classList.toggle('master-unlocked',!!progress.master);
+ if(progress.master){el.textContent+=(progress.next?' ／ NEXT LEVEL '+nextEarned.size+'/8'+(progress.next.god?' ／ 👑 LIFTING GOD':''):' ／ NEXT LEVEL 準備中');}
  if(progress.master&&!el.dataset.announced){el.dataset.announced='true';el.classList.add('master-celebrate');setTimeout(()=>el.classList.remove('master-celebrate'),3500);}
  if(!progress.master)delete el.dataset.announced;
 }
@@ -44,6 +45,117 @@ function deviceIcon(device){
  badge.innerHTML=device==='mobile'?'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.2"/><path d="M10 18.5h4"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="3.5" width="19" height="13" rx="1.6"/><path d="M8 20.5h8M12 16.5v4"/></svg>';
  return badge;
 }
+const nextTitleNames=['FOOT MASTER','KNEE MASTER','TRAP MASTER','HEADING MASTER','SPIN MASTER','JUMP MASTER','SHOULDER MASTER','LIFTING LEGEND'];
+const baseTitleNames=['30 KEEPS CLUB','AIR MASTER','SPIN KING','SHOULDER ACE','SCORE HUNTER','QUAD MASTER','AIR QUAD','DOUBLE AIR'];
+const nextTitleDescriptions=['全成功タッチが足・20回以上','全成功タッチが膝・20回以上','全成功タッチが胸・20回以上','全成功タッチが頭・20回以上','全成功タッチにスピン・20回以上','全成功タッチにジャンプアクション・20回以上','肩タッチ10回成功','足・膝・胸・頭・肩・スピン・ジャンプを各4回以上'];
+let nextDialogReturnFocus=null,previousGod=false,godToastTimer=null;
+function renderNextCollection(){
+ const list=$('next-level-list'),status=$('next-level-status'),god=$('next-level-god');
+ if(!list||!status||!god)return;
+ list.replaceChildren();
+ nextTitleNames.forEach((name,i)=>{
+  const earned=nextEarned.has(name),item=document.createElement('li');
+  item.className='title-profile-item'+(earned?' earned':'');
+  const label=document.createElement('strong');label.textContent=(earned?'✦ ':'🔒 ')+name;
+  const desc=document.createElement('small');desc.textContent=nextTitleDescriptions[i];
+  item.append(label,desc);list.append(item);
+ });
+ status.textContent=nextEarned.size+' / 8 MASTER TITLES';
+ god.classList.toggle('unlocked',nextEarned.size===8);
+ const button=$('next-level-open');if(button)button.textContent='👑 NEXT LEVEL 称号 '+nextEarned.size+'/8 ↗';
+}
+function closeNextDialog(){
+ const dialog=$('next-level-dialog');if(!dialog||dialog.hidden)return;
+ dialog.hidden=true;(nextDialogReturnFocus?.isConnected?nextDialogReturnFocus:$('next-level-open'))?.focus();
+}
+$('next-level-open')?.addEventListener('click',()=>{
+ const dialog=$('next-level-dialog');if(!dialog)return;
+ nextDialogReturnFocus=document.activeElement;renderNextCollection();dialog.hidden=false;$('next-level-close').focus();
+});
+$('next-level-close')?.addEventListener('click',closeNextDialog);
+$('next-level-dialog')?.addEventListener('click',e=>{if(e.target===$('next-level-dialog'))closeNextDialog();});
+document.addEventListener('keydown',e=>{
+ const dialog=$('next-level-dialog');if(!dialog||dialog.hidden)return;
+ if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();closeNextDialog();}
+ if(e.key==='Tab'){e.preventDefault();$('next-level-close').focus();}
+},true);
+function showGodUnlock(){
+ const toast=$('lifting-god-toast');if(!toast)return;
+ clearTimeout(godToastTimer);toast.hidden=false;godToastTimer=setTimeout(()=>toast.hidden=true,4000);
+}
+window.addEventListener('prime:next-progress',event=>{
+ const isGod=event.detail?.god===true;
+ renderNextCollection();
+ if(isGod&&!previousGod)showGodUnlock();
+ previousGod=isGod;
+});
+let titleProfileReturnFocus=null;
+function showTitleProfile(entry,group,trigger){
+ const dialog=$('title-profile-dialog'),list=$('title-profile-list');
+ if(!dialog||!list)return;
+ const names=group==='next'?nextTitleNames:baseTitleNames;
+ const mask=group==='next'?entry.nextTitleMask:entry.baseTitleMask;
+ $('title-profile-heading').textContent=entry.name+' ／ '+(group==='next'?'NEXT LEVEL':'基本称号');
+ $('title-profile-summary').textContent=(Number.isInteger(mask)?mask.toString(2).replace(/0/g,'').length:0)+'/8'+(entry.liftingGod?' ／ 👑 LIFTING GOD':'');
+ list.replaceChildren();
+ names.forEach((name,i)=>{
+  const earned=Number.isInteger(mask)&&!!(mask&(1<<i));
+  const item=document.createElement('li');item.className='title-profile-item'+(earned?' earned':'');
+  const label=document.createElement('strong');label.textContent=(earned?'✦ ':'🔒 ')+name;
+  const desc=document.createElement('small');desc.textContent=group==='next'?nextTitleDescriptions[i]:(earned?'獲得済み':'未獲得');
+  item.append(label,desc);list.append(item);
+ });
+ titleProfileReturnFocus=trigger||document.activeElement;
+ dialog.hidden=false;$('title-profile-close').focus();
+}
+function closeTitleProfile(){
+ const dialog=$('title-profile-dialog');if(!dialog||dialog.hidden)return;
+ dialog.hidden=true;if(titleProfileReturnFocus?.isConnected)titleProfileReturnFocus.focus();
+}
+$('title-profile-close')?.addEventListener('click',closeTitleProfile);
+$('title-profile-dialog')?.addEventListener('click',e=>{if(e.target===$('title-profile-dialog'))closeTitleProfile();});
+document.addEventListener('keydown',e=>{
+ const dialog=$('title-profile-dialog');if(!dialog||dialog.hidden)return;
+ if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();closeTitleProfile();}
+ if(e.key==='Tab'){e.preventDefault();$('title-profile-close').focus();}
+},true);
+function setupNextLevelCollection(){
+ const dialog=$('next-level-dialog'),open=$('next-level-open'),close=$('next-level-close');
+ if(!dialog||!open||!close)return;
+ const render=()=>{
+  const list=$('next-level-list');if(!list)return;
+  list.replaceChildren();
+  nextTitleNames.forEach((name,i)=>{
+   const earned=nextEarned.has(name),item=document.createElement('li');
+   item.className='title-profile-item'+(earned?' earned':'');
+   const title=document.createElement('strong');title.textContent=(earned?'✦ ':'🔒 ')+name;
+   const description=document.createElement('small');description.textContent=nextTitleDescriptions[i];
+   item.append(title,description);list.append(item);
+  });
+  $('next-level-status').textContent=nextEarned.size+' / 8 MASTER TITLES';
+  $('next-level-god').classList.toggle('unlocked',nextEarned.size===8);
+ };
+ let returnFocus=null;
+ function hide(){dialog.hidden=true;(returnFocus?.isConnected?returnFocus:open).focus();}
+ open.addEventListener('click',()=>{returnFocus=document.activeElement;render();dialog.hidden=false;close.focus();});
+ close.addEventListener('click',hide);
+ dialog.addEventListener('click',e=>{if(e.target===dialog)hide();});
+ document.addEventListener('keydown',e=>{if(dialog.hidden)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();hide();}else if(e.key==='Tab'){e.preventDefault();close.focus();}},true);
+ window.addEventListener('prime:progress',e=>{const unlocked=e.detail?.master===true;open.hidden=!unlocked;if(!unlocked&&!dialog.hidden)hide();});
+ let godShown=false;
+ window.addEventListener('prime:next-progress',e=>{
+  const god=e.detail?.god===true;
+  open.textContent='👑 NEXT LEVEL 称号 '+nextEarned.size+'/8 ↗';
+  if(!dialog.hidden)render();
+  if(god&&!godShown){
+   godShown=true;
+   const toast=$('lifting-god-toast');
+   if(toast){toast.hidden=false;setTimeout(()=>{toast.hidden=true;},4000);}
+  }
+  if(!god)godShown=false;
+ });
+}
+setupNextLevelCollection();
 function rankName(entry,prefix=''){
  const name=document.createElement('span');name.className='rank-player-name';
  const label=document.createElement('span');label.textContent=prefix+entry.name;name.append(label);
@@ -55,6 +167,15 @@ function rankName(entry,prefix=''){
   progress.title=entry.master?'LIFTING MASTER：全8称号獲得':'累計獲得称号 '+entry.achievementCount+'/8';
   progress.setAttribute('aria-label',progress.title);
   name.append(progress);
+  progress.setAttribute('role','button');progress.tabIndex=0;progress.style.cursor='pointer';
+  const openBase=e=>{e.stopPropagation();showTitleProfile(entry,'base',progress);};
+  progress.addEventListener('click',openBase);
+  progress.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openBase(e);}});
+  const next=document.createElement('span');next.className='rank-title-count rank-next-title-count';next.textContent='👑 '+(Number.isInteger(entry.nextAchievementCount)?entry.nextAchievementCount:0)+'/8';next.title=entry.liftingGod?'LIFTING GOD：NEXT LEVEL全8称号獲得':'NEXT LEVEL獲得称号 '+(entry.nextAchievementCount||0)+'/8';next.setAttribute('aria-label',next.title);name.append(next);
+  next.setAttribute('role','button');next.tabIndex=0;next.style.cursor='pointer';
+  const openNext=e=>{e.stopPropagation();showTitleProfile(entry,'next',next);};
+  next.addEventListener('click',openNext);
+  next.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openNext(e);}});
  }
  return name;
 }
