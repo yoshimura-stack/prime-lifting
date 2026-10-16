@@ -268,3 +268,79 @@ main.game-app{width:100vw;height:100dvh;max-width:none;margin:0;padding:12px 14p
     background:#0d1916;
   }
 }
+
+/* High-skill bonus guide: compact right sidebar and title-guide-style modal. */
+.score-guide .high-skill-card {
+  flex:0 0 auto;
+  min-height:0;
+  padding:clamp(8px,1.2dvh,13px);
+}
+.score-guide .high-skill-card > strong {
+  display:block;
+  margin:2px 0 8px;
+  font-size:clamp(13px,1vw,17px);
+  line-height:1.2;
+  color:var(--ink);
+  white-space:normal;
+}
+.high-skill-guide-open {
+  display:block;
+  width:100%;
+  text-align:center;
+  border:1px solid #a9d66c;
+  border-radius:5px;
+  background:#284937;
+  color:#eaffb5;
+  padding:clamp(7px,1dvh,11px) 5px;
+  font-weight:800;
+  font-size:clamp(10px,.78vw,13px);
+  line-height:1.4;
+}
+.high-skill-guide-open:hover,
+.high-skill-guide-open:focus-visible {
+  background:#3d6143;
+  color:#f3ffd2;
+  outline:2px solid #b9e782;
+  outline-offset:2px;
+}
+.bonus-guide-dialog-card {
+  width:min(660px,96vw);
+  max-height:min(90dvh,780px);
+  min-height:0;
+}
+.bonus-guide-intro,.bonus-guide-note {
+  flex:0 0 auto;
+  margin:5px 0 12px;
+  color:#c7dfcd;
+  line-height:1.5;
+  font-size:clamp(11px,.9vw,13px);
+}
+.bonus-guide-list {
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  display:grid;
+  gap:10px;
+  padding:2px 3px 8px;
+}
+.bonus-guide-row {
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  padding:15px;
+  border:1px solid #486b58;
+  border-radius:9px;
+  background:#102a22;
+  color:#eaf5eb;
+}
+.bonus-guide-icon {flex:0 0 auto;font-size:27px}
+.bonus-guide-row h3 {font-size:clamp(14px,1.1vw,17px);margin:0 0 8px}
+.bonus-guide-row strong {color:var(--lime);font-size:clamp(12px,.95vw,15px)}
+.bonus-guide-row p {margin:8px 0 0;line-height:1.65;font-size:clamp(11px,.85vw,13px);color:#d1ded3}
+.bonus-guide-row b,.bonus-guide-note {color:#eaffb5}
+.bonus-guide-note {margin:12px 0 0;font-weight:700}
+@media (max-height:490px) {
+  .bonus-guide-dialog-card {max-height:96dvh}
+  .bonus-guide-row {padding:8px 10px}
+  .bonus-guide-row p {line-height:1.4}
+}
