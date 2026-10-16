@@ -36,3 +36,42 @@
  @media(prefers-reduced-motion:reduce){body:not(.touch-landscape) .pc-ticker-track{animation:none}}
 }
 @media(max-width:950px){.pc-rail,.pc-panel,.pc-king-ticker{display:none!important}}
+
+/* Field-first desktop v3: support Surface/short notebook layouts without
+   treating mouse-driven desktop as a phone. Keep touch landscape untouched. */
+@media (min-width:951px) and (pointer:fine) {
+ body:not(.touch-landscape) main.game-app{
+  grid-template-columns:clamp(44px,3.2vw,54px) minmax(0,1fr) clamp(44px,3.2vw,54px)!important;
+  gap:clamp(4px,.5vw,8px)!important;
+  padding:clamp(4px,.5vw,8px)!important;
+ }
+ body:not(.touch-landscape) .pc-rail{height:100%;max-height:100%;gap:clamp(5px,1dvh,10px)}
+ body:not(.touch-landscape) .pc-rail button{width:clamp(38px,2.9vw,46px);height:clamp(40px,5.5dvh,48px);flex-basis:clamp(40px,5.5dvh,48px);font-size:clamp(19px,1.5vw,24px)}
+ body:not(.touch-landscape) .center-stage{width:100%;height:100%;overflow:hidden}
+ body:not(.touch-landscape) .center-stage .game-shell{
+  width:min(100%,calc((100dvh - 16px)*1000/620));
+  height:auto;max-height:calc(100dvh - 16px);aspect-ratio:1000/620;
+  margin:auto;
+ }
+ body:not(.touch-landscape) .pc-ticker-king{
+  flex:0 0 auto;max-width:32%;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;padding:0 12px;border-right:1px solid #3a582a;
+  font-weight:900;background:#dfff65;color:#15271c;
+ }
+ body:not(.touch-landscape) .pc-panel{background:#0e201bf5}
+ body:not(.touch-landscape) .pc-panel-content .panel-block{padding:8px 0 12px}
+ body:not(.touch-landscape) .pc-panel-content .record-card{margin:0!important}
+ body:not(.touch-landscape) .pc-panel-content .score-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body:not(.touch-landscape) .pc-panel-content .score-list>div{min-width:0}
+ body:not(.touch-landscape) .pc-panel-content .stage-buttons{display:grid;grid-template-columns:1fr;gap:8px}
+ body:not(.touch-landscape) .pc-panel-content .stage-block{height:auto;min-height:0}
+ body:not(.touch-landscape) .pc-panel-content .podium-grid{width:100%}
+ body:not(.touch-landscape) #daily-preview{max-width:25%}
+ body:not(.touch-landscape) #achievement-board{max-width:26%}
+}
+@media (min-width:951px) and (pointer:fine) and (max-height:640px){
+ body:not(.touch-landscape) .pc-rail{gap:3px}
+ body:not(.touch-landscape) .pc-rail button{height:38px;flex-basis:38px}
+ body:not(.touch-landscape) .pc-king-ticker{height:25px}
+ body:not(.touch-landscape) .field-bottom{bottom:25px}
+}
