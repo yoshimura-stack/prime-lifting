@@ -1,3 +1,15 @@
+-- Every accepted run needs a receipt, including 0-coin runs.
+create table if not exists public.lifting_daily_awarded_runs (
+ run_id uuid primary key references public.lifting_runs(run_id),
+ player_id uuid not null references public.lifting_players(id) on delete cascade,
+ day_jst date not null,
+ created_at timestamptz not null default now()
+);
+alter table public.lifting_daily_awarded_runs enable row level security;
+revoke all on public.lifting_daily_awarded_runs from anon,authenticated;
+revoke all on function public.lifting_api_daily_award(jsonb) from public,anon,authenticated;
+grant execute on function public.lifting_api_daily_award(jsonb) to service_role;
+
 -- Apply only after the additive schema migration is reviewed and applied.
 -- Called only from Cloudflare Worker with service-role credentials.
 -- All crediting is atomic; retry of the same run returns without duplicate awards.
@@ -52,14 +64,3 @@ begin
  return jsonb_build_object('coinsEarned',v_award,'newMissions',v_count,'balance',v_wallet,'duplicate',false);
 end $$;
 
--- Every accepted run needs a receipt, including 0-coin runs.
-create table if not exists public.lifting_daily_awarded_runs (
- run_id uuid primary key references public.lifting_runs(run_id),
- player_id uuid not null references public.lifting_players(id) on delete cascade,
- day_jst date not null,
- created_at timestamptz not null default now()
-);
-alter table public.lifting_daily_awarded_runs enable row level security;
-revoke all on public.lifting_daily_awarded_runs from anon,authenticated;
-revoke all on function public.lifting_api_daily_award(jsonb) from public,anon,authenticated;
-grant execute on function public.lifting_api_daily_award(jsonb) to service_role;
