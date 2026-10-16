@@ -104,3 +104,34 @@
  .touch-landscape #touch-controls button{width:clamp(44px,15dvh,60px)!important;height:clamp(44px,15dvh,60px)!important}
  .touch-landscape #touch-controls .touch-kick{width:clamp(58px,20dvh,78px)!important;height:clamp(58px,20dvh,78px)!important}
 }
+
+/* Mobile Safari/Chrome: reserve a real score row above the title collection.
+   The previous 10dvh offset overlapped the scoreboard on short landscape viewports. */
+@media (orientation:landscape) and (pointer:coarse){
+ .touch-landscape .game-shell .scorebar{
+  box-sizing:border-box;
+  padding:clamp(8px,2.2dvh,16px) clamp(12px,2.3vw,25px)!important;
+  min-height:clamp(65px,15dvh,90px);
+  align-items:flex-start;
+ }
+ .touch-landscape .game-shell .scorebar>div{min-width:0}
+ .touch-landscape .game-shell .scorebar strong{
+  font-size:clamp(19px,5.2dvh,30px)!important;
+  line-height:1.15;
+ }
+ .touch-landscape .game-shell .scorebar .chain strong{font-size:clamp(17px,4.4dvh,26px)!important}
+ .touch-landscape .game-shell .scorebar small{font-size:clamp(8px,1.8dvh,11px)!important}
+ .touch-landscape .game-shell .achievement-board{
+  top:clamp(83px,18dvh,115px)!important;
+  left:clamp(8px,1.6vw,18px)!important;
+  max-width:30%;
+  font-size:clamp(8px,1.7dvh,11px)!important;
+ }
+ .touch-landscape .game-shell .achievement-board-heading{margin-bottom:clamp(3px,.7dvh,6px)}
+ .touch-landscape .game-shell #achievement-live-list{gap:clamp(2px,.45dvh,4px)}
+}
+@media (orientation:landscape) and (pointer:coarse) and (max-height:390px){
+ .touch-landscape .game-shell .scorebar{min-height:60px}
+ .touch-landscape .game-shell .achievement-board{top:clamp(68px,19dvh,83px)!important;font-size:8px!important}
+ .touch-landscape .game-shell #achievement-live-list{gap:1px}
+}
