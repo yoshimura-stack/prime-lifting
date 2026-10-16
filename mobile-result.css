@@ -87,3 +87,20 @@
  .touch-landscape #overlay:has(#result-ranking:not([hidden])){overflow:hidden!important;padding-bottom:calc(68px + env(safe-area-inset-bottom))!important}
  .touch-landscape #overlay:has(#result-ranking:not([hidden])) > #start{position:fixed!important;bottom:max(8px,env(safe-area-inset-bottom))!important;margin:0!important}
 }
+
+/* Responsive landscape viewport and browser-safe placement. */
+@media (orientation:landscape) and (pointer:coarse){
+ .touch-landscape main.game-app{height:100vh;height:100svh;height:100dvh}
+ .touch-landscape .center-stage,.touch-landscape .center-stage .game-shell{max-height:100%;min-height:0}
+ .touch-landscape #overlay:not([hidden]){padding-left:max(10px,env(safe-area-inset-left))!important;padding-right:max(10px,env(safe-area-inset-right))!important}
+ .touch-landscape #overlay:not([hidden]) > #start{max-width:calc(100% - 30px)!important}
+ .touch-landscape .touch-move{left:max(8px,env(safe-area-inset-left))!important}
+ .touch-landscape .touch-actions{right:max(8px,env(safe-area-inset-right))!important}
+}
+@media (orientation:landscape) and (pointer:coarse) and (max-height:390px){
+ .touch-landscape #overlay:not([hidden]) > #overlay-copy,.touch-landscape #overlay:not([hidden]) > #overlay-note{display:none}
+ .touch-landscape #overlay:not([hidden]) > #overlay-title{font-size:20px!important;margin:3px 0!important}
+ .touch-landscape #overlay:not([hidden]) > #account-panel .account-help{display:none}
+ .touch-landscape #touch-controls button{width:clamp(44px,15dvh,60px)!important;height:clamp(44px,15dvh,60px)!important}
+ .touch-landscape #touch-controls .touch-kick{width:clamp(58px,20dvh,78px)!important;height:clamp(58px,20dvh,78px)!important}
+}
