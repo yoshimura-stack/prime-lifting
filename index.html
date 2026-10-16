@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>PRIME / Lifting Lab</title><link rel="stylesheet" href="style.css?v=notebook-pc-layout-1"><link rel="stylesheet" href="mobile-ranking.css?v=0534"><link rel="stylesheet" href="mobile-result.css?v=0535"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>PRIME / Lifting Lab</title><link rel="stylesheet" href="style.css?v=high-skill-guide-1"><link rel="stylesheet" href="mobile-ranking.css?v=0534"><link rel="stylesheet" href="mobile-result.css?v=0535"></head>
 <body>
 <main class="game-app">
  <aside class="side-panel controls-panel" aria-label="操作ガイド">
@@ -49,16 +49,27 @@
     <div><span>キック</span><strong>+100</strong></div><div><span>ひざ</span><strong>+150</strong></div><div><span>むね</span><strong>+200</strong></div><div><span>ヘディング</span><strong>+250</strong></div><div class="featured"><span>肩（左右・高難度）</span><strong>+1000</strong></div><div class="featured"><span>ジャンプヘッド</span><strong>+500</strong></div>
    </div>
   </div>
-  <div class="bonus-card air-card"><p class="panel-kicker">ジャンプ連続ボーナス</p><strong>+150 × 連続回数</strong><p class="bonus-copy">ジャンプ中の成功タッチで加点！<br>キック・ひざ・むね・ヘッド対象<br>最大5連続 <b>+750</b></p></div>
-  <div class="bonus-card"><p class="panel-kicker">スピン連続ボーナス</p><strong>1回転 +100 / 4回転 +1000</strong><p class="bonus-copy">次の成功タッチまでの回転で加点<br>5回転 +1100、以降 +100ずつ<br>連続成功でも追加ボーナス！<br><b>AIR BONUSと同時加点OK</b></p></div>
+  <div class="bonus-card high-skill-card"><p class="panel-kicker">HIGH SKILL BONUS</p><strong>高難度ボーナス</strong><button type="button" id="bonus-guide-open" class="high-skill-guide-open" aria-haspopup="dialog" aria-controls="bonus-guide-dialog">⚡ ボーナスの獲得条件を見る ↗</button></div>
   <div class="panel-block stage-block"><p class="panel-kicker">SELECT STAGE</p><h2>ステージ</h2><div class="stage-buttons"><button id="stage-training" type="button" aria-pressed="true">01 TRAINING LAB</button><button id="stage-arena" type="button" aria-pressed="false" disabled>🔒 02 WORLD ARENA</button></div><button id="stage-preview" type="button">👁 WORLD ARENAを見学</button><small id="stage-hint">全8称号コンプリートで解放</small></div>
   <div class="record-card" aria-label="現在のランキング上位3名"><div class="podium-grid"><div class="podium-first"><p class="panel-kicker">🥇 1位 / 最高記録</p><strong id="leader-best-score">--- PTS</strong><span id="leader-best-name">未登録</span></div><div class="podium-runners"><div class="podium-runner"><span class="podium-medal">🥈 2位</span><strong id="leader-second-score">--- PTS</strong><span id="leader-second-name">未登録</span></div><div class="podium-runner"><span class="podium-medal">🥉 3位</span><strong id="leader-third-score">--- PTS</strong><span id="leader-third-name">未登録</span></div></div></div><button type="button" id="view-ranking" class="view-ranking-btn">現在のランキングを見る ↗</button></div>
  </aside>
+
+ <div id="bonus-guide-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="bonus-guide-heading">
+  <div class="ranking-dialog-card bonus-guide-dialog-card">
+   <div class="ranking-dialog-head"><div><p class="panel-kicker">HIGH SKILL BONUS</p><h2 id="bonus-guide-heading">高難度ボーナス・獲得条件</h2></div><button type="button" id="bonus-guide-close">✕ 閉じる</button></div>
+   <p class="bonus-guide-intro">連続トリックで加点！ 現在のゲーム内ボーナス条件です。</p>
+   <div class="bonus-guide-list">
+    <section class="bonus-guide-row" aria-label="ジャンプ連続ボーナス"><span class="bonus-guide-icon" aria-hidden="true">⚡</span><div><h3>ジャンプ連続ボーナス</h3><strong>+150 × 空中連続成功数</strong><p>ジャンプ中の成功タッチで加点。キック・ひざ・むね・ヘッドなどが対象です。<br>最大5連続で <b>+750 PTS</b>。</p></div></section>
+    <section class="bonus-guide-row" aria-label="スピン連続ボーナス"><span class="bonus-guide-icon" aria-hidden="true">🌀</span><div><h3>スピン連続ボーナス</h3><strong>1回転 +100 / 4回転 +1000</strong><p>次の成功タッチまでの回転数に応じて加点。4回転は特別ボーナス込みで+1000、5回転は+1100、以降1回転ごとに+100。<br>スピンを伴う成功タッチを連続させると追加ボーナスも発生します。</p></div></section>
+   </div>
+   <p class="bonus-guide-note">ジャンプとスピンのボーナスは同時加点OK！ ※新しい得点ルールは追加していません。</p>
+  </div>
+ </div>
 
  <div id="title-guide-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="title-guide-heading"><div class="ranking-dialog-card title-guide-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">TITLE COLLECTION</p><h2 id="title-guide-heading">称号リザルト・獲得条件</h2></div><button type="button" id="title-guide-close">✕ 閉じる</button></div><p class="title-guide-intro">1回のプレイで条件を達成すると称号を獲得！</p><div id="title-guide-list" class="title-guide-list"></div></div></div>
  <div id="admin-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="admin-title"><div class="ranking-dialog-card admin-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">HOST ONLY</p><h2 id="admin-title">管理者メニュー</h2></div><button type="button" id="admin-close">✕ 閉じる</button></div><form id="admin-login-form"><label>管理者ID<input id="admin-username" autocomplete="off" value="host" required></label><label>パスワード<input id="admin-password" type="password" autocomplete="off" required></label><button type="submit">管理者認証</button></form><div id="admin-actions" hidden><p>全プレイヤーのアカウント・PIN情報・最高スコアを完全に削除します。</p><button type="button" id="admin-reset" class="admin-danger">ランキングを全削除</button></div><p id="admin-status" role="status"></p></div></div>
  <div id="ranking-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="ranking-dialog-title"><div class="ranking-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">ONLINE LEADERBOARD</p><h2 id="ranking-dialog-title">現在のランキング</h2></div><button type="button" id="close-ranking" aria-label="ランキングを閉じる">✕ 閉じる</button></div><p id="ranking-dialog-status" role="status"></p><section id="next-rival" class="next-rival" hidden aria-label="次のライバル"><span class="next-rival-label">🎯 NEXT RIVAL</span><span id="next-rival-name"></span><strong id="next-rival-gap"></strong></section><button type="button" id="ranking-jump-self" hidden>自分の順位へ ↓</button><ol id="ranking-dialog-list"></ol><button type="button" id="ranking-dialog-refresh">ランキングを更新 ↻</button></div></div>
  <section id="tuning" hidden><div class="tuning-heading"><div><p class="eyebrow">GAME FEEL LAB</p><h2>感覚を、調整する。</h2><p>調整中は一時停止します。数値はこのブラウザに保存されます。</p></div><button id="reset-config">初期値に戻す</button></div><div id="sliders"></div></section>
 </main>
-<script src="js/config.js"></script><script src="js/kits.js"></script><script src="js/engine.js?v=059"></script><script src="vendor/three.min.js"></script><script src="js/world-arena.js?v=premium-1"></script><script src="js/player-model.js?v=premium-3"></script><script src="js/renderer3d.js?v=premium-1"></script><script src="js/ranking.js?v=0535"></script><script src="js/touch.js?v=0521"></script><script src="game.js?v=0530"></script><script src="js/admin.js?v=0514"></script>
+<script src="js/config.js"></script><script src="js/kits.js"></script><script src="js/engine.js?v=059"></script><script src="vendor/three.min.js"></script><script src="js/world-arena.js?v=premium-1"></script><script src="js/player-model.js?v=premium-3"></script><script src="js/renderer3d.js?v=premium-1"></script><script src="js/bonus-guide.js?v=1"></script><script src="js/ranking.js?v=0535"></script><script src="js/touch.js?v=0521"></script><script src="game.js?v=0530"></script><script src="js/admin.js?v=0514"></script>
 </body></html>
