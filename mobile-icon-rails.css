@@ -1,0 +1,17 @@
+/* Mobile landscape only. The desktop cockpit and gameplay touch controls remain unchanged. */
+.mobile-icon-rails,.mobile-quick-panel{display:none}
+body.touch-landscape .mobile-icon-rails{display:flex;position:fixed;inset:max(6px,env(safe-area-inset-top)) 0 auto;z-index:35;pointer-events:none;justify-content:space-between;padding:0 max(5px,env(safe-area-inset-right)) 0 max(5px,env(safe-area-inset-left));box-sizing:border-box}
+body.touch-landscape .mobile-icon-column{display:flex;flex-direction:column;gap:clamp(3px,1dvh,7px);pointer-events:none}
+body.touch-landscape .mobile-icon-column button{pointer-events:auto;touch-action:manipulation;display:grid;place-items:center;width:clamp(32px,8dvh,43px);height:clamp(32px,8dvh,43px);border:1px solid #a4ce68a8;border-radius:9px;background:#112d24eb;color:#e5ff90;font-size:clamp(16px,4dvh,22px);padding:0;box-shadow:0 2px 9px #0006}
+body.touch-landscape .mobile-icon-column button:focus-visible{outline:2px solid #e6ff78;outline-offset:2px}
+body.touch-landscape .mobile-score-panel,body.touch-landscape.mobile-in-game .mobile-score-panel{display:none!important}
+body.touch-landscape .mobile-quick-panel:not([hidden]){display:flex;position:fixed;z-index:85;top:max(8px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(440px,76vw);max-height:calc(100dvh - 16px);overflow:auto;flex-direction:column;gap:9px;padding:12px 16px;border:1px solid #b1d46d;border-radius:12px;background:#102b23f7;color:#f2fff3;box-shadow:0 10px 36px #000a;box-sizing:border-box}
+body.touch-landscape .mobile-quick-panel[hidden]{display:none!important}
+.mobile-quick-panel .mobile-quick-head{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#e5ff83;font-weight:800}
+.mobile-quick-panel .mobile-quick-head button{min-width:36px;min-height:34px;border:1px solid #819d6b;border-radius:7px;background:#244335;color:white;font-size:20px}
+.mobile-quick-panel .mobile-quick-content{font-size:clamp(12px,2.8dvh,16px);line-height:1.55}
+.mobile-quick-panel .mobile-quick-content button{min-height:38px;margin:5px;padding:6px 10px;border:1px solid #a4ce68;border-radius:7px;background:#254936;color:#e6ff95}
+.mobile-quick-panel .mobile-quick-content button:disabled{opacity:.5}
+.mobile-quick-panel .mobile-quick-content .score-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+.mobile-quick-panel .mobile-quick-content .score-list>div{display:flex;justify-content:space-between;gap:8px}
+@media(max-height:330px){body.touch-landscape .mobile-icon-column button{width:30px;height:30px;font-size:15px}body.touch-landscape .mobile-icon-column{gap:3px}}
