@@ -203,8 +203,18 @@ async function updateRankDialog(){
   if(current!==rankDialogGeneration||rankDialog.hidden)return;
   const list=$('ranking-dialog-list');list.replaceChildren();selfRankRow=null;jumpSelf.hidden=true;
   for(const e of data.entries){
-   const li=document.createElement('li'),score=document.createElement('strong');score.textContent=e.score.toLocaleString()+' PTS';
-   li.append(rankName(e,`${e.rank}. `),score);
+   const li=document.createElement('li'),score=document.createElement('strong');
+   const breakdown=document.createElement('span');breakdown.className='rank-score-breakdown';
+   const total=document.createElement('strong');total.className='rank-total';total.textContent=e.score.toLocaleString()+' PTS';
+   const play=document.createElement('small');play.className='rank-play-score';
+   const daily=document.createElement('small');daily.className='rank-daily-score';
+   // No invented daily credits: legacy API entries remain score-only until server rollout.
+   const hasBreakdown=Number.isSafeInteger(e.playScore)&&Number.isSafeInteger(e.dailyBonus)&&e.playScore>=0&&e.dailyBonus>=0&&e.playScore+e.dailyBonus===e.score;
+   play.textContent=hasBreakdown?'スコア '+e.playScore.toLocaleString():'';
+   daily.textContent=hasBreakdown?'デイリー +'+e.dailyBonus.toLocaleString():'';
+   breakdown.append(total);
+   if(hasBreakdown)breakdown.append(play,daily);
+   li.append(rankName(e,`${e.rank}. `),breakdown);
    if(player&&e.name===player.name){li.classList.add('rank-self');li.setAttribute('aria-current','true');selfRankRow=li;}
    list.append(li);
   }
