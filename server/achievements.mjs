@@ -23,15 +23,16 @@ export const NEXT_TITLES=['FOOT MASTER','KNEE MASTER','TRAP MASTER','HEADING MAS
 export function nextLevelMask(result){
  const p=result?.nextProof;
  if(!p||!Number.isInteger(p.totalHits)||p.totalHits<0)return 0;
- const n=p.totalHits;
- const exact=key=>n>=20&&p[key]===n;
+ const first=p.first30;
+ const valid=first?.hits===30&&first.unbroken===true;
+ const pure=key=>valid&&first[key]===30;
  const legend=['foot','knee','chest','heading','shoulder','spin','jump'].every(key=>Number.isInteger(p[key])&&p[key]>=4);
- return (exact('foot')?1:0)
-  |(exact('knee')?2:0)
-  |(exact('chest')?4:0)
-  |(exact('heading')?8:0)
-  |(n>=20&&p.allSpin===true&&p.spin===n?16:0)
-  |(n>=20&&p.allJump===true&&p.jump===n?32:0)
+ return (pure('foot')?1:0)
+  |(pure('knee')?2:0)
+  |(pure('chest')?4:0)
+  |(pure('heading')?8:0)
+  |(pure('spin')?16:0)
+  |(pure('jump')?32:0)
   |(p.shoulder>=10?64:0)
   |(legend?128:0);
 }
