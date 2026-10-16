@@ -51,7 +51,9 @@ function rankedInput(name){if(['countdown','playing'].includes(g.phase))rankEven
 let debug=false,muted=false,paused=false,audioContext=null,last=0,accumulator=0,effects=[],message='',messageTime=0;
 const mobileQuery=matchMedia('(orientation:landscape)');
 const touchQuery=matchMedia('(pointer:coarse)');
-const isMobile=()=>mobileQuery.matches&&matchMedia('(max-width:950px)').matches&&(touchQuery.matches||navigator.maxTouchPoints>0||'ontouchstart' in window);
+// A touch screen alone must not force the mobile layout on hybrid Windows laptops.
+// Prefer the desktop cockpit when a fine pointer (mouse/trackpad) is available.
+const isMobile=()=>mobileQuery.matches&&matchMedia('(max-width:950px)').matches&&!matchMedia('(any-pointer: fine)').matches&&(touchQuery.matches||navigator.maxTouchPoints>0||'ontouchstart' in window);
 const refreshMobile=()=>{document.body.classList.toggle('touch-landscape',isMobile());draw();};
 const touch=new PrimeTouchController($('touch-controls'),{enabled:()=>isMobile()&&!paused&&$('overlay').hidden&&$('kit-select').hidden,action:name=>{rankedInput(name);processEvents();draw();}});
 function syncMobile(){touch.clear();document.body.classList.toggle('touch-landscape',isMobile());$('overlay-note').textContent=isMobile()?'打球はKICKボタン。複数の指で同時操作できます。':'打球はゲーム画面内でクリック';pause(true);}
