@@ -1,6 +1,6 @@
 import {ApiError,normalizeName,replay,validKit,RULESET,VERSION} from './replay.mjs';
 import {createDatabase} from './supabase.mjs';
-import {achievementMask,publicProgress} from './achievements.mjs';
+import {achievementMask,publicProgress,nextLevelMask,NEXT_TITLES} from './achievements.mjs';
 const encoder=new TextEncoder();
 const encode=bytes=>btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 const decode=s=>Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
@@ -80,14 +80,15 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
    const players=data.entries.slice(0,full?200:10).map(publicPlayer);
    // One batch query for all ranks; do not issue per-player RPC calls.
    // Missing progress is 0/8. A failed progress query leaves the leaderboard usable.
-   let masks={};
+   let masks={},nextMasks={};
    try{const response=await db.call('achievement_list',{playerIds:players.map(p=>p.id)});
     if(response&&typeof response==='object'&&!Array.isArray(response))masks=response;
    }catch{}
+   try{const response=await db.call('next_achievement_list',{playerIds:players.map(p=>p.id)});if(response&&typeof response==='object'&&!Array.isArray(response))nextMasks=response;}catch{}
    const entries=players.map(v=>{
     const mask=masks[v.id],valid=Number.isInteger(mask)&&mask>=0&&mask<=255;
     const count=valid?mask.toString(2).replace(/0/g,'').length:0;
-    return {name:v.name,score:v.best,rank:v.rank,device:v.bestDevice,achievementCount:count,master:valid&&mask===255};
+    return {name:v.name,score:v.best,rank:v.rank,device:v.bestDevice,achievementCount:count,master:valid&&mask===255,nextAchievementCount:Number.isInteger(nextMasks[v.id])&&nextMasks[v.id]>=0&&nextMasks[v.id]<=255?nextMasks[v.id].toString(2).replace(/0/g,'').length:0,liftingGod:nextMasks[v.id]===255&&mask===255};
    });
    return json(path==='/api/champion'?{champion:entries[0]||null}:{entries});
   }
@@ -96,7 +97,7 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   const cookie=(request.headers.get('Cookie')||'').split(';').map(v=>v.trim()).find(v=>v.startsWith('prime_session='))?.slice(14);
   const session=await verify(cookie,env.SESSION_SECRET,'session',time);
   if(path==='/api/me')return json({player:publicPlayer((await db.call('me',{playerId:session.sub})).player)});
-  if(path==='/api/achievements'){await db.call('me',{playerId:session.sub});return json({progress:publicProgress(await db.call('achievement_get',{playerId:session.sub}))});}
+  if(path==='/api/achievements'){await db.call('me',{playerId:session.sub});const base=publicProgress(await db.call('achievement_get',{playerId:session.sub}));let next=null;try{const data=await db.call('next_achievement_get',{playerId:session.sub});const mask=data?.mask;if(Number.isInteger(mask)&&mask>=0&&mask<=255)next={mask,earned:NEXT_TITLES.filter((_,i)=>!!(mask&(1<<i))),god:base.master&&mask===255};}catch{}return json({progress:{...base,next}});}
   if(path==='/api/game/start'){
    await db.call('me',{playerId:session.sub});
     return json({ruleset:RULESET,token:await sign({kind:'run',sub:session.sub,id:crypto.randomUUID(),started:time,exp:time+86400000,ruleset:RULESET,device:requestDevice(request)},env.SESSION_SECRET)});
@@ -113,7 +114,9 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   // Progress is isolated from score storage; a progress outage must not erase a score.
   let progress=null;
   try{progress=publicProgress(await db.call('achievement_merge',{playerId:session.sub,mask:achievementMask(result,score)}));}catch{throw new ApiError(503,'称号の保存確認ができませんでした。同じプレイの保存を再試行してください。');}
-  return json({player:publicPlayer(saved.player),score,personalBest:saved.personalBest===true,newChampion:saved.newChampion===true,progress});
+  let next=null;
+  if(progress.master){try{const data=await db.call('next_achievement_merge',{playerId:session.sub,mask:nextLevelMask(result)});const mask=data?.mask;if(Number.isInteger(mask)&&mask>=0&&mask<=255)next={mask,earned:NEXT_TITLES.filter((_,i)=>!!(mask&(1<<i))),god:mask===255};}catch{throw new ApiError(503,'NEXT LEVEL称号の保存確認ができませんでした。同じプレイの保存を再試行してください。');}}
+  return json({player:publicPlayer(saved.player),score,personalBest:saved.personalBest===true,newChampion:saved.newChampion===true,progress:{...progress,next}});
  }catch(error){return json({error:error instanceof ApiError?error.message:'ランキング処理に失敗しました。再試行してください。'},error instanceof ApiError?error.status:503);}
  }};}
 export default createWorker();
