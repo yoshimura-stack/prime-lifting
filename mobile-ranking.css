@@ -511,3 +511,6 @@
 .player-title-row.unknown {filter:grayscale(1);opacity:.65}
 .player-title-state {display:inline-block;margin-top:5px;font-size:11px;font-weight:800;color:#c7e89e}
 .player-title-row.unearned .player-title-state {color:#c4cbc5}
+
+/* Player profile appears above the full leaderboard when opened from a row. */
+#player-titles-dialog:not([hidden]){z-index:10001}
