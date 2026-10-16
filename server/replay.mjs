@@ -19,7 +19,7 @@ export function replay(events){
  const nextProof={totalHits:0,foot:0,knee:0,chest:0,heading:0,shoulder:0,spin:0,jump:0,allSpin:true,allJump:true};
  while(g.phase!=='ended'&&tick<7800){while(at<events.length&&events[at].t===tick){const e=events[at++];if(e.n==='move')dir=e.v;else {const accepted=g[e.n]();if(e.n==='jump'&&accepted===true)jumpsSinceHit++;}}g.update(c.FIXED_STEP,dir);for(const event of g.events){if(event.type==='hit'){
     nextProof.totalHits++;
-    const part=event.name==='KICK'?'foot':event.name==='KNEE'?'knee':event.name==='CHEST'?'chest':event.name==='HEADER'||event.name==='JUMP_HEADER'?'heading':event.name==='SHOULDER'?'shoulder':null;
+    const part=event.name==='FOOT'?'foot':event.name==='KNEE'?'knee':event.name==='CHEST'?'chest':event.name==='HEADER'||event.name==='JUMP_HEADER'?'heading':event.name==='SHOULDER'?'shoulder':null;
     if(part)nextProof[part]++;
     if(event.spinCount>0)nextProof.spin++;else nextProof.allSpin=false;
     // A jump must have been accepted since the previous successful touch; airborne alone is not sufficient.
