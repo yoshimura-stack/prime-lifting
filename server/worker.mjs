@@ -1,3 +1,4 @@
+import {dailyChallenges,jstDay} from './daily.mjs';
 import {ApiError,normalizeName,replay,validKit,RULESET,VERSION} from './replay.mjs';
 import {createDatabase} from './supabase.mjs';
 import {achievementMask,publicProgress,nextLevelMask,NEXT_TITLES} from './achievements.mjs';
@@ -37,7 +38,9 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   if(!limiter)throw new ApiError(503,'ランキング設定を確認中です。');
   const ip=request.headers.get('CF-Connecting-IP')||'local';
   if(!(await limiter.limit({key:ip})).success)throw new ApiError(429,'少し待ってから再試行してください。');
-  const db=database(env),time=now(),post=request.method==='POST';
+  const time=now(),post=request.method==='POST';
+  if(path==='/api/daily'&&!post){const day=jstDay(time);return json({day,challenges:dailyChallenges(day),timezone:'Asia/Tokyo'});}
+  const db=database(env);
   if(adminLogin||adminReset){
    if(!post)throw new ApiError(405,'この操作には対応していません。');
    const body=await readBody(request);
