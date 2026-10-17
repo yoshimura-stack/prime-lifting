@@ -59,7 +59,7 @@ test('medal colors and typography match between mobile and PC',()=>{
   [pcJs,pcCss,'pc-ticker']
  ]){
   for(let rank=1;rank<=3;rank++){
-   assert.ok(js.includes(scope+'-place-'+rank),'separate rank '+rank+' colored node');
+   assert.ok(js.includes(scope+"-place-'+e.place"),'dynamic rank color class is generated');
    assert.ok(css.includes('.'+scope+'-place-'+rank+'{color:'+colors[rank-1]+'}'),'rank '+rank+' medal color');
   }
   assert.ok(js.includes(scope+'-name'),'separate white player name node');
