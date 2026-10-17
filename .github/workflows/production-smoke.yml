@@ -1,0 +1,31 @@
+name: Production browser smoke
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright browser
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Verify production site and update notifications
+        env:
+          PRODUCTION_URL: https://prime-lifting.yoshimura-yuki.workers.dev/
+        run: node scripts/smoke-production.mjs
+      - name: Upload failure screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-smoke-failure
+          path: smoke-artifacts/
+          if-no-files-found: ignore
