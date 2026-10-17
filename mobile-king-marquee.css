@@ -3,7 +3,7 @@
 body.touch-landscape:not(.mobile-in-game) .mobile-king-marquee{
  display:flex;align-items:center;position:fixed;z-index:12;
  left:50%;bottom:max(2px,env(safe-area-inset-bottom));
- transform:translateX(calc(-1 * var(--mobile-marquee-distance, 50%)));
+ transform:translateX(-50%);
  width:min(62vw,690px);height:clamp(19px,4.6dvh,28px);
  max-width:calc(100vw - 140px);
  overflow:hidden;border:1px solid #d2ea6d88;border-radius:7px;
@@ -31,7 +31,7 @@ body.touch-landscape .mobile-podium-name{color:#F5F7F2;font-weight:900;white-spa
 body.touch-landscape .mobile-podium-score{color:#FFE9A2;white-space:nowrap}
 body.touch-landscape .mobile-podium-divider{color:#93AC8B;padding:0 13px;white-space:nowrap}
 
-@keyframes mobile-podium-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes mobile-podium-scroll{from{transform:translateX(0)}to{transform:translateX(calc(-1 * var(--mobile-marquee-distance, 50%)))}}
 body.touch-landscape:has(#kit-select:not([hidden])) .mobile-king-marquee,
 body.touch-landscape:has(#ranking-dialog:not([hidden])) .mobile-king-marquee,
 body.touch-landscape:has(#title-guide-dialog:not([hidden])) .mobile-king-marquee,
