@@ -12,6 +12,7 @@ async function api(path,body){
 function account(){
  $('account-status').textContent=player?`${player.name} ／ BEST ${player.best.toLocaleString()} PTS`:'ゲストプレイ（保存なし）';
  $('account-form').hidden=!!player;$('logout').hidden=!player;
+ window.dispatchEvent(new CustomEvent('prime:account-state',{detail:{loggedIn:!!player}}));
 }
 function renderProgress(progress){
  if(!player||!progress){cumulativeEarned=new Set();nextEarned=new Set();progressOwner=null;renderNextCollection();}
