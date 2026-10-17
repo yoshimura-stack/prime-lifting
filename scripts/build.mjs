@@ -5,7 +5,8 @@ const root=new URL('../',import.meta.url),target=new URL('public/',root);
 await rm(target,{recursive:true,force:true});await mkdir(target,{recursive:true});
 for(const file of [
  'index.html','style.css','mobile-ranking.css','mobile-result.css',
- 'pc-cockpit.css','mobile-icon-rails.css','mobile-kit-portrait.css','game.js'
+ 'pc-cockpit.css','mobile-icon-rails.css','mobile-kit-portrait.css',
+ 'mobile-king-marquee.css','game.js'
 ])await copyFile(new URL(file,root),new URL(file,target));
 for(const dir of ['js','vendor'])await cp(new URL(dir,root),new URL(dir,target),{recursive:true});
 // Fail the build when HTML references a CSS file that is not shipped to Workers.
