@@ -5,3 +5,6 @@
 .rotate-notice-content strong{font-size:clamp(20px,5vw,32px);letter-spacing:.12em;color:#d7ff6d}
 .rotate-notice-content p{font-size:clamp(17px,4vw,26px);font-weight:800;margin:22px 0 12px}
 .rotate-notice-content small{font-size:14px;opacity:.82}
+
+/* A usable 44px minimum touch target for the in-game pause control. */
+body.touch-landscape #mobile-pause{min-width:44px!important;min-height:44px!important;width:44px!important;height:44px!important;display:inline-grid!important;place-items:center!important;font-size:23px!important;line-height:1!important;touch-action:manipulation!important;cursor:pointer!important;border:1px solid #d9ff84!important;border-radius:12px!important;background:#163d2de8!important;color:#f1ffb1!important}

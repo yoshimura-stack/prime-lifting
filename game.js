@@ -94,7 +94,7 @@ $('debug').onclick=toggleDebug;
 window.addEventListener('keydown',e=>{if(e.code==='F2'){e.preventDefault();if(!e.repeat)toggleDebug();return;}if(e.code==='Escape'){if(!e.repeat)pause(!paused);return;}if(e.target.matches('input,button'))return;if(['KeyA','KeyD','Space'].includes(e.code)){e.preventDefault();if(!paused){keys.add(e.code);if(e.code==='Space'&&!e.repeat)rankedInput('jump');}}});
 window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',()=>{keys.clear();touch.clear();pause(true);});
 // Opening an information dialog must never consume the player's 60-second run.
-document.addEventListener('click',e=>{if(e.target.closest('[aria-haspopup="dialog"], [data-open-updates], #bonus-guide-open, #daily-help-open'))pause(true);},true);
+document.addEventListener('click',e=>{if(e.target.closest('[aria-haspopup="dialog"], [data-mobile-panel], [data-open-updates], #bonus-guide-open, #daily-help-open, #title-guide-open'))pause(true);},true);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)pause(true);});
 // Keep native selection in login inputs, but disable it on the live game surface.
 for(const eventName of ['selectstart','dragstart','contextmenu']){
