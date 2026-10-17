@@ -73,7 +73,7 @@ test('mobile podium is read-only, confined to non-playing landscape, and respect
  assert.match(css,/\.mobile-king-window\s*\{\s*flex:1;width:100%;min-width:0/,'ticker occupies all available width');
  assert.match(css,/\.mobile-king-track\s*\{\s*display:flex;gap:0;/,'no discontinuity between repeated tracks');
  assert.match(css,/\.mobile-king-track>span\{white-space:nowrap;padding-right:36px\}/,'equal segment padding creates seamless loop');
- assert.match(html,/mobile-king-marquee\.css\?v=mobile-full-crawl-3/);
+ assert.match(html,/mobile-king-marquee\.css\?v=podium-contrast-4/);
  assert.match(css,/@keyframes mobile-podium-scroll\{from\{transform:translateX\(0\)\}to\{transform:translateX\(-50%\)\}\}/,'ticker scrolls rank 1 first toward rank 3');
  assert.match(css,/body\.touch-landscape #overlay:not\(\[hidden\]\) > #start\s*\{\s*bottom:calc\(max\(2px,env\(safe-area-inset-bottom\)\) \+ clamp\(19px,4\.6dvh,28px\) \+ 10px\)!important/,'Play and Replay stay above ticker');
  assert.match(css,/body\.touch-landscape #overlay:has\(#result-ranking:not\(\[hidden\]\)\) > #start\s*\{\s*bottom:calc\(max\(2px,env\(safe-area-inset-bottom\)\) \+ clamp\(19px,4\.6dvh,28px\) \+ 10px\)!important/,'Replay specifically overrides older result positioning');
@@ -81,6 +81,6 @@ test('mobile podium is read-only, confined to non-playing landscape, and respect
  assert.match(css,/body\.touch-landscape #overlay:has\(#result-ranking:not\(\[hidden\]\)\) #result-top\s*\{\s*display:none!important/,'redundant mobile TOP10 and refresh button hidden');
  assert.match(html,/id="mobile-result-ranking"/,'overall ranking button stays available');
  assert.match(html,/id="ranking-dialog"/,'full leaderboard remains available');
- assert.match(html,/js\/mobile-king-marquee\.js\?v=mobile-full-crawl-3/);
+ assert.match(html,/js\/mobile-king-marquee\.js\?v=podium-contrast-4/);
  assert.ok(build.includes("'mobile-king-marquee.css'"),'Cloudflare public folder must contain the marquee CSS');
 });
