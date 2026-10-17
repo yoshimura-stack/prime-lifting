@@ -1,0 +1,44 @@
+/* Touch landscape only. Intro and result screens show TOP3; never cover ball in play. */
+.mobile-king-marquee{display:none}
+body.touch-landscape:not(.mobile-in-game) .mobile-king-marquee{
+ display:flex;align-items:center;position:fixed;z-index:12;
+ left:50%;bottom:max(2px,env(safe-area-inset-bottom));
+ transform:translateX(-50%);
+ width:min(62vw,690px);height:clamp(19px,4.6dvh,28px);
+ max-width:calc(100vw - 140px);
+ overflow:hidden;border:1px solid #d2ea6d88;border-radius:7px;
+ background:#10241ae0;color:#ffe873;box-shadow:0 2px 12px #05130a99;
+ font:800 clamp(9px,2.2dvh,13px)/1 Arial,'Yu Gothic',sans-serif;
+ pointer-events:none;user-select:none;
+}
+body.touch-landscape .mobile-king-label{
+ flex:0 0 auto;max-width:43%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+ background:#eaff87;color:#112719;padding:0 7px;height:100%;
+ display:flex;align-items:center;gap:4px;
+}
+body.touch-landscape .mobile-king-window{
+ flex:1;min-width:0;overflow:hidden;white-space:nowrap;
+}
+body.touch-landscape .mobile-king-track{
+ display:flex;gap:36px;width:max-content;align-items:center;
+ animation:mobile-podium-scroll 25s linear infinite;
+}
+body.touch-landscape .mobile-king-track>span{white-space:nowrap}
+@keyframes mobile-podium-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+body.touch-landscape:has(#kit-select:not([hidden])) .mobile-king-marquee,
+body.touch-landscape:has(#ranking-dialog:not([hidden])) .mobile-king-marquee,
+body.touch-landscape:has(#title-guide-dialog:not([hidden])) .mobile-king-marquee,
+body.touch-landscape:has(#mobile-quick-panel:not([hidden])) .mobile-king-marquee,
+body.touch-landscape:has(#game-menu-dialog:not([hidden])) .mobile-king-marquee{
+ display:none!important;
+}
+@media (prefers-reduced-motion:reduce){
+ body.touch-landscape .mobile-king-track{animation:none}
+}
+/* Daily goals glow only when observed during a successful touch this visit.
+   No points or persisted credits are represented by this state. */
+.daily-preview li.is-complete{
+ color:#e3ff8e!important;font-weight:900!important;
+ text-shadow:0 0 8px #a8ec64;
+}
+.daily-preview li.is-complete::marker{color:#d9ff6a}
