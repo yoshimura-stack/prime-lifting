@@ -14,7 +14,8 @@
   entries.forEach(([symbol,title,selectors,clickId])=>{
    const btn=document.createElement('button');btn.type='button';btn.textContent=symbol;btn.title=title;btn.setAttribute('aria-label',title);rail.append(btn);
    btn.addEventListener('click',()=>{
-    if(clickId){hide(false);if(clickId==='update-news-dialog'){document.querySelector('[data-open-updates]')?.click();return}document.getElementById(clickId)?.click();return}
+    if(clickId==='update-news-dialog'){hide(false);document.querySelector('[data-open-updates]')?.click();return}
+    if(clickId){hide(false);document.getElementById(clickId)?.click();return}
     if(!popup.hidden)hide(false);
     if(!desktop())return;
     lastButton=btn;label.textContent=title;
