@@ -18,6 +18,10 @@ assert.equal(check(true,false,false,5),true,'touchpoints fallback works');
 for(const event of ['orientationchange','resize','pageshow'])assert.ok(game.includes("'"+event+"'"),event+' layout reconciliation');
 assert.match(css,/main\.game-app>\.side-panel/,'desktop sidebars hidden in touch layout');
 assert.match(css,/mobile-icon-rails>\.mobile-icon-column/,'mobile icon columns use explicit vertical flow');
+
+assert.match(css,/body\.touch-landscape #mobile-icon-rails\s*\{\s*left:0!important;\s*right:0!important;\s*width:100%!important;/,'left and right rails remain at viewport edges');
+assert.match(css,/padding-left:3px!important;\s*padding-right:3px!important;/,'do not double apply landscape safe-area padding');
+assert.match(css,/body\.touch-landscape:has\(#kit-select:not\(\[hidden\]\)\) #mobile-icon-rails\s*\{\s*display:none!important;/,'no rail controls may overlap the full-screen uniform selector');
 const buildSource=fs.readFileSync(path.join(root,'scripts/build.mjs'),'utf8');
 for(const asset of ['pc-cockpit.css','mobile-icon-rails.css','mobile-kit-portrait.css']){
  assert.ok(buildSource.includes("'"+asset+"'"),asset+' must be deployed with Worker assets');
@@ -32,4 +36,5 @@ assert.match(kitCss,/grid-auto-rows:minmax\(120px,auto\)!important/,'portrait ca
 assert.match(kitCss,/overflow-y:auto!important/,'the portrait kit list remains scrollable');
 assert.match(kitCss,/\.kit-select \.kit-actions\s*\{/,'portrait confirmation button remains outside list scroll');
 assert.match(html,/mobile-kit-portrait\.css\?v=portrait-rows-1/,'portrait CSS loaded');
+assert.match(html,/mobile-icon-rails\.css\?v=kit-gutter-fix-4/,'mobile edge-aligned rails stylesheet is fresh');
 console.log('Mobile orientation layout checks passed');
