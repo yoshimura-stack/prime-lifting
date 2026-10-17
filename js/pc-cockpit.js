@@ -39,13 +39,12 @@
  document.addEventListener('keydown',e=>{if(e.key==='Escape')for(const p of [a,b])if(!p.popup.hidden)p.hide()});
  window.addEventListener('resize',()=>{if(!desktop()){a.hide();b.hide()}});
  const ticker=document.createElement('button');ticker.type='button';ticker.className='pc-king-ticker';ticker.setAttribute('aria-label','ランキングTOP3を見る');
- const fixed=document.createElement('span');fixed.className='pc-ticker-label';fixed.textContent='👑 KING · LIVE TOP 3';
- const windowEl=document.createElement('span');windowEl.className='pc-ticker-window';const track=document.createElement('span');track.className='pc-ticker-track';windowEl.append(track);ticker.append(fixed,windowEl);shell.append(ticker);
+ // Let all three places scroll across the full width. No pinned KING/rank-1 labels:
+ // the live ranking track already contains the current champion.
+ const windowEl=document.createElement('span');windowEl.className='pc-ticker-window';const track=document.createElement('span');track.className='pc-ticker-track';windowEl.append(track);ticker.append(windowEl);shell.append(ticker);
  ticker.addEventListener('click',()=>document.getElementById('view-ranking')?.click());
- // The KING remains visible even when the scrolling names are off-screen.
- const king=document.createElement('span');king.className='pc-ticker-king';fixed.after(king);
  const ranks=[['👑','leader-best-name','leader-best-score'],['🥈','leader-second-name','leader-second-score'],['🥉','leader-third-name','leader-third-score']];
  let old='';
- function update(){const str=ranks.map(([medal,name,score],i)=>medal+' '+(i+1)+'位 '+(document.getElementById(name)?.textContent?.trim()||'未登録')+'  '+(document.getElementById(score)?.textContent?.trim()||'--- PTS')).join('　 ✦　 ');if(str===old)return;old=str;king.textContent=(document.getElementById('leader-best-name')?.textContent?.trim()||'未登録')+' · '+(document.getElementById('leader-best-score')?.textContent?.trim()||'--- PTS');track.replaceChildren();for(let i=0;i<2;i++){const span=document.createElement('span');span.textContent=str+'　 ✦　 ';track.append(span)}}
+ function update(){const str=ranks.map(([medal,name,score],i)=>medal+' '+(i+1)+'位 '+(document.getElementById(name)?.textContent?.trim()||'未登録')+'  '+(document.getElementById(score)?.textContent?.trim()||'--- PTS')).join('　 ✦　 ');if(str===old)return;old=str;track.replaceChildren();for(let i=0;i<2;i++){const span=document.createElement('span');span.textContent=str+'　 ✦　 ';track.append(span)}}
  update();const observer=new MutationObserver(update);for(const [,name,score] of ranks){for(const id of [name,score]){const el=document.getElementById(id);if(el)observer.observe(el,{childList:true,characterData:true,subtree:true})}}
 })();
