@@ -27,14 +27,34 @@
  }
  function score(id){return document.getElementById(id)?.textContent?.trim()||'--- PTS'}
  let previous='';
+ function colored(text,className){
+  const span=document.createElement('span');
+  span.className=className;
+  span.textContent=text;
+  return span;
+ }
  function update(){
-  const entries=ranks.map(([medal,name,points],i)=>medal+' '+(i+1)+'位 '+plainName(name)+' '+score(points));
-  const value=entries.join('   ✦   ');
+  const entries=ranks.map(([medal,name,points],i)=>({
+   medal,place:i+1,name:plainName(name),points:score(points)
+  }));
+  const value=entries.map(e=>e.medal+' '+e.place+'位 '+e.name+' '+e.points).join(' ✦ ');
   if(value===previous)return;
   previous=value;
   ticker.setAttribute('aria-label','ランキングTOP3 '+value);
   track.replaceChildren();
-  for(let i=0;i<2;i++){const span=document.createElement('span');span.textContent=value+'   ✦   ';track.append(span)}
+  for(let i=0;i<2;i++){
+   const section=colored('','mobile-podium-segment');
+   for(const e of entries){
+    const item=colored('','mobile-podium-entry');
+    item.append(
+     colored(e.medal+' '+e.place+'位','mobile-podium-place mobile-podium-place-'+e.place),
+     colored(e.name,'mobile-podium-name'),
+     colored(e.points,'mobile-podium-score')
+    );
+    section.append(item,colored('✦','mobile-podium-divider'));
+   }
+   track.append(section);
+  }
  }
  const observer=new MutationObserver(update);
  for(const [,name,points] of ranks){
