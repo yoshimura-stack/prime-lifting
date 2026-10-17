@@ -498,3 +498,6 @@ body.touch-landscape #ranking-dialog .ranking-dialog-head .panel-kicker{display:
 body.touch-landscape #ranking-dialog #ranking-dialog-list{flex:1 1 auto!important;min-height:0!important;margin:4px 0!important;overflow-y:auto!important}
 body.touch-landscape #ranking-dialog #ranking-dialog-list li{padding:6px 8px!important}
 body.touch-landscape #ranking-dialog #ranking-dialog-refresh{padding:6px 12px!important;min-height:34px!important}
+
+/* Mobile result: rival summary duplicates the full ranking action and collides with replay. */
+body.touch-landscape #result-next-rival{display:none!important}
