@@ -111,3 +111,23 @@ body.touch-landscape #mobile-icon-rails>.mobile-icon-column>button{
  place-items:center!important;
  pointer-events:auto!important;
 }
+
+/* Safari landscape: the browser has already inset the visual page for the
+   device cutout. Adding env(safe-area-inset-*) as rail padding shifts the
+   buttons inward again, across the uniform selector and away from the gutters.
+   Use the actual viewport edges instead. */
+body.touch-landscape #mobile-icon-rails{
+ left:0!important;
+ right:0!important;
+ width:100%!important;
+ max-width:100%!important;
+ padding-left:3px!important;
+ padding-right:3px!important;
+ box-sizing:border-box!important;
+}
+/* Kit selection occupies almost the full screen. None of the in-game rail
+   buttons are useful while choosing a uniform: do not obscure jerseys,
+   country tabs, or the confirm button. Return the rails when selection closes. */
+body.touch-landscape:has(#kit-select:not([hidden])) #mobile-icon-rails{
+ display:none!important;
+}
