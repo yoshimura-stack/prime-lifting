@@ -486,3 +486,15 @@
     clear:both;
   }
 }
+
+/* Mobile landscape leaderboard: maximize rows, hide desktop-only context. */
+body.touch-landscape #ranking-dialog .ranking-dialog-card{width:min(96vw,1200px)!important;max-width:96vw!important;height:calc(100dvh - 12px)!important;max-height:calc(100dvh - 12px)!important;padding:10px 14px!important;box-sizing:border-box!important}
+body.touch-landscape #ranking-dialog #ranking-dialog-status,
+body.touch-landscape #ranking-dialog #next-rival,
+body.touch-landscape #ranking-dialog #ranking-jump-self{display:none!important}
+body.touch-landscape #ranking-dialog .ranking-dialog-head{margin-bottom:3px!important}
+body.touch-landscape #ranking-dialog .ranking-dialog-head h2{margin:0!important;font-size:clamp(17px,4dvh,24px)!important}
+body.touch-landscape #ranking-dialog .ranking-dialog-head .panel-kicker{display:none!important}
+body.touch-landscape #ranking-dialog #ranking-dialog-list{flex:1 1 auto!important;min-height:0!important;margin:4px 0!important;overflow-y:auto!important}
+body.touch-landscape #ranking-dialog #ranking-dialog-list li{padding:6px 8px!important}
+body.touch-landscape #ranking-dialog #ranking-dialog-refresh{padding:6px 12px!important;min-height:34px!important}
