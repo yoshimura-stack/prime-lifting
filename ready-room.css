@@ -1,0 +1,7 @@
+/* Handheld portrait guide: no forced orientation, no interference with desktop. */
+#mobile-rotate-notice[hidden]{display:none!important}
+#mobile-rotate-notice{position:fixed;inset:0;z-index:99999;background:#0c2119;color:#efffdf;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;box-sizing:border-box}
+.rotate-notice-content{border:1px solid #a5d758;border-radius:20px;padding:30px 22px;background:#163b2c;max-width:420px;width:100%;box-shadow:0 14px 60px #0008}
+.rotate-notice-content strong{font-size:clamp(20px,5vw,32px);letter-spacing:.12em;color:#d7ff6d}
+.rotate-notice-content p{font-size:clamp(17px,4vw,26px);font-weight:800;margin:22px 0 12px}
+.rotate-notice-content small{font-size:14px;opacity:.82}
