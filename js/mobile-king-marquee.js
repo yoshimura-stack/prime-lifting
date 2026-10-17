@@ -7,14 +7,13 @@
  ticker.id='mobile-king-marquee';
  ticker.className='mobile-king-marquee';
  ticker.setAttribute('aria-label','ランキングTOP3');
- const fixed=document.createElement('span');
- fixed.className='mobile-king-label';
+ // All three places scroll in the same track; no fixed champion name.
  const windowEl=document.createElement('span');
  windowEl.className='mobile-king-window';
  const track=document.createElement('span');
  track.className='mobile-king-track';
  windowEl.append(track);
- ticker.append(fixed,windowEl);
+ ticker.append(windowEl);
  document.body.append(ticker);
  const ranks=[
   ['🥇','leader-best-name','leader-best-score'],
@@ -33,7 +32,6 @@
   const value=entries.join('   ✦   ');
   if(value===previous)return;
   previous=value;
-  fixed.textContent='👑 '+plainName('leader-best-name');
   ticker.setAttribute('aria-label','ランキングTOP3 '+value);
   track.replaceChildren();
   for(let i=0;i<2;i++){const span=document.createElement('span');span.textContent=value+'   ✦   ';track.append(span)}
