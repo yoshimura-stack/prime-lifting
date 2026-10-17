@@ -8,3 +8,8 @@
 
 /* A usable 44px minimum touch target for the in-game pause control. */
 body.touch-landscape #mobile-pause{min-width:44px!important;min-height:44px!important;width:44px!important;height:44px!important;display:inline-grid!important;place-items:center!important;font-size:23px!important;line-height:1!important;touch-action:manipulation!important;cursor:pointer!important;border:1px solid #d9ff84!important;border-radius:12px!important;background:#163d2de8!important;color:#f1ffb1!important}
+3vw,26px);margin:0 0 10px}
+.restart-card p{font-size:14px;margin:0 0 18px}
+.restart-actions{display:flex;gap:10px;justify-content:center}
+.restart-actions button{padding:10px 15px;border-radius:8px;cursor:pointer;font-weight:800}
+#restart-accept{background:#e5fb8c;color:#18241a}
