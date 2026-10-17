@@ -11,19 +11,14 @@ body.touch-landscape:not(.mobile-in-game) .mobile-king-marquee{
  font:800 clamp(9px,2.2dvh,13px)/1 Arial,'Yu Gothic',sans-serif;
  pointer-events:none;user-select:none;
 }
-body.touch-landscape .mobile-king-label{
- flex:0 0 auto;max-width:43%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
- background:#eaff87;color:#112719;padding:0 7px;height:100%;
- display:flex;align-items:center;gap:4px;
-}
 body.touch-landscape .mobile-king-window{
- flex:1;min-width:0;overflow:hidden;white-space:nowrap;
+ flex:1;width:100%;min-width:0;overflow:hidden;white-space:nowrap;
 }
 body.touch-landscape .mobile-king-track{
- display:flex;gap:36px;width:max-content;align-items:center;
+ display:flex;gap:0;width:max-content;align-items:center;
  animation:mobile-podium-scroll 25s linear infinite;
 }
-body.touch-landscape .mobile-king-track>span{white-space:nowrap}
+body.touch-landscape .mobile-king-track>span{white-space:nowrap;padding-right:36px}
 @keyframes mobile-podium-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 body.touch-landscape:has(#kit-select:not([hidden])) .mobile-king-marquee,
 body.touch-landscape:has(#ranking-dialog:not([hidden])) .mobile-king-marquee,
