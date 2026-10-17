@@ -1,8 +1,11 @@
 import { chromium } from 'playwright';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 
 const url = process.env.PRODUCTION_URL || 'https://prime-lifting.yoshimura-yuki.workers.dev/';
-const expected = '2026-10-17-2';
+// Match the news version in the checked-out source instead of a stale literal.
+const sourceHtml = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+const expected = sourceHtml.match(/id="update-news-dialog"[^>]*data-news-version="([^"]+)"/)?.[1];
+if (!expected) throw new Error('Missing data-news-version in source index.html');
 const artifacts = 'smoke-artifacts';
 await mkdir(artifacts, { recursive: true });
 const browser = await chromium.launch({ headless: true });
