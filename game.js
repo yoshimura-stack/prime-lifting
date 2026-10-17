@@ -88,6 +88,22 @@ function showOverlay(label,title,copy,button){$('overlay').classList.remove('int
 function pause(value){if(!['playing','countdown'].includes(g.phase))return;paused=value;keys.clear();touch.clear();accumulator=0;if(value)showOverlay('TAKE A BREATH','一時停止','続きは、あなたのタイミングで。','再開する');else $('overlay').hidden=true;$('pause').innerHTML=value?'再開 <em>ESC</em>':'一時停止 <em>ESC</em>';}
 $('start').onclick=async()=>{if(!paused){const ready=await window.PRIME_RANKING.preflight();if(!ready)return;}stopArenaPreview();if(paused){$('tuning').hidden=true;$('tune').setAttribute('aria-expanded','false');pause(false);}else{g.reset();achievementStats={maxAirStreak:0,spinBonusHits:0,shoulderHits:0,spinKing:false,quadMaster:false,airQuad:false,doubleAir:false};jumpsSinceHit=0;window.PRIME_DAILY?.begin();window.PRIME_RANKING.resetAchievements();keys.clear();touch.clear();rankTick=0;rankEvents=[];rankDirection=0;rankStandard=standardRules();window.PRIME_RANKING.begin(rankStandard);effects=[];shoulderFlash=null;quadFlash=null;shoulderMessage=false;milestone=null;pointPopups=[];message='';messageTime=0;$('overlay').hidden=true;sound('start');}canvas.focus();};
 $('pause').onclick=()=>{pause(!paused);if(!paused)canvas.focus();};
+// Restart is intentionally explicit: a confirmation protects an active 60-second run.
+function restartRound(){
+ if(!['playing','countdown'].includes(g.phase))return;
+ pause(true);
+ $('restart-confirm').hidden=false;
+}
+$('restart-pc').onclick=restartRound;
+$('restart-mobile').onclick=restartRound;
+$('restart-cancel').onclick=()=>{$('restart-confirm').hidden=true;};
+$('restart-accept').onclick=()=>{
+ $('restart-confirm').hidden=true;
+ // A fresh run must pass the existing preflight and reset all round state.
+ paused=false;
+ $('pause').innerHTML='一時停止 <em>ESC</em>';
+ $('start').click();
+};
 $('sound').onclick=()=>{muted=!muted;$('sound').textContent=muted?'音 OFF':'音 ON';$('sound').setAttribute('aria-pressed',String(!muted));};
 function toggleDebug(){debug=!debug;$('debug').setAttribute('aria-pressed',String(debug));$('debug').innerHTML=debug?'判定 ON <em>F2</em>':'判定表示 <em>F2</em>';}
 $('debug').onclick=toggleDebug;
