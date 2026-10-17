@@ -15,6 +15,9 @@ test('mobile ticker separates rank, player name and score into semantic text nod
   replaceChildren(...nodes){this.children=[...nodes];this._text=''}
   setAttribute(name,value){this.attributes[name]=value}
   querySelector(){return null}
+  getBoundingClientRect(){return {width:360}}
+  cloneNode(){const clone=new Element(this.tag);clone.className=this.className;clone._text=this._text;clone.children=this.children.map(n=>n.cloneNode());return clone}
+  style={setProperty(){},animationDuration:''}
  }
  const names={
   'leader-best-name':'bibant','leader-best-score':'81,060 PTS',
@@ -25,7 +28,7 @@ test('mobile ticker separates rank, player name and score into semantic text nod
  const document={body,getElementById(id){return id in names?{textContent:names[id],querySelector(){return null}}:null},
   createElement(tag){return new Element(tag)}};
  class MutationObserver {observe(){}}
- vm.runInNewContext(read('js/mobile-king-marquee.js'),{document,MutationObserver});
+ vm.runInNewContext(read('js/mobile-king-marquee.js'),{document,MutationObserver,window:{addEventListener(){}}});
  const ticker=body.children[0];assert.equal(ticker.className,'mobile-king-marquee');
  assert.equal(ticker.children.length,1,'no fixed KING label');
  const sections=ticker.children[0].children[0].children;
@@ -66,13 +69,13 @@ test('medal colors and typography match between mobile and PC',()=>{
   assert.ok(js.includes(scope+'-score'),'separate score node');
   assert.ok(css.includes('.'+scope+'-name{color:#F5F7F2'),'white player names');
   assert.ok(css.includes('.'+scope+'-score{color:#FFE9A2'),'subtle cream scores');
-  if(scope==='mobile-podium')assert.match(js,/for\(let i=0;i<2;i\+\+\)/,'mobile marquee keeps two segments');
+  if(scope==='mobile-podium')assert.match(js,/for\(let i=1;i<copies;i\+\+\)/,'mobile marquee repeats enough segments');
   else assert.match(js,/for\(let i=1;i<copies;i\+\+\)/,'PC marquee repeats enough segments for its viewport');
   assert.doesNotMatch(js,/innerHTML\s*=/,'player names must only use textContent');
  }
  assert.match(pcCss,/\.pc-king-ticker\{[^\n]*background:#10241a/,'PC background dark enough for white names');
- assert.match(html,/mobile-king-marquee\.css\?v=podium-contrast-4/);
- assert.match(html,/js\/mobile-king-marquee\.js\?v=podium-contrast-4/);
+ assert.match(html,/mobile-king-marquee\.css\?v=top10-mobile-1/);
+ assert.match(html,/js\/mobile-king-marquee\.js\?v=top10-mobile-1/);
  assert.match(html,/pc-cockpit\.css\?v=top10-seamless-1/);
  assert.match(html,/js\/pc-cockpit\.js\?v=update-news-1/);
 });
