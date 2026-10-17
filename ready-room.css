@@ -5,3 +5,13 @@
 .rotate-notice-content strong{font-size:clamp(20px,5vw,32px);letter-spacing:.12em;color:#d7ff6d}
 .rotate-notice-content p{font-size:clamp(17px,4vw,26px);font-weight:800;margin:22px 0 12px}
 .rotate-notice-content small{font-size:14px;opacity:.82}
+
+/* Explicit restart confirmation stays above the gameplay and orientation overlays. */
+#restart-confirm[hidden]{display:none!important}
+#restart-confirm{position:fixed;inset:0;z-index:99998;background:#000b;display:flex;align-items:center;justify-content:center;padding:16px;color:#fff}
+.restart-card{background:#142d23;border:1px solid #b8d975;border-radius:16px;padding:22px;max-width:380px;width:100%;text-align:center;box-shadow:0 14px 45px #0008}
+.restart-card h2{font-size:clamp(18px,3vw,26px);margin:0 0 10px}
+.restart-card p{font-size:14px;margin:0 0 18px}
+.restart-actions{display:flex;gap:10px;justify-content:center}
+.restart-actions button{padding:10px 15px;border-radius:8px;cursor:pointer;font-weight:800}
+#restart-accept{background:#e5fb8c;color:#18241a}
