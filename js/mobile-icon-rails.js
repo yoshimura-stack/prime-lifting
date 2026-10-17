@@ -21,7 +21,7 @@
    const b=document.createElement('button');b.type='button';b.textContent='⚡ 高難度ボーナス詳細';b.addEventListener('click',()=>{hide();document.getElementById('bonus-guide-open')?.click()});content.append(b);
   }
   if(key==='stage'){
-   for(const [id,label] of [['stage-training','01 TRAINING LAB'],['stage-arena','02 WORLD ARENA'],['stage-preview','👁 WORLD ARENAを見学'],['next-level-open','👑 NEXT LEVEL 称号']]){
+   for(const [id,label] of [['stage-training','01 TRAINING LAB'],['stage-arena','02 WORLD ARENA'],['next-level-open','👑 NEXT LEVEL 称号']]){
     const original=document.getElementById(id);if(!original||original.hidden)continue;
     const b=document.createElement('button');b.type='button';b.textContent=original.textContent?.trim()||label;b.disabled=original.disabled;
     b.addEventListener('click',()=>{hide();original.click()});content.append(b);
