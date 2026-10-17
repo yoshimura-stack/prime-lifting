@@ -14,7 +14,7 @@
   entries.forEach(([symbol,title,selectors,clickId])=>{
    const btn=document.createElement('button');btn.type='button';btn.textContent=symbol;btn.title=title;btn.setAttribute('aria-label',title);rail.append(btn);
    btn.addEventListener('click',()=>{
-    if(clickId){document.getElementById(clickId)?.click();return}
+    if(clickId){hide(false);document.getElementById(clickId)?.click();return}
     if(!popup.hidden)hide(false);
     if(!desktop())return;
     lastButton=btn;label.textContent=title;
@@ -33,7 +33,7 @@
  const b=setup(right,'right',[
   ['⚽','得点とボーナス',['.panel-block:not(.stage-block)','.bonus-card']],
   ['🏟','ステージ',['.stage-block']],
-  ['🏆','TOP3ランキング',['.record-card']]
+  ['🏆','現在のランキング',[],'view-ranking']
  ]);
  document.addEventListener('pointerdown',e=>{for(const p of [a,b])if(!p.popup.hidden&&!p.popup.contains(e.target)&&!e.target.closest('.pc-rail'))p.hide()});
  document.addEventListener('keydown',e=>{if(e.key==='Escape')for(const p of [a,b])if(!p.popup.hidden)p.hide()});
