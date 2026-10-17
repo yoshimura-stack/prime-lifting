@@ -27,7 +27,7 @@ test('PC ticker streams the existing TOP10 without gaps or additional network re
  assert.match(css,/@keyframes prime-king-marquee\{from\{transform:translateX\(0\)\}to\{transform:translateX\(calc\(-1 \* var\(--pc-ticker-distance, 50%\)\)\)\}\}/,'scroll right to left by one segment');
  assert.doesNotMatch(css,/\.pc-ticker-king\{|\.pc-ticker-label\{/,'no pinned champion styles');
  assert.match(html,/pc-cockpit\.css\?v=top10-seamless-1/,'cache bust stylesheet');
- assert.match(html,/js\/pc-cockpit\.js\?v=top10-seamless-1/,'cache bust logic');
+ assert.match(html,/js\/pc-cockpit\.js\?v=update-news-1/,'cache bust logic');
 });
 
 test('PC trophy opens the same full-screen online leaderboard as ranking button',()=>{

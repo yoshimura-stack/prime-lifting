@@ -14,6 +14,7 @@
   entries.forEach(([symbol,title,selectors,clickId])=>{
    const btn=document.createElement('button');btn.type='button';btn.textContent=symbol;btn.title=title;btn.setAttribute('aria-label',title);rail.append(btn);
    btn.addEventListener('click',()=>{
+    if(clickId==='update-news-dialog'){hide(false);document.querySelector('[data-open-updates]')?.click();return}
     if(clickId){hide(false);document.getElementById(clickId)?.click();return}
     if(!popup.hidden)hide(false);
     if(!desktop())return;
@@ -28,7 +29,8 @@
   ['🎮','操作説明',['.controls-content-scroll > .panel-block:first-child']],
   ['🏅','称号の獲得条件',[],'title-guide-open'],
   ['☰','ゲームメニュー',[],'game-menu-open'],
-  ['🪙','PRIME COIN',[],'prime-coin-info-open']
+  ['🪙','PRIME COIN',[],'prime-coin-info-open'],
+  ['🔔','アップデート情報',[],'update-news-dialog']
  ]);
  const b=setup(right,'right',[
   ['⚽','得点とボーナス',['.panel-block:not(.stage-block)','.bonus-card']],

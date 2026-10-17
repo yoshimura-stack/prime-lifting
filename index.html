@@ -163,13 +163,14 @@ button.prime-coin-wallet:hover,button.prime-coin-wallet:focus-visible{border-col
  #daily-preview .daily-heading strong{font-size:10px}
  #daily-preview #daily-day{font-size:8px}
 }
-</style><link rel="stylesheet" href="pc-cockpit.css?v=top10-seamless-1"><link rel="stylesheet" href="mobile-icon-rails.css?v=kit-gutter-fix-4"><link rel="stylesheet" href="mobile-kit-portrait.css?v=portrait-rows-1"><link rel="stylesheet" href="mobile-king-marquee.css?v=podium-contrast-4"></head>
+</style><link rel="stylesheet" href="pc-cockpit.css?v=top10-seamless-1"><link rel="stylesheet" href="mobile-icon-rails.css?v=kit-gutter-fix-4"><link rel="stylesheet" href="mobile-kit-portrait.css?v=portrait-rows-1"><link rel="stylesheet" href="mobile-king-marquee.css?v=podium-contrast-4"><link rel="stylesheet" href="update-news.css?v=1"></head>
 <body>
 <nav id="mobile-icon-rails" class="mobile-icon-rails" aria-label="スマホ版クイックメニュー">
  <div class="mobile-icon-column" aria-label="左メニュー">
   <button type="button" data-mobile-panel="titles" aria-label="称号の獲得条件" title="称号">🏅</button>
   <button type="button" data-mobile-panel="controls" aria-label="操作ガイド" title="操作">🎮</button>
   <button type="button" data-mobile-panel="coins" aria-label="PRIME COIN" title="コイン">🪙</button>
+  <button type="button" data-open-updates aria-label="アップデート情報" title="お知らせ">🔔</button>
  </div>
  <div class="mobile-icon-column" aria-label="右メニュー">
   <button type="button" data-mobile-panel="score" aria-label="得点・ボーナス" title="得点">⚽</button>
@@ -253,6 +254,19 @@ button.prime-coin-wallet:hover,button.prime-coin-wallet:focus-visible{border-col
   <p class="prime-coin-info-note">※現在の残高はサーバーとの連携後に表示されます。ショップ開始まではコインを使用できません。コインはランキング点数には加算されません。</p>
  </div>
 </div>
+<div id="update-news-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="update-news-heading">
+ <div class="ranking-dialog-card update-news-card">
+  <div class="ranking-dialog-head"><div><p class="panel-kicker">PRIME / LIFTING LAB · NEWS</p><h2 id="update-news-heading">🔔 アップデート情報</h2></div><button type="button" id="update-news-close">✕ 閉じる</button></div>
+  <p class="update-news-intro">ゲームの改善内容と、これから追加予定の機能をお知らせします。</p>
+  <div class="update-news-list">
+   <section class="update-news-item"><span class="update-news-tag">NEW · 2026.10.17</span><h3>🏆 ランキングTOP10マーキー</h3><p>PC版ではTOP10を連続スクロール表示。金・銀・銅の順位色と白いプレイヤー名で、順位がひと目で分かります。</p></section>
+   <section class="update-news-item"><span class="update-news-tag">UPDATE</span><h3>🎮 アイコンメニュー＆画面改善</h3><p>PC・スマホのメニューをアイコン化。ゲーム画面を広く使えるようにし、ランキング・称号・ステージ情報へアクセスしやすくしました。</p></section>
+   <section class="update-news-item"><span class="update-news-tag">UPDATE</span><h3>🎯 デイリーチャレンジ</h3><p>毎日3つのチャレンジが登場。達成した項目が点灯するようになりました。</p></section>
+   <section class="update-news-item"><span class="update-news-tag soon">COMING SOON</span><h3>🪙 PRIME COIN</h3><p>ゲーム内コインを使った新しい楽しみ方を準備中！ 詳細は続報をお待ちください。</p></section>
+   <section class="update-news-item"><span class="update-news-tag soon">COMING SOON</span><h3>🎯 デイリーチャレンジ加点</h3><p>1項目クリアで100PTS、1日最大300PTS。当月分を累積し、毎月1日にリセットするランキング加点を準備中です。現在はまだ加点されません。</p></section>
+  </div>
+ </div>
+</div>
 <div id="game-menu-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="game-menu-heading"><div class="ranking-dialog-card game-menu-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">GAME MENU</p><h2 id="game-menu-heading">ゲームメニュー</h2></div><button type="button" id="game-menu-close">✕ 閉じる</button></div><div class="game-menu-actions"><button id="pause">一時停止 <em>ESC</em></button><button id="sound" aria-pressed="true">音 ON</button><button id="debug" aria-pressed="false">判定表示 <em>F2</em></button><button id="kit-change">ユニフォーム</button><button id="tune" aria-expanded="false">調整パネル</button><button type="button" id="admin-open">管理者</button></div></div></div>
  <div id="title-guide-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="title-guide-heading"><div class="ranking-dialog-card title-guide-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">TITLE COLLECTION</p><h2 id="title-guide-heading">称号リザルト・獲得条件</h2></div><button type="button" id="title-guide-close">✕ 閉じる</button></div><p class="title-guide-intro">1回のプレイで条件を達成すると称号を獲得！</p><div id="title-guide-list" class="title-guide-list"></div></div></div>
  <div id="admin-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="admin-title"><div class="ranking-dialog-card admin-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">HOST ONLY</p><h2 id="admin-title">管理者メニュー</h2></div><button type="button" id="admin-close">✕ 閉じる</button></div><form id="admin-login-form"><label>管理者ID<input id="admin-username" autocomplete="off" value="host" required></label><label>パスワード<input id="admin-password" type="password" autocomplete="off" required></label><button type="submit">管理者認証</button></form><div id="admin-actions" hidden><p>全プレイヤーのアカウント・PIN情報・最高スコアを完全に削除します。</p><button type="button" id="admin-reset" class="admin-danger">ランキングを全削除</button></div><p id="admin-status" role="status"></p></div></div>
@@ -329,4 +343,4 @@ button.prime-coin-wallet:hover,button.prime-coin-wallet:focus-visible{border-col
   toggle.textContent=expanded?'閉じる ▴':'3問 ▾';
  });
 })();
-</script><script src="js/pc-cockpit.js?v=top10-seamless-1" defer></script><script src="js/mobile-king-marquee.js?v=podium-contrast-4" defer></script></body></html>
+</script><script src="js/pc-cockpit.js?v=update-news-1" defer></script><script src="js/mobile-king-marquee.js?v=podium-contrast-4" defer></script><script src="js/update-news.js?v=1" defer></script></body></html>

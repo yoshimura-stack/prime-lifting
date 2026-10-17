@@ -74,5 +74,5 @@ test('medal colors and typography match between mobile and PC',()=>{
  assert.match(html,/mobile-king-marquee\.css\?v=podium-contrast-4/);
  assert.match(html,/js\/mobile-king-marquee\.js\?v=podium-contrast-4/);
  assert.match(html,/pc-cockpit\.css\?v=top10-seamless-1/);
- assert.match(html,/js\/pc-cockpit\.js\?v=top10-seamless-1/);
+ assert.match(html,/js\/pc-cockpit\.js\?v=update-news-1/);
 });
