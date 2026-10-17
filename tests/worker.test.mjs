@@ -108,7 +108,7 @@ test('verified scores use signed server device, update mixed-device best, and re
  assert.deepEqual([...rows.values()][1],{score:33000,device:'mobile'});
  replayScore=35000;
  const pcAgain=await play('Mozilla/5.0 (X11; Linux x86_64) Chrome/120.0','pc');
- assert.equal((await pcAgain.json()).player.best,33000);
+ assert.equal((await pcAgain.json()).player.best,35000);
  assert.equal(rows.size,3);
  replayScore=0;
  const zero=await play('Mozilla/5.0 (Linux; Android 14; Pixel 8) Chrome/120.0 Mobile','mobile');
