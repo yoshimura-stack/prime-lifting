@@ -1,4 +1,4 @@
-/* Touch landscape only. Intro and result screens show TOP3; never cover ball in play. */
+/* Touch landscape only. Intro and result screens show TOP10; never cover ball in play. */
 .mobile-king-marquee{display:none}
 body.touch-landscape:not(.mobile-in-game) .mobile-king-marquee{
  display:flex;align-items:center;position:fixed;z-index:12;
@@ -20,7 +20,7 @@ body.touch-landscape .mobile-king-track{
 }
 body.touch-landscape .mobile-king-track>span{white-space:nowrap;padding-right:36px}
 
-/* High-contrast TOP3 hierarchy: medals show rank, names remain easiest to scan. */
+/* High-contrast TOP10 hierarchy: medals show rank, names remain easiest to scan. */
 body.touch-landscape .mobile-podium-segment{display:inline-flex;align-items:center}
 body.touch-landscape .mobile-podium-entry{display:inline-flex;align-items:center;gap:5px;flex:0 0 auto}
 body.touch-landscape .mobile-podium-place{font-weight:900;white-space:nowrap}
@@ -31,7 +31,7 @@ body.touch-landscape .mobile-podium-name{color:#F5F7F2;font-weight:900;white-spa
 body.touch-landscape .mobile-podium-score{color:#FFE9A2;white-space:nowrap}
 body.touch-landscape .mobile-podium-divider{color:#93AC8B;padding:0 13px;white-space:nowrap}
 
-@keyframes mobile-podium-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes mobile-podium-scroll{from{transform:translateX(0)}to{transform:translateX(calc(-1 * var(--mobile-marquee-distance, 50%)))}}
 body.touch-landscape:has(#kit-select:not([hidden])) .mobile-king-marquee,
 body.touch-landscape:has(#ranking-dialog:not([hidden])) .mobile-king-marquee,
 body.touch-landscape:has(#title-guide-dialog:not([hidden])) .mobile-king-marquee,
@@ -51,7 +51,7 @@ body.touch-landscape:has(#game-menu-dialog:not([hidden])) .mobile-king-marquee{
 .daily-preview li.is-complete::marker{color:#d9ff6a}
 
 /* Mobile result refinement: leave a slim gap between the fixed action and
-   the TOP3 ticker. The same start button is used for Play and Replay. */
+   the TOP10 ticker. The same start button is used for Play and Replay. */
 body.touch-landscape #overlay:not([hidden]) > #start{
  bottom:calc(max(2px,env(safe-area-inset-bottom)) + clamp(19px,4.6dvh,28px) + 10px)!important;
 }
