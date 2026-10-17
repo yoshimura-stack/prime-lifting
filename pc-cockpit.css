@@ -34,7 +34,7 @@
 
  body:not(.touch-landscape) .pc-ticker-segment{display:inline-flex;align-items:center}
  body:not(.touch-landscape) .pc-ticker-entry{display:inline-flex;align-items:center;gap:5px;flex:0 0 auto}
- body:not(.touch-landscape) .pc-ticker-place{font-weight:900;white-space:nowrap}
+ body:not(.touch-landscape) .pc-ticker-place{font-weight:900;white-space:nowrap;color:#c5e1b2}
  body:not(.touch-landscape) .pc-ticker-place-1{color:#F6D44A}
  body:not(.touch-landscape) .pc-ticker-place-2{color:#D7DDE5}
  body:not(.touch-landscape) .pc-ticker-place-3{color:#C98A4A}
@@ -43,7 +43,7 @@
  body:not(.touch-landscape) .pc-ticker-divider{color:#93AC8B;padding:0 13px;white-space:nowrap}
 
  body:not(.touch-landscape) .pc-king-ticker:hover .pc-ticker-track{animation-play-state:paused}
- @keyframes prime-king-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+ @keyframes prime-king-marquee{from{transform:translateX(0)}to{transform:translateX(calc(-1 * var(--pc-ticker-distance, 50%)))}}
  @media(prefers-reduced-motion:reduce){body:not(.touch-landscape) .pc-ticker-track{animation:none}}
 }
 @media(max-width:950px){.pc-rail,.pc-panel,.pc-king-ticker{display:none!important}}

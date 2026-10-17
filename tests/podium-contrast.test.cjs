@@ -66,12 +66,13 @@ test('medal colors and typography match between mobile and PC',()=>{
   assert.ok(js.includes(scope+'-score'),'separate score node');
   assert.ok(css.includes('.'+scope+'-name{color:#F5F7F2'),'white player names');
   assert.ok(css.includes('.'+scope+'-score{color:#FFE9A2'),'subtle cream scores');
-  assert.match(js,/for\(let i=0;i<2;i\+\+\)/,'marquee remains duplicated');
+  if(scope==='mobile-podium')assert.match(js,/for\(let i=0;i<2;i\+\+\)/,'mobile marquee keeps two segments');
+  else assert.match(js,/for\(let i=1;i<copies;i\+\+\)/,'PC marquee repeats enough segments for its viewport');
   assert.doesNotMatch(js,/innerHTML\s*=/,'player names must only use textContent');
  }
  assert.match(pcCss,/\.pc-king-ticker\{[^\n]*background:#10241a/,'PC background dark enough for white names');
  assert.match(html,/mobile-king-marquee\.css\?v=podium-contrast-4/);
  assert.match(html,/js\/mobile-king-marquee\.js\?v=podium-contrast-4/);
- assert.match(html,/pc-cockpit\.css\?v=podium-contrast-3/);
- assert.match(html,/js\/pc-cockpit\.js\?v=podium-contrast-3/);
+ assert.match(html,/pc-cockpit\.css\?v=top10-seamless-1/);
+ assert.match(html,/js\/pc-cockpit\.js\?v=top10-seamless-1/);
 });
