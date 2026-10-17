@@ -57,4 +57,4 @@
  };
  refresh();
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
-})();
+})(globalThis);
