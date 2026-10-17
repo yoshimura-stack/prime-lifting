@@ -10,8 +10,8 @@
  function seen(){try{return localStorage.getItem(key)===version}catch{return false}}
  function markSeen(){try{localStorage.setItem(key,version)}catch{};refresh()}
  function refresh(){triggers().forEach(b=>b.classList.toggle('news-unread',!seen()))}
- function hide(){if(dialog.hidden)return;dialog.hidden=true;markSeen();opener?.focus?.();opener=null}
- function show(trigger){opener=trigger||null;dialog.hidden=false;close.focus()}
+ function hide(){if(dialog.hidden)return;dialog.hidden=true;opener?.focus?.();opener=null}
+ function show(trigger){opener=trigger||null;if(trigger)markSeen();dialog.hidden=false;close.focus()}
  document.addEventListener('click',e=>{
   const trigger=e.target.closest('[data-open-updates]');
   if(trigger){show(trigger);return}
