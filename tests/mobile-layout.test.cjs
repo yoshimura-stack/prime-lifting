@@ -18,6 +18,11 @@ assert.equal(check(true,false,false,5),true,'touchpoints fallback works');
 for(const event of ['orientationchange','resize','pageshow'])assert.ok(game.includes("'"+event+"'"),event+' layout reconciliation');
 assert.match(css,/main\.game-app>\.side-panel/,'desktop sidebars hidden in touch layout');
 assert.match(css,/mobile-icon-rails>\.mobile-icon-column/,'mobile icon columns use explicit vertical flow');
+const buildSource=fs.readFileSync(path.join(root,'scripts/build.mjs'),'utf8');
+for(const asset of ['pc-cockpit.css','mobile-icon-rails.css','mobile-kit-portrait.css']){
+ assert.ok(buildSource.includes("'"+asset+"'"),asset+' must be deployed with Worker assets');
+}
+assert.match(buildSource,/await access\(new URL\(asset,target\)\)/,'build must verify linked CSS exists in public');
 const kitCss=fs.readFileSync(path.join(root,'mobile-kit-portrait.css'),'utf8');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert.match(kitCss,/@media\s*\(max-width:760px\)\s*and\s*\(orientation:portrait\)/,'portrait-only selector');
