@@ -27,10 +27,21 @@
  body:not(.touch-landscape) #achievement-board{left:clamp(8px,1vw,18px)}
  body:not(.touch-landscape) #daily-preview{right:clamp(8px,1vw,18px)}
  body:not(.touch-landscape) .field-bottom{bottom:30px}
- body:not(.touch-landscape) .pc-king-ticker{position:absolute;z-index:7;left:0;right:0;bottom:0;height:30px;display:flex;align-items:center;overflow:hidden;background:#dfff65;color:#122018;font:800 12px Arial,sans-serif;cursor:pointer;border:0;border-radius:0;padding:0}
+ body:not(.touch-landscape) .pc-king-ticker{position:absolute;z-index:7;left:0;right:0;bottom:0;height:30px;display:flex;align-items:center;overflow:hidden;background:#10241a;color:#f5f7f2;font:800 12px Arial,sans-serif;cursor:pointer;border:0;border-top:1px solid #779e55;border-radius:0;padding:0}
  body:not(.touch-landscape) .pc-ticker-window{flex:1;width:100%;min-width:0;overflow:hidden;white-space:nowrap}
  body:not(.touch-landscape) .pc-ticker-track{display:flex;width:max-content;gap:0;animation:prime-king-marquee 28s linear infinite;will-change:transform}
  body:not(.touch-landscape) .pc-ticker-track>span{white-space:nowrap;padding-right:48px}
+
+ body:not(.touch-landscape) .pc-ticker-segment{display:inline-flex;align-items:center}
+ body:not(.touch-landscape) .pc-ticker-entry{display:inline-flex;align-items:center;gap:5px;flex:0 0 auto}
+ body:not(.touch-landscape) .pc-ticker-place{font-weight:900;white-space:nowrap}
+ body:not(.touch-landscape) .pc-ticker-place-1{color:#F6D44A}
+ body:not(.touch-landscape) .pc-ticker-place-2{color:#D7DDE5}
+ body:not(.touch-landscape) .pc-ticker-place-3{color:#C98A4A}
+ body:not(.touch-landscape) .pc-ticker-name{color:#F5F7F2;font-weight:900;white-space:nowrap}
+ body:not(.touch-landscape) .pc-ticker-score{color:#FFE9A2;white-space:nowrap}
+ body:not(.touch-landscape) .pc-ticker-divider{color:#93AC8B;padding:0 13px;white-space:nowrap}
+
  body:not(.touch-landscape) .pc-king-ticker:hover .pc-ticker-track{animation-play-state:paused}
  @keyframes prime-king-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
  @media(prefers-reduced-motion:reduce){body:not(.touch-landscape) .pc-ticker-track{animation:none}}

@@ -20,8 +20,8 @@ test('PC ticker is full-width with all three places scrolling and no pinned cham
  assert.match(css,/\.pc-ticker-track>span\{white-space:nowrap;padding-right:48px\}/,'repeat interval stays seamless');
  assert.match(css,/@keyframes prime-king-marquee\{from\{transform:translateX\(0\)\}to\{transform:translateX\(-50%\)\}\}/,'scroll right to left');
  assert.doesNotMatch(css,/\.pc-ticker-king\{|\.pc-ticker-label\{/,'remove old pinned styles');
- assert.match(html,/pc-cockpit\.css\?v=wide-field-ticker-2/,'load new stylesheet');
- assert.match(html,/js\/pc-cockpit\.js\?v=fullwidth-ticker-1/,'load updated ticker logic');
+ assert.match(html,/pc-cockpit\.css\?v=podium-contrast-3/,'load new stylesheet');
+ assert.match(html,/js\/pc-cockpit\.js\?v=podium-contrast-3/,'load updated ticker logic');
 });
 
 test('PC trophy opens the same full-screen online leaderboard as ranking button',()=>{
