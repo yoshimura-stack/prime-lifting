@@ -44,7 +44,40 @@
  const windowEl=document.createElement('span');windowEl.className='pc-ticker-window';const track=document.createElement('span');track.className='pc-ticker-track';windowEl.append(track);ticker.append(windowEl);shell.append(ticker);
  ticker.addEventListener('click',()=>document.getElementById('view-ranking')?.click());
  const ranks=[['👑','leader-best-name','leader-best-score'],['🥈','leader-second-name','leader-second-score'],['🥉','leader-third-name','leader-third-score']];
+ function colored(value,className){
+  const span=document.createElement('span');
+  span.className=className;
+  span.textContent=value;
+  return span;
+ }
+ function plainName(id){
+  const el=document.getElementById(id);
+  return el?.querySelector('.rank-player-name > span:first-child')?.textContent?.trim()
+   ||el?.textContent?.trim()||'未登録';
+ }
  let old='';
- function update(){const str=ranks.map(([medal,name,score],i)=>medal+' '+(i+1)+'位 '+(document.getElementById(name)?.textContent?.trim()||'未登録')+'  '+(document.getElementById(score)?.textContent?.trim()||'--- PTS')).join('　 ✦　 ');if(str===old)return;old=str;track.replaceChildren();for(let i=0;i<2;i++){const span=document.createElement('span');span.textContent=str+'　 ✦　 ';track.append(span)}}
+ function update(){
+  const entries=ranks.map(([medal,name,scoreId],i)=>({
+   medal,place:i+1,name:plainName(name),points:document.getElementById(scoreId)?.textContent?.trim()||'--- PTS'
+  }));
+  const str=entries.map(e=>e.medal+' '+e.place+'位 '+e.name+' '+e.points).join(' ✦ ');
+  if(str===old)return;
+  old=str;
+  ticker.setAttribute('aria-label','ランキングTOP3 '+str);
+  track.replaceChildren();
+  for(let i=0;i<2;i++){
+   const section=colored('','pc-ticker-segment');
+   for(const e of entries){
+    const item=colored('','pc-ticker-entry');
+    item.append(
+     colored(e.medal+' '+e.place+'位','pc-ticker-place pc-ticker-place-'+e.place),
+     colored(e.name,'pc-ticker-name'),
+     colored(e.points,'pc-ticker-score')
+    );
+    section.append(item,colored('✦','pc-ticker-divider'));
+   }
+   track.append(section);
+  }
+ }
  update();const observer=new MutationObserver(update);for(const [,name,score] of ranks){for(const id of [name,score]){const el=document.getElementById(id);if(el)observer.observe(el,{childList:true,characterData:true,subtree:true})}}
 })();
