@@ -27,7 +27,21 @@ class PrimeTouchController {
   const knob=stick.querySelector('.touch-stick-knob'),knobRadius=knob.getBoundingClientRect().width/2;
   const maxOffset=Math.max(1,radius-knobRadius-4),x=e.clientX-(rect.left+rect.width/2),y=e.clientY-(rect.top+rect.height/2);
   const distance=Math.hypot(x,y),scale=distance>maxOffset?maxOffset/distance:1;
-  this.stickDirections.set(e.pointerId,Math.abs(x)>radius*0.22?(x<0?'left':'right'):null);
+  // A larger dead zone plus reversal hysteresis prevents a tiny finger drift
+  // across the centre from commanding the opposite movement. Only touch-stick
+  // interpretation changes; player acceleration/speed and other buttons do not.
+  const previous=this.stickDirections.get(e.pointerId)||null;
+  const activate=radius*0.32,release=radius*0.16,reverse=radius*0.58;
+  let direction=null;
+  if(previous==='right'){
+   if(x<=-reverse)direction='left';
+   else if(x>=-release)direction='right';
+  }else if(previous==='left'){
+   if(x>=reverse)direction='right';
+   else if(x<=release)direction='left';
+  }else if(x>=activate)direction='right';
+  else if(x<=-activate)direction='left';
+  this.stickDirections.set(e.pointerId,direction);
   knob.style.transform=`translate(calc(-50% + ${x*scale}px), calc(-50% + ${y*scale}px))`;
  }
  held(name){

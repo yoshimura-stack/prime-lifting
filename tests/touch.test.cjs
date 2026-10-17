@@ -25,9 +25,15 @@ test('virtual stick has a dead zone, switches direction while captured, and clea
  listeners.pointerdown(event(7,160,160));
  assert.equal(c.held('left'),false);assert.equal(c.held('right'),false);
  listeners.pointermove(event(7,180,160));assert.equal(c.held('right'),true);assert.equal(c.held('left'),false);
- listeners.pointermove(event(7,140,160));assert.equal(c.held('left'),true);assert.equal(c.held('right'),false);
+ // A slight drift across the centre must not reverse right into left.
+ listeners.pointermove(event(7,155,160));assert.equal(c.held('right'),true);assert.equal(c.held('left'),false);
+ listeners.pointermove(event(7,145,160));assert.equal(c.held('right'),false);assert.equal(c.held('left'),false);
+ listeners.pointermove(event(7,124,160));assert.equal(c.held('left'),true);assert.equal(c.held('right'),false);
  assert.match(knob.style.transform,/calc\(-50% \+ -/);
- listeners.pointermove(event(7,161,160));assert.equal(c.held('left'),false);assert.equal(c.held('right'),false);
+ listeners.pointermove(event(7,165,160));assert.equal(c.held('left'),true,'small right-side drift does not reverse');
+ listeners.pointermove(event(7,171,160));assert.equal(c.held('left'),false);assert.equal(c.held('right'),false);
+ listeners.pointermove(event(7,196,160));assert.equal(c.held('right'),true,'deliberate movement switches back to right');
+ listeners.pointermove(event(7,160,160));assert.equal(c.held('left'),false);assert.equal(c.held('right'),true,'minor centre drift keeps prior direction');
  listeners.pointermove(event(7,210,160));assert.ok(knob.style.transform.includes('34px'));
  listeners.pointercancel(event(7,210,210));assert.equal(c.pointers.size,0);assert.equal(c.held('left'),false);assert.equal(c.held('right'),false);
  assert.equal(knob.style.transform,'translate(-50%, -50%)');assert.equal(classes.has('is-left'),false);assert.equal(classes.has('is-right'),false);
