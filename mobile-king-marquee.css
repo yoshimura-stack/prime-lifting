@@ -51,6 +51,14 @@ body.touch-landscape #overlay:not([hidden]) > #start{
 body.touch-landscape #overlay:not([hidden]){
  padding-bottom:calc(max(2px,env(safe-area-inset-bottom)) + clamp(19px,4.6dvh,28px) + 64px)!important;
 }
+/* Older mobile-result.css has a higher-specificity #result-ranking rule.
+   Override it explicitly or Replay stays pinned under the ticker. */
+body.touch-landscape #overlay:has(#result-ranking:not([hidden])) > #start{
+ bottom:calc(max(2px,env(safe-area-inset-bottom)) + clamp(19px,4.6dvh,28px) + 10px)!important;
+}
+body.touch-landscape #overlay:has(#result-ranking:not([hidden])){
+ padding-bottom:calc(max(2px,env(safe-area-inset-bottom)) + clamp(19px,4.6dvh,28px) + 64px)!important;
+}
 /* The full leaderboard remains available via the prominent overall-ranking
    button and trophy icon. Eliminate the redundant TOP10 and refresh button
    from the phone's end-of-run result; leave the underlying ranking DOM intact. */
