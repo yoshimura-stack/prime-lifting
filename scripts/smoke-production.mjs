@@ -9,7 +9,7 @@ const browser = await chromium.launch({ headless: true });
 const errors = [];
 let page;
 try {
-  const context = await browser.newContext({ viewport: { width: 1366, height: 768 } });
+  const context = await browser.newContext({ viewport: { width: 844, height: 390 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
   page = await context.newPage();
   page.on('pageerror', error => errors.push(error.message));
   let ready = false;
@@ -32,10 +32,12 @@ try {
   if (!(await bell.evaluate(el => el.classList.contains('news-unread')))) throw new Error('Unread badge missing');
   await page.locator('#update-news-close').click();
   await dialog.waitFor({ state: 'hidden' });
-  if (await bell.evaluate(el => el.classList.contains('news-unread'))) throw new Error('Unread badge did not clear');
+  if (!(await bell.evaluate(el => el.classList.contains('news-unread')))) throw new Error('Auto-popup close must preserve unread badge until manual bell open');
   await page.reload({ waitUntil: 'load' });
-  if (await dialog.isVisible()) throw new Error('Popup reopened after being acknowledged');
-  await page.locator('[data-open-updates]').first().click();
+  await dialog.waitFor({ state: 'visible' });
+  await page.locator('#update-news-close').click();
+  await dialog.waitFor({ state: 'hidden' });
+  await page.locator('[data-open-updates]:visible').first().click();
   await dialog.waitFor({ state: 'visible' });
   if (errors.length) throw new Error('Browser errors: ' + errors.join(' | '));
   console.log('PASS: production HTML, unread badge, popup, acknowledgement, reload and bell reopening');
