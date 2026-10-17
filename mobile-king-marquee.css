@@ -24,7 +24,7 @@ body.touch-landscape .mobile-king-track{
  animation:mobile-podium-scroll 25s linear infinite;
 }
 body.touch-landscape .mobile-king-track>span{white-space:nowrap}
-@keyframes mobile-podium-scroll{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+@keyframes mobile-podium-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 body.touch-landscape:has(#kit-select:not([hidden])) .mobile-king-marquee,
 body.touch-landscape:has(#ranking-dialog:not([hidden])) .mobile-king-marquee,
 body.touch-landscape:has(#title-guide-dialog:not([hidden])) .mobile-king-marquee,
@@ -42,3 +42,18 @@ body.touch-landscape:has(#game-menu-dialog:not([hidden])) .mobile-king-marquee{
  text-shadow:0 0 8px #a8ec64;
 }
 .daily-preview li.is-complete::marker{color:#d9ff6a}
+
+/* Mobile result refinement: leave a slim gap between the fixed action and
+   the TOP3 ticker. The same start button is used for Play and Replay. */
+body.touch-landscape #overlay:not([hidden]) > #start{
+ bottom:calc(max(2px,env(safe-area-inset-bottom)) + clamp(19px,4.6dvh,28px) + 10px)!important;
+}
+body.touch-landscape #overlay:not([hidden]){
+ padding-bottom:calc(max(2px,env(safe-area-inset-bottom)) + clamp(19px,4.6dvh,28px) + 64px)!important;
+}
+/* The full leaderboard remains available via the prominent overall-ranking
+   button and trophy icon. Eliminate the redundant TOP10 and refresh button
+   from the phone's end-of-run result; leave the underlying ranking DOM intact. */
+body.touch-landscape #overlay:has(#result-ranking:not([hidden])) #result-top{
+ display:none!important;
+}
