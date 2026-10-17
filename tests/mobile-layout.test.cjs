@@ -36,5 +36,5 @@ assert.match(kitCss,/grid-auto-rows:minmax\(120px,auto\)!important/,'portrait ca
 assert.match(kitCss,/overflow-y:auto!important/,'the portrait kit list remains scrollable');
 assert.match(kitCss,/\.kit-select \.kit-actions\s*\{/,'portrait confirmation button remains outside list scroll');
 assert.match(html,/mobile-kit-portrait\.css\?v=portrait-rows-1/,'portrait CSS loaded');
-assert.match(html,/mobile-icon-rails\.css\?v=kit-gutter-fix-4/,'mobile edge-aligned rails stylesheet is fresh');
+assert.match(html,/mobile-icon-rails\.css\?v=sidebar-controls-1/,'mobile edge-aligned rails stylesheet is fresh');
 console.log('Mobile orientation layout checks passed');
