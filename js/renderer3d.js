@@ -97,7 +97,29 @@ class PrimeRenderer{
  }
  makePlayer(){return root.PRIME_PLAYER_MODEL.call(this);}
  setKit(selected){if(!selected)return;const m=this.player.kitMaterials,T=this.T;const tex=this.texture(256,512,(x,w,h)=>{x.fillStyle=selected.primary;x.fillRect(0,0,w,h);if(selected.pattern==='stripe'){x.fillStyle=selected.secondary;for(let i=0;i<5;i++)x.fillRect(i*w/5,0,w/10,h);}else if(selected.pattern==='band'){x.fillStyle=selected.secondary;x.fillRect(w*.38,0,w*.24,h);}for(let y=0;y<h;y+=4){x.fillStyle='rgba(255,255,255,.025)';x.fillRect(0,y,w,1);}x.fillStyle=selected.accent;x.fillRect(0,145,w,20);});if(m.bodyMat.map)m.bodyMat.map.dispose();m.bodyMat.map=tex;m.bodyMat.needsUpdate=true;m.kit.color.set(selected.primary);m.dark.color.set(selected.secondary);m.teal.color.set(selected.accent);}
- render(g){const c=this.c,p=g.player,a=g.action,active=g.actionTime>0,model=this.player;const t=g.elapsed,spinning=p.spin>0;const angle=spinning?(1-p.spin/c.SPIN_DURATION)*Math.PI*2:0;model.group.position.set(p.x-500,(c.WORLD_HEIGHT-p.y-310)/this.cos+310,0);model.group.rotation.y=angle;
+ syncViewport(){
+   const canvas=this.renderer.domElement;
+   const shell=canvas.closest('.game-shell');
+   const stage=shell?.closest('.center-stage');
+   const desktop=window.matchMedia('(min-width:951px) and (pointer:fine)').matches
+     &&!document.body.classList.contains('touch-landscape');
+   // Reveal more of the existing 3D world on either side on wide PC screens.
+   // Player/ball dimensions and the 1000x620 gameplay coordinates stay fixed.
+   const expanded=Boolean(desktop&&stage?.clientHeight&&
+     stage.clientWidth>stage.clientHeight*(1000/620)+8);
+   shell?.classList.toggle('pc-wide-scene',expanded);
+   const ratio=expanded&&canvas.clientHeight>0?canvas.clientWidth/canvas.clientHeight:1000/620;
+   const width=expanded?Math.max(1000,Math.round(620*ratio)):1000;
+   if(this._viewWidth===width)return;
+   this._viewWidth=width;
+   this.renderer.setSize(width,620,false);
+   this.camera.left=-width/2;
+   this.camera.right=width/2;
+   this.camera.top=310;
+   this.camera.bottom=-310;
+   this.camera.updateProjectionMatrix();
+  }
+ render(g){this.syncViewport();const c=this.c,p=g.player,a=g.action,active=g.actionTime>0,model=this.player;const t=g.elapsed,spinning=p.spin>0;const angle=spinning?(1-p.spin/c.SPIN_DURATION)*Math.PI*2:0;model.group.position.set(p.x-500,(c.WORLD_HEIGHT-p.y-310)/this.cos+310,0);model.group.rotation.y=angle;
   // A hit is posed at contact immediately, then returns to rest; no delayed kick.
   const pose=active?Math.sin(Math.min(1,g.actionTime/c.ACTION_DURATION)*Math.PI/2):0;const stride=Math.sin(t*15)*Math.min(1,Math.abs(p.vx)/c.PLAYER_SPEED);const inAir=p.y<c.GROUND_Y-.5;const hitSign=g.actionSide==='RIGHT'?-1:1;
   const ka=c.KNEE_ANIMATION,kneeActive=active&&a==='KNEE';
