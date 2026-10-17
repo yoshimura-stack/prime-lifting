@@ -57,7 +57,7 @@
   // The name is in the first span; device/title badges must not enter the ticker.
   return Array.from(rankRows?.children||[]).slice(0,10).map((row,i)=>{
    const label=row.querySelector('.rank-player-name > span:first-child')?.textContent?.trim()||'';
-   const name=label.replace(/^\\d+\\.\\s*/,'').trim()||'未登録';
+   const name=label.replace(/^\d+\.\s*/,'').trim()||'未登録';
    const points=row.querySelector(':scope > strong')?.textContent?.trim()||'--- PTS';
    return {medal:['👑','🥈','🥉'][i]||'',place:i+1,name,points};
   });
