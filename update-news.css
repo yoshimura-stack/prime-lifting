@@ -8,3 +8,7 @@
 .update-news-tag.soon{background:#e1d4aa}
 .update-news-card .update-news-intro{font-size:14px;line-height:1.6;color:#dce9dd}
 body.touch-landscape .update-news-card{max-height:calc(100dvh - 18px);width:min(650px,82vw)}
+
+/* Unread badge on both desktop and mobile notification buttons. */
+[data-open-updates].news-unread{position:relative;overflow:visible}
+[data-open-updates].news-unread::after{content:'';position:absolute;right:1px;top:1px;width:11px;height:11px;background:#f4434b;border:2px solid white;border-radius:50%;pointer-events:none;box-sizing:content-box}
