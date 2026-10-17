@@ -64,6 +64,23 @@ window.addEventListener('resize',refreshMobile);
 window.visualViewport?.addEventListener('resize',refreshMobile);
 window.addEventListener('pageshow',refreshMobile);
 window.addEventListener('orientationchange',()=>{syncMobile();requestAnimationFrame(refreshMobile);setTimeout(refreshMobile,180);});
+// Inform the player when a handheld device is portrait; never force rotation.
+const portraitQuery=matchMedia('(orientation:portrait)');
+const rotateNotice=$('mobile-rotate-notice');
+function updateRotateNotice(){const handheld=!fineQuery.matches&&(touchQuery.matches||navigator.maxTouchPoints>0||'ontouchstart' in window);const portrait=handheld&&portraitQuery.matches;rotateNotice.hidden=!portrait;if(portrait)pause(true);}
+portraitQuery.addEventListener('change',updateRotateNotice);
+window.addEventListener('resize',updateRotateNotice);
+window.addEventListener('pageshow',updateRotateNotice);
+updateRotateNotice();
+// Login enters a non-timed preparation state. Starting remains an explicit action.
+window.addEventListener('prime:account-state',event=>{
+ if(event.detail?.loggedIn && g.phase==='ready' && !$('overlay').hidden){
+  $('overlay-label').textContent='TRAINING LAB';
+  $('overlay-title').textContent='プレイ準備完了';
+  $('overlay-copy').textContent='称号・得点・操作方法を確認してから始めましょう。';
+  $('start').innerHTML='▶ プレイ開始 <span>↗</span>';
+ }
+});
 syncMobile();
 $('mobile-pause').onclick=()=>pause(true);
 function sound(type){if(muted)return;try{audioContext??=new (window.AudioContext||window.webkitAudioContext)();if(audioContext.state==='suspended')audioContext.resume();const t=audioContext.currentTime,osc=audioContext.createOscillator(),gain=audioContext.createGain();const tone={hit:270,CHEST:120,HEADER:370,JUMP_HEADER:480,SHOULDER:610,spin:650,miss:110,drop:80,start:740,end:220}[type]||270;osc.type=type==='spin'?'sine':'triangle';osc.frequency.setValueAtTime(tone,t);osc.frequency.exponentialRampToValueAtTime(Math.max(40,tone*(type==='start'?1.5:0.45)),t+0.13);gain.gain.setValueAtTime(0.065,t);gain.gain.exponentialRampToValueAtTime(0.001,t+0.17);osc.connect(gain);gain.connect(audioContext.destination);osc.start(t);osc.stop(t+0.18);}catch{}}
@@ -75,7 +92,10 @@ $('sound').onclick=()=>{muted=!muted;$('sound').textContent=muted?'音 OFF':'音
 function toggleDebug(){debug=!debug;$('debug').setAttribute('aria-pressed',String(debug));$('debug').innerHTML=debug?'判定 ON <em>F2</em>':'判定表示 <em>F2</em>';}
 $('debug').onclick=toggleDebug;
 window.addEventListener('keydown',e=>{if(e.code==='F2'){e.preventDefault();if(!e.repeat)toggleDebug();return;}if(e.code==='Escape'){if(!e.repeat)pause(!paused);return;}if(e.target.matches('input,button'))return;if(['KeyA','KeyD','Space'].includes(e.code)){e.preventDefault();if(!paused){keys.add(e.code);if(e.code==='Space'&&!e.repeat)rankedInput('jump');}}});
-window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',()=>{keys.clear();touch.clear();pause(true);});document.addEventListener('visibilitychange',()=>{if(document.hidden)pause(true);});
+window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',()=>{keys.clear();touch.clear();pause(true);});
+// Opening an information dialog must never consume the player's 60-second run.
+document.addEventListener('click',e=>{if(e.target.closest('[aria-haspopup="dialog"], [data-open-updates], #bonus-guide-open, #daily-help-open'))pause(true);},true);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)pause(true);});
 // Keep native selection in login inputs, but disable it on the live game surface.
 for(const eventName of ['selectstart','dragstart','contextmenu']){
  document.addEventListener(eventName,e=>{
