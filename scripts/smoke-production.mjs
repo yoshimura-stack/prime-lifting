@@ -32,11 +32,9 @@ try {
   if (!(await bell.evaluate(el => el.classList.contains('news-unread')))) throw new Error('Unread badge missing');
   await page.locator('#update-news-close').click();
   await dialog.waitFor({ state: 'hidden' });
-  if (!(await bell.evaluate(el => el.classList.contains('news-unread')))) throw new Error('Auto-popup close must preserve unread badge until manual bell open');
+  if (await bell.evaluate(el => el.classList.contains('news-unread'))) throw new Error('Unread badge did not clear');
   await page.reload({ waitUntil: 'load' });
-  await dialog.waitFor({ state: 'visible' });
-  await page.locator('#update-news-close').click();
-  await dialog.waitFor({ state: 'hidden' });
+  if (await dialog.isVisible()) throw new Error('Popup reopened after being acknowledged');
   await page.locator('[data-open-updates]:visible').first().click();
   await dialog.waitFor({ state: 'visible' });
   if (errors.length) throw new Error('Browser errors: ' + errors.join(' | '));
