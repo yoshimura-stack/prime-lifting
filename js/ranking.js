@@ -226,13 +226,19 @@ async function updateRankDialog(){
     const hasBasic=Number.isSafeInteger(e.playScore)&&Number.isSafeInteger(e.dailyBonus)&&e.playScore>=0&&e.dailyBonus>=0&&e.playScore+e.dailyBonus===e.score;
     const hasSplit=hasBasic&&Number.isSafeInteger(e.baseScore)&&Number.isSafeInteger(e.mobileBonus)&&e.baseScore>=0&&e.mobileBonus>=0&&e.baseScore+e.mobileBonus===e.playScore;
     const head=document.createElement('span');head.className='rank-entry-head';head.append(name,total);li.append(head);
-    if(hasBasic){
+    {
+     // Keep TOP3 layout visible before the daily-awards API rollout.
+     // Current leaderboard score is the verified saved play best; daily credits are not live yet.
      li.classList.add('rank-has-breakdown');
      const parts=document.createElement('span');parts.className='rank-bonus-parts';
      const part=(symbol,value,description)=>{const el=document.createElement('small');el.className='rank-bonus-part';const display=value===0?'—':value.toLocaleString();el.textContent=symbol+' '+display;el.title=description;el.setAttribute('aria-label',description+' '+(value===0?'加点なし':value.toLocaleString()+'ポイント'));parts.append(el);};
      if(hasSplit){part('Ⓟ',e.baseScore,'通常プレイスコア');part('📱',e.mobileBonus,'スマホ補正');}
-     else {part('Ⓟ',e.playScore,'プレイスコア（補正込み）');if(e.device==='pc')part('📱',0,'スマホ補正');}
-     part('Ⓓ',e.dailyBonus,'当月デイリー加点');li.append(parts);
+     else {
+      part('Ⓟ',hasBasic?e.playScore:e.score,'保存済みプレイスコア（スマホ補正込みの場合あり）');
+      if(e.device==='pc')part('📱',0,'スマホ補正');
+      else if(e.device==='mobile'){const unknown=document.createElement('small');unknown.className='rank-bonus-part';unknown.textContent='📱 ?';unknown.title='過去のスマホ補正額は保存されていないため不明';parts.append(unknown);}
+     }
+     part('Ⓓ',hasBasic?e.dailyBonus:0,'当月デイリー加点（現在は未提供）');li.append(parts);
      if(e.rank>3){
       li.classList.add('rank-breakdown-collapsed');head.setAttribute('role','button');head.tabIndex=0;head.setAttribute('aria-expanded','false');
       const toggle=()=>{const open=li.classList.toggle('rank-breakdown-expanded');li.classList.toggle('rank-breakdown-collapsed',!open);head.setAttribute('aria-expanded',String(open));};
