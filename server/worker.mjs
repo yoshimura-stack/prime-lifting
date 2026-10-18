@@ -15,7 +15,7 @@ async function verify(token,secret,kind,now){
  return value;}catch{throw new ApiError(401,'ログインし直してください。');}
 }
 const json=(body,status=200,headers={})=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...headers}});
-function publicPlayer(p){if(!p||typeof p.id!=='string'||typeof p.name!=='string'||!Number.isSafeInteger(p.best)||p.best<0||!(p.rank===null||Number.isSafeInteger(p.rank)&&p.rank>0))throw new ApiError(503,'ランキングの応答を確認中です。');return {id:p.id,name:p.name,best:p.best,rank:p.rank,kit:typeof p.kit==='string'?p.kit:null,lastPlayed:typeof p.lastPlayed==='string'?p.lastPlayed:null,bestDevice:p.bestDevice==='mobile'||p.bestDevice==='pc'?p.bestDevice:null};}
+function publicPlayer(p){if(!p||typeof p.id!=='string'||typeof p.name!=='string'||!Number.isSafeInteger(p.best)||p.best<0||!(p.rank===null||Number.isSafeInteger(p.rank)&&p.rank>0))throw new ApiError(503,'ランキングの応答を確認中です。');return {id:p.id,name:p.name,best:p.best,rank:p.rank,kit:typeof p.kit==='string'?p.kit:null,lastPlayed:typeof p.lastPlayed==='string'?p.lastPlayed:null,bestDevice:p.bestDevice==='mobile'||p.bestDevice==='pc'?p.bestDevice:null,dailyBonus:Number.isSafeInteger(p.dailyBonus)&&p.dailyBonus>=0?p.dailyBonus:null};}
 function requestDevice(request){return /Android|iPhone|iPad|iPod|Mobile|Windows Phone/i.test(request.headers.get('user-agent')||'')?'mobile':'pc';}
 export function finalScore(score,device){return Math.round(score*(device==='mobile'?1.1:1));}
 async function readBody(request){
@@ -94,7 +94,7 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
     const mask=masks[v.id],valid=Number.isInteger(mask)&&mask>=0&&mask<=255;
     const count=valid?mask.toString(2).replace(/0/g,'').length:0;
     const breakdown=scoreBreakdowns[v.id];const validBreakdown=breakdown&&Number.isSafeInteger(breakdown.baseScore)&&Number.isSafeInteger(breakdown.mobileBonus)&&breakdown.baseScore>=0&&breakdown.mobileBonus>=0&&breakdown.baseScore+breakdown.mobileBonus===v.best;
-    return {name:v.name,score:v.best,rank:v.rank,device:v.bestDevice,...(validBreakdown?{playScore:v.best,baseScore:breakdown.baseScore,mobileBonus:breakdown.mobileBonus,}:{}),achievementCount:count,baseTitleMask:valid?mask:0,master:valid&&mask===255,nextTitleMask:Number.isInteger(nextMasks[v.id])&&nextMasks[v.id]>=0&&nextMasks[v.id]<=255?nextMasks[v.id]:0,nextAchievementCount:Number.isInteger(nextMasks[v.id])&&nextMasks[v.id]>=0&&nextMasks[v.id]<=255?nextMasks[v.id].toString(2).replace(/0/g,'').length:0,liftingGod:nextMasks[v.id]===255&&mask===255};
+    return {name:v.name,score:v.best+(v.dailyBonus??0),rank:v.rank,device:v.bestDevice,...(v.dailyBonus!==null?{playScore:v.best,dailyBonus:v.dailyBonus}:{}),...(validBreakdown?{baseScore:breakdown.baseScore,mobileBonus:breakdown.mobileBonus}:{}),achievementCount:count,baseTitleMask:valid?mask:0,master:valid&&mask===255,nextTitleMask:Number.isInteger(nextMasks[v.id])&&nextMasks[v.id]>=0&&nextMasks[v.id]<=255?nextMasks[v.id]:0,nextAchievementCount:Number.isInteger(nextMasks[v.id])&&nextMasks[v.id]>=0&&nextMasks[v.id]<=255?nextMasks[v.id].toString(2).replace(/0/g,'').length:0,liftingGod:nextMasks[v.id]===255&&mask===255};
    });
    return json(path==='/api/champion'?{champion:entries[0]||null}:{entries});
   }
