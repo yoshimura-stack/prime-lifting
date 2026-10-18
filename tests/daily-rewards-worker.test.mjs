@@ -172,3 +172,37 @@ test('daily award outage returns retryable 503 and replay retry credits only onc
  assert.equal(player.best,5000);
  assert.equal(submitCalls,3,'replay submission retries are idempotent at the database layer');
 });
+
+test('canary daily rewards are limited to the exact configured account while global rewards are off',async()=>{
+ let now=Date.parse('2026-10-18T03:00:00Z'),awardCalls=0;
+ const canaryId='11111111-1111-4111-8111-111111111111';
+ const otherId='22222222-2222-4222-8222-222222222222';
+ let activeId=otherId;
+ const result={score:1000,combo:100,nextProof:{foot:100,knee:100,chest:100,shoulder:100,spin:100,jump:100},achievementProof:{quadMaster:true}};
+ const database=()=>({call:async(op,input)=>{
+  const player={id:activeId,name:'Canary',best:5000,rank:1,kit:'japan-01',lastPlayed:null,dailyBonus:0};
+  if(op==='register'||op==='me')return {player};
+  if(op==='achievement_merge')return {mask:0};
+  if(op==='submit')return {player,personalBest:false,newChampion:false};
+  if(op==='daily_award'){awardCalls++;assert.equal(input.playerId,canaryId);return {earned:300,day:input.day,todayBonus:300,monthlyBonus:300};}
+  throw new Error('Unexpected DB operation '+op);
+ }});
+ const worker=createWorker({database,now:()=>now,replayGame:()=>result});
+ const canaryEnv={...env,DAILY_REWARDS_ENABLED:undefined,DAILY_REWARDS_TEST_PLAYER_ID:canaryId};
+ async function play(){
+  const auth=await worker.fetch(req('/api/register',{name:'Canary',pin:'123456'}),canaryEnv);
+  assert.equal(auth.status,200);
+  const cookie=auth.headers.get('set-cookie').split(';')[0];
+  const start=await worker.fetch(req('/api/game/start',{},cookie),canaryEnv);
+  const {token}=await start.json();
+  now+=61000;
+  const submission=await worker.fetch(req('/api/scores',{token,ruleset:'cockpit-v42',events:[],kit:'japan-01'},cookie),canaryEnv);
+  assert.equal(submission.status,200,await submission.clone().text());
+  return (await submission.json()).daily;
+ }
+ assert.equal(await play(),null,'non-canary account must never earn rewards');
+ assert.equal(awardCalls,0);
+ activeId=canaryId;
+ assert.equal((await play()).earned,300,'configured canary account may earn rewards');
+ assert.equal(awardCalls,1);
+});
