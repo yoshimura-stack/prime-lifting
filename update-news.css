@@ -41,3 +41,9 @@ body.touch-landscape #update-news-dialog .update-news-item h3{font-size:16px!imp
 body.touch-landscape #update-news-dialog .update-news-item p{font-size:13px!important;line-height:1.5!important}
 body.touch-landscape #update-news-dialog .update-news-item{padding:9px 12px!important}
 body.touch-landscape #update-news-dialog .update-news-list{gap:9px!important}
+
+/* Final mobile readability pass: prominent headings and legible short summaries. */
+body.touch-landscape #update-news-dialog .update-news-item h3{font-size:18px!important;line-height:1.35!important;margin:6px 0!important}
+body.touch-landscape #update-news-dialog .update-news-item p{font-size:15px!important;line-height:1.45!important}
+body.touch-landscape #update-news-dialog .update-news-item{padding:10px 13px!important}
+body.touch-landscape #update-news-dialog .update-news-list{gap:10px!important}
