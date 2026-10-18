@@ -206,3 +206,35 @@ test('canary daily rewards are limited to the exact configured account while glo
  assert.equal((await play()).earned,300,'configured canary account may earn rewards');
  assert.equal(awardCalls,1);
 });
+
+test('production release enables rewards globally without enabling preview rewards',async()=>{
+ const {readFileSync}=await import('node:fs');
+ const {fileURLToPath}=await import('node:url');
+ const config=JSON.parse(readFileSync(fileURLToPath(new URL('../wrangler.jsonc',import.meta.url)),'utf8'));
+ assert.equal(config.vars.DAILY_REWARDS_ENABLED,'true','production must explicitly enable daily rewards');
+ assert.notEqual(config.previews?.vars?.DAILY_REWARDS_ENABLED,'true','preview must not automatically enable rewards');
+ let now=Date.parse('2026-10-19T03:00:00Z'),awards=0;
+ const player={id:'22222222-2222-4222-8222-222222222222',name:'Other Player',best:5000,rank:1,kit:'japan-01',lastPlayed:null,dailyBonus:0};
+ const result={score:1000,combo:100,nextProof:{foot:100,knee:100,chest:100,shoulder:100,spin:100,jump:100},achievementProof:{quadMaster:true}};
+ const database=()=>({call:async(op,input)=>{
+  if(op==='register'||op==='me')return {player};
+  if(op==='achievement_merge')return {mask:0};
+  if(op==='submit')return {player,personalBest:false,newChampion:false};
+  if(op==='daily_award'){awards++;assert.equal(input.playerId,player.id);return {earned:300,day:input.day,todayBonus:300,monthlyBonus:300};}
+  throw Error('Unexpected DB operation '+op);
+ }});
+ const worker=createWorker({database,now:()=>now,replayGame:()=>result});
+ const releaseEnv={...env,DAILY_REWARDS_ENABLED:config.vars.DAILY_REWARDS_ENABLED,DAILY_REWARDS_TEST_PLAYER_ID:config.vars.DAILY_REWARDS_TEST_PLAYER_ID};
+ const auth=await worker.fetch(req('/api/register',{name:'Other Player',pin:'123456'}),releaseEnv);
+ assert.equal(auth.status,200);
+ const cookie=auth.headers.get('set-cookie').split(';')[0];
+ const start=await worker.fetch(req('/api/game/start',{},cookie),releaseEnv);
+ const {token}=await start.json();
+ now+=61000;
+ const submission=await worker.fetch(req('/api/scores',{token,ruleset:'cockpit-v42',events:[],kit:'japan-01'},cookie),releaseEnv);
+ assert.equal(submission.status,200,await submission.clone().text());
+ const data=await submission.json();
+ assert.equal(data.dailyCheck.enabled,true);
+ assert.equal(data.daily.earned,300);
+ assert.equal(awards,1,'non-canary account receives global reward');
+});
