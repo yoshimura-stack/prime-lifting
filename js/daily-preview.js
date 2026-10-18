@@ -53,7 +53,7 @@
   }
  }
  root.PRIME_DAILY={
-  begin(){metrics=fresh();update();},
+  begin(){metrics=fresh();earnedThisVisit.clear();update();},
   // Called once for each confirmed successful local game hit, never on misses.
   hit({name,combo,spinCount,jumped}){
    if(Number.isFinite(combo))metrics.combo=Math.max(metrics.combo,combo);
