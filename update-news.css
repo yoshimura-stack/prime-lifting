@@ -35,3 +35,9 @@ body.touch-landscape #update-news-dialog .update-news-tag{font-size:9px!importan
 body.touch-landscape #update-news-dialog .update-news-item h3{font-size:13px!important;line-height:1.3!important;margin:4px 0!important}
 body.touch-landscape #update-news-dialog .update-news-item p{font-size:11px!important;line-height:1.4!important;margin:0!important}
 body.touch-landscape #update-news-dialog .update-news-auto-footer{font-size:10px!important;margin:7px 0 0!important}
+
+/* Balanced mobile news typography: larger than compact v4, without wall-of-text. */
+body.touch-landscape #update-news-dialog .update-news-item h3{font-size:16px!important;line-height:1.35!important;margin:5px 0!important}
+body.touch-landscape #update-news-dialog .update-news-item p{font-size:13px!important;line-height:1.5!important}
+body.touch-landscape #update-news-dialog .update-news-item{padding:9px 12px!important}
+body.touch-landscape #update-news-dialog .update-news-list{gap:9px!important}
