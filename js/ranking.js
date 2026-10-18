@@ -236,9 +236,11 @@ async function updateRankDialog(){
      else {
       part('Ⓟ',hasBasic?e.playScore:e.score,'保存済みプレイスコア（スマホ補正込みの場合あり）');
       if(e.device==='pc')part('📱',0,'スマホ補正');
-      else if(e.device==='mobile'){const unknown=document.createElement('small');unknown.className='rank-bonus-part';unknown.textContent='📱 ?';unknown.title='過去のスマホ補正額は保存されていないため不明';parts.append(unknown);}
+      else if(e.device==='mobile'){const unknown=document.createElement('small');unknown.className='rank-bonus-part';unknown.textContent='📱 —';unknown.title='過去のスマホ補正額は保存されていないため不明';parts.append(unknown);}
      }
-     part('Ⓓ',hasBasic?e.dailyBonus:0,'当月デイリー加点（現在は未提供）');li.append(parts);
+     if(hasBasic)part('Ⓓ',e.dailyBonus,'当月デイリー加点');
+     else {const unknownDaily=document.createElement('small');unknownDaily.className='rank-bonus-part';unknownDaily.textContent='Ⓓ —';unknownDaily.title='デイリー加点は未確認';parts.append(unknownDaily);}
+     li.append(parts);
      if(e.rank>3){
       li.classList.add('rank-breakdown-collapsed');head.setAttribute('role','button');head.tabIndex=0;head.setAttribute('aria-expanded','false');
       const toggle=()=>{const open=li.classList.toggle('rank-breakdown-expanded');li.classList.toggle('rank-breakdown-collapsed',!open);head.setAttribute('aria-expanded',String(open));};
