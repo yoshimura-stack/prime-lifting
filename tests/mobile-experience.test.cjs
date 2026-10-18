@@ -28,7 +28,7 @@ test('daily challenge visual status only lights after observed qualifying hits',
  ];
  let requests=0;
  const fetch=async()=>({ok:true,json:async()=>dates[Math.min(requests++,dates.length-1)]});
- const context={document,fetch,console};
+ const context={document,fetch,console,setTimeout(){return 1;}};
  vm.runInNewContext(source('js/daily-preview.js'),context);
  await new Promise(setImmediate);
  const daily=context.PRIME_DAILY;
