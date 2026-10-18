@@ -131,3 +131,44 @@ test('daily rewards remain disabled by default even for a verified qualifying ru
  assert.equal(response.player.best,5000);
  assert.equal(awardsCalled,0,'no daily RPC when feature flag is absent');
 });
+
+test('daily award outage returns retryable 503 and replay retry credits only once',async()=>{
+ let now=Date.parse('2026-10-18T03:00:00Z'),awardCalls=0,submitCalls=0;
+ const player={id:'retry-player',name:'Retry',best:5000,rank:1,kit:'japan-01',lastPlayed:null,dailyBonus:0};
+ const result={score:1000,combo:100,nextProof:{foot:100,knee:100,chest:100,shoulder:100,spin:100,jump:100},achievementProof:{quadMaster:true}};
+ const awarded=new Set();
+ const database=()=>({call:async(op,input)=>{
+  if(op==='register'||op==='me')return {player};
+  if(op==='submit'){submitCalls++;return {player,personalBest:false,newChampion:false};}
+  if(op==='achievement_merge')return {mask:0};
+  if(op==='daily_award'){
+   awardCalls++;
+   if(awardCalls===1)throw new Error('temporary database outage');
+   let earned=0;
+   for(const id of input.completedIds){const key=input.day+':'+id;if(!awarded.has(key)){awarded.add(key);earned+=100;}}
+   player.dailyBonus=awarded.size*100;
+   return {earned,day:input.day,todayBonus:player.dailyBonus,monthlyBonus:player.dailyBonus};
+  }
+  throw new Error('Unexpected DB operation '+op);
+ }});
+ const worker=createWorker({database,now:()=>now,replayGame:()=>result});
+ const auth=await worker.fetch(req('/api/register',{name:'Retry',pin:'123456'}),env);
+ assert.equal(auth.status,200);
+ const cookie=auth.headers.get('set-cookie').split(';')[0];
+ const started=await worker.fetch(req('/api/game/start',{},cookie),env);
+ const {token}=await started.json();
+ now+=61000;
+ const payload={token,ruleset:'cockpit-v42',events:[],kit:'japan-01'};
+ const first=await worker.fetch(req('/api/scores',payload,cookie),env);
+ assert.equal(first.status,503,'daily persistence outage must not be reported as a success');
+ assert.match((await first.json()).error,/デイリー報酬/);
+ const retry=await worker.fetch(req('/api/scores',payload,cookie),env);
+ assert.equal(retry.status,200,await retry.clone().text());
+ assert.equal((await retry.json()).daily.earned,300);
+ const again=await worker.fetch(req('/api/scores',payload,cookie),env);
+ assert.equal(again.status,200);
+ assert.equal((await again.json()).daily.earned,0);
+ assert.equal(awarded.size,3);
+ assert.equal(player.best,5000);
+ assert.equal(submitCalls,3,'replay submission retries are idempotent at the database layer');
+});
