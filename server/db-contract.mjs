@@ -1,5 +1,5 @@
 // All privileged RPC calls run only from the Cloudflare Worker.
-const player=p=>p&&({id:p.id,name:p.name,best:p.best,rank:p.rank,kit:p.kit??null,lastPlayed:p.lastPlayed??null,bestDevice:p.bestDevice==='mobile'||p.bestDevice==='pc'?p.bestDevice:null});
+const player=p=>p&&({id:p.id,name:p.name,best:p.best,rank:p.rank,kit:p.kit??null,lastPlayed:p.lastPlayed??null,bestDevice:p.bestDevice==='mobile'||p.bestDevice==='pc'?p.bestDevice:null,dailyBonus:Number.isSafeInteger(p.dailyBonus)&&p.dailyBonus>=0?p.dailyBonus:null});
 export default {
  verified:true,
  operations:Object.fromEntries(['register','login','me','leaderboard','submit','achievement_get','achievement_merge','achievement_list','next_achievement_get','next_achievement_merge','next_achievement_list','daily_award','score_breakdown_list'].map(op=>[op,{
