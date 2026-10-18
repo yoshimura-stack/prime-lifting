@@ -68,6 +68,11 @@
   // Refresh account-persisted completions after login and verified score submission.
   sync(){return refresh();}
  };
- refresh();
+ // Refresh once at the next JST midnight even if the tab remains open.
+ function scheduleMidnight(){
+  const now=Date.now(),next=(Math.floor((now+9*3600000)/86400000)+1)*86400000-9*3600000;
+  setTimeout(()=>{refresh();scheduleMidnight();},Math.max(1000,next-now+250));
+ }
+ refresh();scheduleMidnight();
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 })(globalThis);
