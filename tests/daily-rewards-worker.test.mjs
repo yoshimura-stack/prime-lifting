@@ -103,3 +103,31 @@ test('monthly reward resets on JST month boundary without changing saved play be
  assert.equal(ranking.entries[0].dailyBonus,0);
  assert.equal(awards.size,3,'October award history remains intact');
 });
+
+test('daily rewards remain disabled by default even for a verified qualifying run',async()=>{
+ let now=Date.parse('2026-10-18T03:00:00Z'),awardsCalled=0;
+ const player={id:'gate-player',name:'Gate',best:5000,rank:1,kit:'japan-01',lastPlayed:null,dailyBonus:0};
+ const result={score:1000,combo:100,nextProof:{foot:100,knee:100,chest:100,shoulder:100,spin:100,jump:100},achievementProof:{quadMaster:true}};
+ const database=()=>({call:async(op,input)=>{
+  if(op==='register'||op==='me')return {player};
+  if(op==='achievement_merge')return {mask:0};
+  if(op==='submit')return {player,personalBest:false,newChampion:false};
+  if(op==='daily_award'){awardsCalled++;throw new Error('reward must be disabled');}
+  throw new Error('Unexpected DB operation '+op);
+ }});
+ const worker=createWorker({database,now:()=>now,replayGame:()=>result});
+ const disabledEnv={...env,DAILY_REWARDS_ENABLED:undefined};
+ const auth=await worker.fetch(req('/api/register',{name:'Gate',pin:'123456'}),disabledEnv);
+ assert.equal(auth.status,200);
+ const cookie=auth.headers.get('set-cookie').split(';')[0];
+ const started=await worker.fetch(req('/api/game/start',{},cookie),disabledEnv);
+ assert.equal(started.status,200);
+ const {token}=await started.json();
+ now+=61000;
+ const submitted=await worker.fetch(req('/api/scores',{token,ruleset:'cockpit-v42',events:[],kit:'japan-01'},cookie),disabledEnv);
+ assert.equal(submitted.status,200,await submitted.clone().text());
+ const response=await submitted.json();
+ assert.equal(response.daily,null);
+ assert.equal(response.player.best,5000);
+ assert.equal(awardsCalled,0,'no daily RPC when feature flag is absent');
+});
