@@ -224,7 +224,7 @@ async function updateRankDialog(){
     const li=document.createElement('li'),name=rankName(e,`${e.rank}. `);
     const total=document.createElement('strong');total.className='rank-total';total.textContent=e.score.toLocaleString()+' PTS';
     const hasBasic=Number.isSafeInteger(e.playScore)&&Number.isSafeInteger(e.dailyBonus)&&e.playScore>=0&&e.dailyBonus>=0&&e.playScore+e.dailyBonus===e.score;
-    const hasSplit=hasBasic&&Number.isSafeInteger(e.baseScore)&&Number.isSafeInteger(e.mobileBonus)&&e.baseScore>=0&&e.mobileBonus>=0&&e.baseScore+e.mobileBonus===e.playScore;
+    const hasSplit=Number.isSafeInteger(e.baseScore)&&Number.isSafeInteger(e.mobileBonus)&&e.baseScore>=0&&e.mobileBonus>=0&&(hasBasic?e.baseScore+e.mobileBonus===e.playScore:e.baseScore+e.mobileBonus===e.score);
     const head=document.createElement('span');head.className='rank-entry-head';head.append(name,total);li.append(head);
     {
      // Keep TOP3 layout visible before the daily-awards API rollout.
