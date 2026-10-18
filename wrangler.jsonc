@@ -29,7 +29,8 @@
   ],
   "vars": {
     "SUPABASE_URL": "https://ctxhopadmvasxvjspwoi.supabase.co",
-    "DAILY_REWARDS_TEST_PLAYER_ID": "15021678-6d37-40dd-97ab-9b6c61d15281"
+    "DAILY_REWARDS_TEST_PLAYER_ID": "15021678-6d37-40dd-97ab-9b6c61d15281",
+    "DAILY_REWARDS_ENABLED": "true"
   },
   "previews": {
     "vars": {
