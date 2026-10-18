@@ -47,7 +47,7 @@ test('daily challenge visual status only lights after observed qualifying hits',
  assert.equal(list.children[2].className,'is-complete');
  assert.equal(list.attributes['aria-label'],'今日の達成 3 / 3');
  daily.begin();
- assert.equal(list.children[0].className,'is-complete','completion stays lit across plays this visit');
+ assert.equal(list.children[0].className,'','unverified provisional completion must reset for the next play');
  await daily.refresh();
  assert.equal(day.textContent,'2026-10-18 (JST)');
  assert.deepEqual(list.children.map(x=>x.className),['','',''],'new JST day clears the visual state');
