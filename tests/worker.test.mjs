@@ -26,7 +26,7 @@ test('rejects missing auth, cross-origin, weak PIN, missing limit binding and ov
 });
 test('mock adapter: register, cross-device login, authenticated replay, retry and top ten',async()=>{
  let time=100000,player={id:'player-one',name:'A',best:15000,rank:1,kit:'japan-01',lastPlayed:null},calls=[];
- const database=()=>({call:async(op,input)=>{calls.push({op,input});if(op==='achievement_merge')return {mask:0};if(op==='leaderboard')return {entries:[player]};if(op==='submit'){assert.equal(input.score,0);assert.equal(input.playerId,player.id);return {player,personalBest:false,newChampion:false};}if(op==='login'&&input.pin!=='123456')return {player:null};return {player};}});
+ const database=()=>({call:async(op,input)=>{calls.push({op,input});if(op==='achievement_merge')return {mask:0};if(op==='leaderboard')return {entries:[player]};if(op==='submit'){assert.equal(input.score,0);assert.equal(input.baseScore,0);assert.equal(input.mobileBonus,0);assert.equal(input.playerId,player.id);return {player,personalBest:false,newChampion:false};}if(op==='login'&&input.pin!=='123456')return {player:null};return {player};}});
  const worker=createWorker({database,now:()=>time});
  const auth=await worker.fetch(request('/api/register',{name:'A',pin:'123456'}),env);assert.equal(auth.status,200);
  const header=auth.headers.get('set-cookie');assert.match(header,/HttpOnly; Secure; SameSite=Strict/);const cookie=header.split(';')[0];

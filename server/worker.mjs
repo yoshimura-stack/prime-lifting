@@ -121,7 +121,7 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   const device=run.device??requestDevice(request);
   if(!validKit(body.kit)||!['pc','mobile'].includes(device))throw new ApiError(400,'端末・ユニフォームの指定が正しくありません。');
   const result=replayGame(body.events),score=finalScore(result.score,device);
-  const saved=await db.call('submit',{playerId:session.sub,runId:run.id,...result,score,kit:body.kit,device,gameVersion:VERSION});
+  const saved=await db.call('submit',{playerId:session.sub,runId:run.id,...result,score,baseScore:result.score,mobileBonus:score-result.score,kit:body.kit,device,gameVersion:VERSION});
   // Only an accepted and saved standard run can grant titles.
   // Progress is isolated from score storage; a progress outage must not erase a score.
   let progress=null;
