@@ -279,7 +279,7 @@ async function save(){
  if(!pending||saving)return;const submission=pending,current=generation;saving=true;
  $('save-retry').hidden=true;$('save-feedback').textContent='プレイを確認して保存しています…';
  try{const data=await api('/api/scores',submission);
- if(current!==generation)return;player=data.player;pending=null;account();
+ if(current!==generation)return;player=data.player;pending=null;account();window.PRIME_DAILY?.sync?.();
  $('personal-result').textContent=`今回 ${data.score.toLocaleString()} PTS ／ BEST ${player.best.toLocaleString()} PTS ／ 全体 ${player.rank??'—'}位`;
  $('record-banner').textContent=data.newChampion?'NEW CHAMPION!':data.personalBest?'NEW PERSONAL BEST!':'';$('record-banner').classList.toggle('record-celebrate',!!(data.personalBest||data.newChampion));
  $('save-feedback').textContent='記録を保存しました。';if(data.progress){progressGeneration++;renderProgress(data.progress);}else refreshProgress();await refresh();await updateResultRival();
@@ -395,7 +395,7 @@ window.PRIME_RANKING={
 $('account-form').onsubmit=async e=>{
  e.preventDefault();if(authBusy)return;authBusy=true;$('account-status').textContent='確認しています…';
  const pin=$('player-pin').value;$('player-pin').value='';
- try{const data=await api('/api/'+(e.submitter?.value==='register'?'register':'login'),{name:$('player-name').value,pin});player=data.player;preflightReset();cumulativeEarned=new Set();progressOwner=null;account();renderLive(lastLiveStats,false);refreshProgress();}
+ try{const data=await api('/api/'+(e.submitter?.value==='register'?'register':'login'),{name:$('player-name').value,pin});player=data.player;preflightReset();cumulativeEarned=new Set();progressOwner=null;account();window.PRIME_DAILY?.sync?.();renderLive(lastLiveStats,false);refreshProgress();}
  catch(error){$('account-status').textContent=error.message;}finally{authBusy=false;}
 };
 $('logout').onclick=async()=>{try{await api('/api/logout',{});generation++;player=null;ticket=null;pending=null;preflightReset();cumulativeEarned=new Set();progressOwner=null;account();renderLive(lastLiveStats,false);refreshProgress();}catch(e){$('account-status').textContent=e.message;}};
