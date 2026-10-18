@@ -20,3 +20,18 @@ body.touch-landscape .update-news-item p{font-size:clamp(11px,3dvh,13px);line-he
 body.touch-landscape .update-news-card .update-news-intro{font-size:11px;margin:6px 0}
 [data-open-updates].news-unread{position:relative;overflow:visible}
 [data-open-updates].news-unread::after{content:'';position:absolute;right:1px;top:1px;width:11px;height:11px;background:#f4434b;border:2px solid white;border-radius:50%;pointer-events:none;box-sizing:content-box}
+
+/* iOS Safari can inflate modal text in landscape; enforce compact, readable sizing. */
+#update-news-dialog,#update-news-dialog *{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body.touch-landscape #update-news-dialog .update-news-card{width:min(720px,88vw)!important;max-height:calc(100dvh - 14px)!important;padding:9px 13px!important;overscroll-behavior:contain}
+body.touch-landscape #update-news-dialog .ranking-dialog-head{margin-bottom:4px!important}
+body.touch-landscape #update-news-dialog .ranking-dialog-head h2{font-size:17px!important;line-height:1.2!important}
+body.touch-landscape #update-news-dialog .panel-kicker{font-size:9px!important}
+body.touch-landscape #update-news-dialog #update-news-close{font-size:12px!important;padding:7px 11px!important;min-height:34px!important}
+body.touch-landscape #update-news-dialog .update-news-intro{font-size:11px!important;line-height:1.35!important;margin:3px 0 7px!important}
+body.touch-landscape #update-news-dialog .update-news-list{gap:7px!important;margin-top:5px!important}
+body.touch-landscape #update-news-dialog .update-news-item{padding:7px 9px!important}
+body.touch-landscape #update-news-dialog .update-news-tag{font-size:9px!important;padding:2px 5px!important}
+body.touch-landscape #update-news-dialog .update-news-item h3{font-size:13px!important;line-height:1.3!important;margin:4px 0!important}
+body.touch-landscape #update-news-dialog .update-news-item p{font-size:11px!important;line-height:1.4!important;margin:0!important}
+body.touch-landscape #update-news-dialog .update-news-auto-footer{font-size:10px!important;margin:7px 0 0!important}
