@@ -1,14 +1,22 @@
-/* News modal shares existing ranking-dialog overlay without touching the playfield. */
+/* Compact update dialog, especially for short landscape phone viewports. */
 .update-news-card{width:min(570px,calc(100vw - 32px));max-height:min(82dvh,640px);overflow-y:auto;box-sizing:border-box}
-.update-news-list{display:grid;gap:12px;margin-top:16px}
-.update-news-item{border:1px solid #718c69;border-radius:10px;padding:13px 15px;background:#18382b;color:#f4fff0}
-.update-news-item h3{font-size:17px;margin:5px 0 8px;color:#e5ff89}
-.update-news-item p{font-size:14px;line-height:1.65;margin:0}
-.update-news-tag{display:inline-block;color:#10291f;background:#dcff73;border-radius:4px;font-weight:800;font-size:11px;padding:3px 7px;letter-spacing:.05em}
+.update-news-list{display:grid;gap:9px;margin-top:10px}
+.update-news-item{border:1px solid #718c69;border-radius:10px;padding:10px 12px;background:#18382b;color:#f4fff0}
+.update-news-item[hidden]{display:none!important}
+.update-news-item h3{font-size:clamp(13px,1.2vw,16px);line-height:1.35;margin:4px 0 5px;color:#e5ff89}
+.update-news-item p{font-size:clamp(11px,1vw,13px);line-height:1.5;margin:0}
+.update-news-tag{display:inline-block;color:#10291f;background:#dcff73;border-radius:4px;font-weight:800;font-size:10px;padding:3px 6px;letter-spacing:.05em}
 .update-news-tag.soon{background:#e1d4aa}
-.update-news-card .update-news-intro{font-size:14px;line-height:1.6;color:#dce9dd}
-body.touch-landscape .update-news-card{max-height:calc(100dvh - 18px);width:min(650px,82vw)}
-
-/* Unread badge on both desktop and mobile notification buttons. */
+.update-news-card .update-news-intro{font-size:clamp(11px,1vw,13px);line-height:1.45;color:#dce9dd;margin:8px 0}
+.update-news-auto-footer{display:none;font-size:11px;line-height:1.4;color:#dce9dd;margin:10px 0 0;text-align:center}
+.news-auto .update-news-auto-footer{display:block}
+body.touch-landscape .update-news-card{max-height:calc(100dvh - 12px);width:min(650px,82vw);padding:12px 16px!important}
+body.touch-landscape .update-news-card .ranking-dialog-head h2{font-size:clamp(17px,3.7dvh,23px)!important}
+body.touch-landscape .update-news-card .panel-kicker{font-size:10px}
+body.touch-landscape .update-news-list{gap:7px;margin-top:7px}
+body.touch-landscape .update-news-item{padding:8px 10px}
+body.touch-landscape .update-news-item h3{font-size:clamp(13px,3.6dvh,16px)}
+body.touch-landscape .update-news-item p{font-size:clamp(11px,3dvh,13px);line-height:1.42}
+body.touch-landscape .update-news-card .update-news-intro{font-size:11px;margin:6px 0}
 [data-open-updates].news-unread{position:relative;overflow:visible}
 [data-open-updates].news-unread::after{content:'';position:absolute;right:1px;top:1px;width:11px;height:11px;background:#f4434b;border:2px solid white;border-radius:50%;pointer-events:none;box-sizing:content-box}
