@@ -94,7 +94,7 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
     const mask=masks[v.id],valid=Number.isInteger(mask)&&mask>=0&&mask<=255;
     const count=valid?mask.toString(2).replace(/0/g,'').length:0;
     const breakdown=scoreBreakdowns[v.id];const validBreakdown=breakdown&&Number.isSafeInteger(breakdown.baseScore)&&Number.isSafeInteger(breakdown.mobileBonus)&&breakdown.baseScore>=0&&breakdown.mobileBonus>=0&&breakdown.baseScore+breakdown.mobileBonus===v.best;
-    return {name:v.name,score:v.best,rank:v.rank,device:v.bestDevice,...(validBreakdown?{playScore:v.best,baseScore:breakdown.baseScore,mobileBonus:breakdown.mobileBonus,dailyBonus:0}:{}),achievementCount:count,baseTitleMask:valid?mask:0,master:valid&&mask===255,nextTitleMask:Number.isInteger(nextMasks[v.id])&&nextMasks[v.id]>=0&&nextMasks[v.id]<=255?nextMasks[v.id]:0,nextAchievementCount:Number.isInteger(nextMasks[v.id])&&nextMasks[v.id]>=0&&nextMasks[v.id]<=255?nextMasks[v.id].toString(2).replace(/0/g,'').length:0,liftingGod:nextMasks[v.id]===255&&mask===255};
+    return {name:v.name,score:v.best,rank:v.rank,device:v.bestDevice,...(validBreakdown?{playScore:v.best,baseScore:breakdown.baseScore,mobileBonus:breakdown.mobileBonus,}:{}),achievementCount:count,baseTitleMask:valid?mask:0,master:valid&&mask===255,nextTitleMask:Number.isInteger(nextMasks[v.id])&&nextMasks[v.id]>=0&&nextMasks[v.id]<=255?nextMasks[v.id]:0,nextAchievementCount:Number.isInteger(nextMasks[v.id])&&nextMasks[v.id]>=0&&nextMasks[v.id]<=255?nextMasks[v.id].toString(2).replace(/0/g,'').length:0,liftingGod:nextMasks[v.id]===255&&mask===255};
    });
    return json(path==='/api/champion'?{champion:entries[0]||null}:{entries});
   }
