@@ -229,9 +229,9 @@ async function updateRankDialog(){
     if(hasBasic){
      li.classList.add('rank-has-breakdown');
      const parts=document.createElement('span');parts.className='rank-bonus-parts';
-     const part=(symbol,value,description)=>{const el=document.createElement('small');el.className='rank-bonus-part';el.textContent=symbol+' '+value.toLocaleString();el.title=description;el.setAttribute('aria-label',description+' '+value.toLocaleString()+'ポイント');parts.append(el);};
+     const part=(symbol,value,description)=>{const el=document.createElement('small');el.className='rank-bonus-part';const display=value===0?'—':value.toLocaleString();el.textContent=symbol+' '+display;el.title=description;el.setAttribute('aria-label',description+' '+(value===0?'加点なし':value.toLocaleString()+'ポイント'));parts.append(el);};
      if(hasSplit){part('Ⓟ',e.baseScore,'通常プレイスコア');part('📱',e.mobileBonus,'スマホ補正');}
-     else part('Ⓟ',e.playScore,'プレイスコア（補正込み）');
+     else {part('Ⓟ',e.playScore,'プレイスコア（補正込み）');if(e.device==='pc')part('📱',0,'スマホ補正');}
      part('Ⓓ',e.dailyBonus,'当月デイリー加点');li.append(parts);
      if(e.rank>3){
       li.classList.add('rank-breakdown-collapsed');head.setAttribute('role','button');head.tabIndex=0;head.setAttribute('aria-expanded','false');
