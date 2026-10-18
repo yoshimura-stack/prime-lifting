@@ -131,11 +131,13 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   // Only a replay-verified and accepted run can earn daily credit.
   // Missing RPC is not silently treated as success; retry uses the same run ID.
   let daily=null;
-  if(env.DAILY_REWARDS_ENABLED==='true'||(env.DAILY_REWARDS_ENABLED!=='true'&&typeof env.DAILY_REWARDS_TEST_PLAYER_ID==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(env.DAILY_REWARDS_TEST_PLAYER_ID)&&session.sub.toLowerCase()===env.DAILY_REWARDS_TEST_PLAYER_ID.toLowerCase())){
-  try{daily=await db.call('daily_award',{playerId:session.sub,runId:run.id,day:jstDay(run.started),completedIds:completedDailyChallenges(jstDay(run.started),result)});}
+  const rewardEnabled=env.DAILY_REWARDS_ENABLED==='true'||(env.DAILY_REWARDS_ENABLED!=='true'&&typeof env.DAILY_REWARDS_TEST_PLAYER_ID==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(env.DAILY_REWARDS_TEST_PLAYER_ID)&&session.sub.toLowerCase()===env.DAILY_REWARDS_TEST_PLAYER_ID.toLowerCase());
+  const qualifiedDailyIds=completedDailyChallenges(jstDay(run.started),result);
+  if(rewardEnabled){
+  try{daily=await db.call('daily_award',{playerId:session.sub,runId:run.id,day:jstDay(run.started),completedIds:qualifiedDailyIds});}
   catch{throw new ApiError(503,'デイリー報酬の保存確認ができませんでした。同じプレイを再送信してください。');}
   }
-  return json({daily,player:publicPlayer(saved.player),score,personalBest:saved.personalBest===true,newChampion:saved.newChampion===true,progress:{...progress,next}});
+  return json({daily,dailyCheck:{enabled:rewardEnabled,qualifiedIds:qualifiedDailyIds},player:publicPlayer(saved.player),score,personalBest:saved.personalBest===true,newChampion:saved.newChampion===true,progress:{...progress,next}});
  }catch(error){return json({error:error instanceof ApiError?error.message:'ランキング処理に失敗しました。再試行してください。'},error instanceof ApiError?error.status:503);}
  }};}
 export default createWorker();
