@@ -66,7 +66,11 @@
   },
   refresh,
   // Refresh account-persisted completions after login and verified score submission.
-  sync(){return refresh();}
+  sync({submitted=false}={}){
+   // A submitted run is no longer provisional: show only server-confirmed completions.
+   if(submitted){metrics=fresh();earnedThisVisit.clear();update();}
+   return refresh();
+  }
  };
  // Refresh once at the next JST midnight even if the tab remains open.
  function scheduleMidnight(){
