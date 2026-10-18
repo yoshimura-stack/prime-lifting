@@ -34,3 +34,13 @@ test('daily bonus can overtake a higher play best',()=>{
  assert.equal(jstMonth('2026-11-01'),'2026-11');
  assert.throws(()=>rankingTotal(-1,2));
 });
+
+test('signed start day remains stable when a play ends after JST midnight',()=>{
+ const started=Date.parse('2026-10-18T14:59:00Z'); // 23:59 JST
+ const ended=Date.parse('2026-10-18T15:01:00Z'); // 00:01 JST
+ assert.equal(jstDay(started),'2026-10-18');
+ assert.equal(jstDay(ended),'2026-10-19');
+ const result={combo:100,nextProof:{foot:100,knee:100,chest:100,shoulder:100,spin:100,jump:100},achievementProof:{quadMaster:true}};
+ assert.deepEqual(completedDailyChallenges(jstDay(started),result),dailyChallenges('2026-10-18').map(c=>c.id));
+ assert.deepEqual(completedDailyChallenges(jstDay(ended),result),dailyChallenges('2026-10-19').map(c=>c.id));
+});
