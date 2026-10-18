@@ -98,11 +98,17 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
    });
    return json(path==='/api/champion'?{champion:entries[0]||null}:{entries});
   }
-  if(!['/api/me','/api/achievements','/api/game/start','/api/scores'].includes(path))throw new ApiError(404,'APIが見つかりません。');
-  if((path==='/api/me'||path==='/api/achievements')===post)throw new ApiError(405,'この操作には対応していません。');
+  if(!['/api/me','/api/achievements','/api/daily/status','/api/game/start','/api/scores'].includes(path))throw new ApiError(404,'APIが見つかりません。');
+  if((path==='/api/me'||path==='/api/achievements'||path==='/api/daily/status')===post)throw new ApiError(405,'この操作には対応していません。');
   const cookie=(request.headers.get('Cookie')||'').split(';').map(v=>v.trim()).find(v=>v.startsWith('prime_session='))?.slice(14);
   const session=await verify(cookie,env.SESSION_SECRET,'session',time);
   if(path==='/api/me')return json({player:publicPlayer((await db.call('me',{playerId:session.sub})).player)});
+  if(path==='/api/daily/status'){
+   const day=jstDay(time),data=await db.call('daily_status',{playerId:session.sub,day});
+   const allowed=new Set(dailyChallenges(day).map(challenge=>challenge.id));
+   const completed=Array.isArray(data.completedIds)?data.completedIds.filter(id=>typeof id==='string'&&allowed.has(id)):[];
+   return json({day,completedIds:[...new Set(completed)],todayBonus:completed.length*100,monthlyBonus:Number.isSafeInteger(data.monthlyBonus)&&data.monthlyBonus>=0?data.monthlyBonus:0});
+  }
   if(path==='/api/achievements'){await db.call('me',{playerId:session.sub});const base=publicProgress(await db.call('achievement_get',{playerId:session.sub}));let next=null;try{const data=await db.call('next_achievement_get',{playerId:session.sub});const mask=data?.mask;if(Number.isInteger(mask)&&mask>=0&&mask<=255)next={mask,earned:NEXT_TITLES.filter((_,i)=>!!(mask&(1<<i))),god:base.master&&mask===255};}catch{}return json({progress:{...base,next}});}
   if(path==='/api/game/start'){
    await db.call('me',{playerId:session.sub});
