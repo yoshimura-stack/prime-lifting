@@ -173,15 +173,7 @@ function validDailyBreakdown(entry){
 function renderPodiumScore(position,entry){
  const el=$('leader-'+position+'-score');if(!el)return;
  el.textContent=entry?entry.score.toLocaleString()+' PTS':'--- PTS';
- const id='leader-'+position+'-breakdown';
- let details=$(id);
- if(!details){details=document.createElement('span');details.id=id;details.className='podium-score-breakdown';el.after(details);}
- details.replaceChildren();
- details.hidden=!validDailyBreakdown(entry);
- if(details.hidden)return;
- const play=document.createElement('small');play.className='podium-play-score';play.textContent='スコア '+entry.playScore.toLocaleString();
- const daily=document.createElement('small');daily.className='podium-daily-score';daily.textContent='デイリー +'+entry.dailyBonus.toLocaleString();
- details.append(play,daily);
+ const details=$('leader-'+position+'-breakdown');if(details){details.replaceChildren();details.hidden=true;}
 }
 function champion(entries){
  const [first,second,third]=entries||[];
