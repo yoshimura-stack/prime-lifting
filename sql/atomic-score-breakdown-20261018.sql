@@ -1,0 +1,53 @@
+-- Save the verified play-score breakdown in the same transaction as a new personal best.
+-- Existing bests and legacy manually verified breakdowns remain untouched until beaten.
+create or replace function public.lifting_api_submit(payload jsonb)
+returns jsonb language plpgsql security definer set search_path to '' as $$
+declare
+ v_id uuid; v_run uuid; v_score int; v_base int; v_mobile int;
+ v_old int; v_top int; v_best boolean; v_champion boolean;
+ v_existing public.lifting_runs%rowtype;
+begin
+ v_id:=(payload->>'playerId')::uuid;
+ v_run:=(payload->>'runId')::uuid;
+ v_score:=(payload->>'score')::integer;
+ v_base:=(payload->>'baseScore')::integer;
+ v_mobile:=(payload->>'mobileBonus')::integer;
+ if v_score is null or v_score<0 or v_score>100000000 then raise exception 'Invalid score';end if;
+ if v_base is null or v_base<0 or v_mobile is null or v_mobile<0
+    or v_base::bigint+v_mobile::bigint<>v_score::bigint then
+  raise exception 'Invalid verified score breakdown';
+ end if;
+ if (payload->>'device') not in ('pc','mobile') then raise exception 'Invalid device'; end if;
+ if (payload->>'device')='pc' and v_mobile<>0 then raise exception 'Invalid PC bonus';end if;
+ if (payload->>'device')='mobile' and v_score<>pg_catalog.round(v_base::numeric*1.1)::integer then
+  raise exception 'Invalid mobile bonus';
+ end if;
+ perform pg_catalog.pg_advisory_xact_lock(5112026);
+ select * into v_existing from public.lifting_runs where run_id=v_run;
+ if found then
+  if v_existing.player_id<>v_id then raise exception 'Run belongs to another player';end if;
+  return jsonb_build_object('player',public.lifting_api_player(v_id),'personalBest',v_existing.personal_best,'newChampion',v_existing.new_champion);
+ end if;
+ select best_score into v_old from public.lifting_players where id=v_id for update;
+ if not found then raise exception 'Player not found';end if;
+ select max(best_score) into v_top from public.lifting_players;
+ v_best:=v_score>v_old;
+ v_champion:=v_score>coalesce(v_top,0);
+ update public.lifting_players set best_score=greatest(best_score,v_score),
+  best_device=case when v_best then payload->>'device' else best_device end,
+  best_kit=case when v_best then payload->>'kit' else best_kit end,
+  last_played_at=now(),updated_at=now(),game_version=payload->>'gameVersion'
+ where id=v_id;
+ if v_best then
+  insert into public.lifting_score_breakdowns(player_id,recorded_best,base_score,mobile_bonus,source)
+  values(v_id,v_score,v_base,v_mobile,'verified_replay')
+  on conflict(player_id) do update
+  set recorded_best=excluded.recorded_best,base_score=excluded.base_score,
+      mobile_bonus=excluded.mobile_bonus,source=excluded.source,created_at=now();
+ end if;
+ insert into public.lifting_runs(run_id,player_id,score,personal_best,new_champion)
+ values(v_run,v_id,v_score,v_best,v_champion);
+ return jsonb_build_object('player',public.lifting_api_player(v_id),'personalBest',v_best,'newChampion',v_champion);
+end $$;
+revoke all on function public.lifting_api_submit(jsonb) from public,anon,authenticated;
+grant execute on function public.lifting_api_submit(jsonb) to service_role;
