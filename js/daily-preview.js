@@ -14,13 +14,13 @@
   }
   list.replaceChildren();
   for(const c of challenges){
-   const li=document.createElement('li'),earned=earnedThisVisit.has(c.id);
+   const li=document.createElement('li'),earned=earnedThisVisit.has(c.id)||savedToday.has(c.id);
    li.className=earned?'is-complete':'';
    li.textContent=(earned?'✓ ':'')+String(c.difficulty||'').toUpperCase()+' · '+String(c.label||'');
    li.setAttribute('aria-label',(earned?'達成：':'未達成：')+String(c.label||''));
    list.append(li);
   }
-  const count=challenges.filter(c=>earnedThisVisit.has(c.id)).length;
+  const count=challenges.filter(c=>earnedThisVisit.has(c.id)||savedToday.has(c.id)).length;
   list.setAttribute('aria-label','今日の達成 '+count+' / '+challenges.length);
  }
  async function refresh(){
