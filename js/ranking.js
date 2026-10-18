@@ -221,22 +221,29 @@ async function updateRankDialog(){
   if(current!==rankDialogGeneration||rankDialog.hidden)return;
   const list=$('ranking-dialog-list');list.replaceChildren();selfRankRow=null;jumpSelf.hidden=true;
   for(const e of data.entries){
-   const li=document.createElement('li'),score=document.createElement('strong');
-   const breakdown=document.createElement('span');breakdown.className='rank-score-breakdown';
-   const total=document.createElement('strong');total.className='rank-total';total.textContent=e.score.toLocaleString()+' PTS';
-   const play=document.createElement('small');play.className='rank-play-score';
-   const daily=document.createElement('small');daily.className='rank-daily-score';
-   // No invented daily credits: legacy API entries remain score-only until server rollout.
-   const hasBreakdown=Number.isSafeInteger(e.playScore)&&Number.isSafeInteger(e.dailyBonus)&&e.playScore>=0&&e.dailyBonus>=0&&e.playScore+e.dailyBonus===e.score;
-   play.textContent=hasBreakdown?'スコア '+e.playScore.toLocaleString():'';
-   daily.textContent=hasBreakdown?'デイリー +'+e.dailyBonus.toLocaleString():'';
-   breakdown.append(total);
-   if(hasBreakdown)breakdown.append(play,daily);
-   li.append(rankName(e,`${e.rank}. `),breakdown);
-   if(player&&e.name===player.name){li.classList.add('rank-self');li.setAttribute('aria-current','true');selfRankRow=li;}
-   list.append(li);
-  }
-  $('ranking-dialog-status').textContent=data.entries.length?`${data.entries.length}人のランキングを表示中（上下にスクロールできます）`:'まだ記録がありません。';
+    const li=document.createElement('li'),name=rankName(e,`${e.rank}. `);
+    const total=document.createElement('strong');total.className='rank-total';total.textContent=e.score.toLocaleString()+' PTS';
+    const hasBasic=Number.isSafeInteger(e.playScore)&&Number.isSafeInteger(e.dailyBonus)&&e.playScore>=0&&e.dailyBonus>=0&&e.playScore+e.dailyBonus===e.score;
+    const hasSplit=hasBasic&&Number.isSafeInteger(e.baseScore)&&Number.isSafeInteger(e.mobileBonus)&&e.baseScore>=0&&e.mobileBonus>=0&&e.baseScore+e.mobileBonus===e.playScore;
+    const head=document.createElement('span');head.className='rank-entry-head';head.append(name,total);li.append(head);
+    if(hasBasic){
+     li.classList.add('rank-has-breakdown');
+     const parts=document.createElement('span');parts.className='rank-bonus-parts';
+     const part=(symbol,value,description)=>{const el=document.createElement('small');el.className='rank-bonus-part';const display=value===0?'—':value.toLocaleString();el.textContent=symbol+' '+display;el.title=description;el.setAttribute('aria-label',description+' '+(value===0?'加点なし':value.toLocaleString()+'ポイント'));parts.append(el);};
+     if(hasSplit){part('Ⓟ',e.baseScore,'通常プレイスコア');part('📱',e.mobileBonus,'スマホ補正');}
+     else {part('Ⓟ',e.playScore,'プレイスコア（補正込み）');if(e.device==='pc')part('📱',0,'スマホ補正');}
+     part('Ⓓ',e.dailyBonus,'当月デイリー加点');li.append(parts);
+     if(e.rank>3){
+      li.classList.add('rank-breakdown-collapsed');head.setAttribute('role','button');head.tabIndex=0;head.setAttribute('aria-expanded','false');
+      const toggle=()=>{const open=li.classList.toggle('rank-breakdown-expanded');li.classList.toggle('rank-breakdown-collapsed',!open);head.setAttribute('aria-expanded',String(open));};
+      head.addEventListener('click',toggle);
+      head.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle();}});
+     }else li.classList.add('rank-podium-breakdown');
+    }
+    if(player&&e.name===player.name){li.classList.add('rank-self');li.setAttribute('aria-current','true');selfRankRow=li;}
+    list.append(li);
+   }
+   $('ranking-dialog-status').textContent=data.entries.length?`${data.entries.length}人のランキングを表示中（上下にスクロールできます）`:'まだ記録がありません。';
   jumpSelf.hidden=!selfRankRow;
   renderNextRival(data.entries,'next-rival','next-rival-name','next-rival-gap');
   champion(data.entries);

@@ -1,0 +1,14 @@
+/* Trophy dialog only; gameplay and ranking marquees are untouched. */
+#ranking-dialog-list li.rank-has-breakdown{display:flex;flex-direction:column;align-items:stretch;gap:4px}
+#ranking-dialog-list .rank-entry-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+#ranking-dialog-list .rank-entry-head .rank-total{margin-left:auto;white-space:nowrap;font-size:14px;color:#e8ff9b;font-variant-numeric:tabular-nums}
+#ranking-dialog-list .rank-bonus-parts{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:5px 13px;font-variant-numeric:tabular-nums}
+#ranking-dialog-list .rank-bonus-part{color:#c6dfcc;font-size:11px;white-space:nowrap}
+#ranking-dialog-list .rank-bonus-part:last-child{color:#b9efab}
+#ranking-dialog-list .rank-breakdown-collapsed .rank-bonus-parts{display:none}
+#ranking-dialog-list .rank-breakdown-collapsed .rank-entry-head,
+#ranking-dialog-list .rank-breakdown-expanded .rank-entry-head{cursor:pointer}
+#ranking-dialog-list .rank-breakdown-collapsed .rank-entry-head::after{content:'⌄';color:#b4cbb5;font-size:12px}
+#ranking-dialog-list .rank-breakdown-expanded .rank-entry-head::after{content:'⌃';color:#b4cbb5;font-size:12px}
+#ranking-dialog-list .rank-entry-head[role=button]:focus-visible{outline:2px solid #dfff9d;outline-offset:2px;border-radius:3px}
+@media(max-width:850px){#ranking-dialog-list .rank-bonus-parts{gap:3px 8px}#ranking-dialog-list .rank-bonus-part{font-size:10px}#ranking-dialog-list .rank-entry-head .rank-total{font-size:12px}}
