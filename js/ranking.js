@@ -369,7 +369,8 @@ async function preflight(){
  preflightBusy=true;$('start').disabled=true;preflightMessage('ランキング通信を確認中…');
  try{
   const currentPlayer=player?.id;
-  const data=await api('/api/game/start',{});
+  const worldWidth=window.PRIME_FIELD_WIDTH?.()??1000;
+   const data=await api('/api/game/start',{worldWidth});
   if(!data.token||!data.ruleset||player?.id!==currentPlayer)throw new Error('ランキング登録の準備に失敗しました。');
   ticket=data;preflightReset();preflightMessage('通信OK：ランキング登録の準備ができました。');return true;
  }catch(e){
