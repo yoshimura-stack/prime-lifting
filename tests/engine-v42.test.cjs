@@ -1,7 +1,7 @@
 // V4.2 expectations: +150 first AIR; SPIN +100 * streak * rotations.
 const assert=require('node:assert/strict');
 require('../js/config.js');require('../js/engine.js');
-const fresh=()=>{const g=new LiftingGame(structuredClone(PRIME_DEFAULTS));g.phase='playing';Object.assign(g.ball,{pickup:false,y:g.c.GROUND_Y-g.c.BALL_SPAWN_HEIGHT,vx:g.c.BALL_SPAWN_VX,vy:0});return g;};
+const fresh=()=>{const g=new LiftingGame(structuredClone(PRIME_DEFAULTS));g.phase='playing';Object.assign(g.ball,{pickup:false,x:g.player.x,y:g.c.GROUND_Y-g.c.BALL_SPAWN_HEIGHT,vx:g.c.BALL_SPAWN_VX,vy:0});return g;};
 const step=(g,t,d=0)=>{for(let s=0;s<t;s+=1/120)g.update(1/120,d);};
 const place=(g,name)=>{const r=g.regions().find(r=>r.name===name);Object.assign(g.ball,{x:r.x,y:r.y,vx:23,vy:90});g.cooldown=0;};
 let checks=0;function test(name,fn){fn();checks++;console.log('PASS '+name);}
