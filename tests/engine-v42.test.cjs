@@ -8,9 +8,10 @@ let checks=0;function test(name,fn){fn();checks++;console.log('PASS '+name);}
 test('round starts with a grounded ball and pickup scores nothing',()=>{
  const g=new LiftingGame(structuredClone(PRIME_DEFAULTS));g.phase='playing';
  assert.equal(g.ball.pickup,true);assert.equal(g.ball.y,g.c.GROUND_Y-g.c.BALL_RADIUS);
+ assert.equal(g.ball.x,g.player.x+34,'initial ball should be by the anatomical left foot');
  assert.equal(g.ball.vx,0);assert.equal(g.ball.vy,0);
  assert.equal(g.act(),'PICKUP');assert.equal(g.ball.pickup,false);
- assert.ok(g.ball.vy<0);assert.equal(g.score,0);assert.equal(g.hits,0);assert.equal(g.combo,0);
+ assert.ok(g.ball.vy<0);assert.ok(g.ball.vx>0,'left-foot pickup should move right rather than straight up');assert.equal(g.score,0);assert.equal(g.hits,0);assert.equal(g.combo,0);
 });
 test('grounded loose ball stays exactly on the grass without jitter',()=>{
  const g=new LiftingGame(structuredClone(PRIME_DEFAULTS));g.phase='playing';
