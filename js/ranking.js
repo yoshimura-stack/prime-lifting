@@ -365,7 +365,7 @@ function preflightMessage(message){preflightStatus.textContent=message;}
 function preflightReset(){preflightFailures=0;preflightRetry.hidden=true;preflightContact.hidden=true;preflightMessage('');}
 async function preflight(){
  if(preflightBusy)return false;
- if(!player){preflightReset();return true;} // Explicit guest mode, no ranking.
+ if(!player){ticket={worldWidth:window.PRIME_FIELD_WIDTH?.()??1000};preflightReset();return true;} // Guest plays use the same field width without a ranking ticket.
  preflightBusy=true;$('start').disabled=true;preflightMessage('ランキング通信を確認中…');
  try{
   const currentPlayer=player?.id;
