@@ -27,7 +27,7 @@ test('PC ticker streams the existing TOP10 without gaps or additional network re
  assert.match(css,/@keyframes prime-king-marquee\{from\{transform:translateX\(0\)\}to\{transform:translateX\(calc\(-1 \* var\(--pc-ticker-distance, 50%\)\)\)\}\}/,'scroll right to left by one segment');
  assert.doesNotMatch(css,/\.pc-ticker-king\{|\.pc-ticker-label\{/,'no pinned champion styles');
  assert.match(html,/pc-cockpit\.css\?v=top10-seamless-1/,'cache bust stylesheet');
- assert.match(html,/js\/pc-cockpit\.js\?v=update-news-1/,'cache bust logic');
+ assert.match(html,/js\/pc-cockpit\.js\?v=pc-pause-restart-1/,'cache bust logic');
 });
 
 test('PC trophy opens the same full-screen online leaderboard as ranking button',()=>{
@@ -52,4 +52,14 @@ test('PC wide field reveals extra scenery without stretching 2D game coordinates
  assert.match(renderer,/this\.camera\.right=width\/2/);
  assert.match(renderer,/this\.camera\.updateProjectionMatrix\(\)/);
  assert.match(html,/js\/renderer3d\.js\?v=wide-field-2/,'cache bust Three.js rendering update');
+});
+
+test('PC rail pause and restart reuse the existing game handlers',()=>{
+ const js=read('js/pc-cockpit.js'),game=read('game.js');
+ assert.match(js,/\['⏸','一時停止',\[\],'pause'\]/);
+ assert.match(js,/\['↻','リスタート',\[\],'restart-pc'\]/);
+ assert.match(js,/document\.getElementById\(clickId\)\?\.click\(\)/);
+ assert.match(game,/\$\('pause'\)\.onclick=/);
+ assert.match(game,/\$\('restart-pc'\)\.onclick=restartRound/);
+ assert.match(game,/\$\('restart-confirm'\)\.hidden=false/);
 });
