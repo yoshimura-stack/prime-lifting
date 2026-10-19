@@ -5,10 +5,10 @@ class PrimeRenderer{
  constructor(canvas,c){
   const T=THREE;this.T=T;this.c=c;this.tilt=0.14;this.cos=Math.cos(this.tilt);this.ground=(c.WORLD_HEIGHT-c.GROUND_Y-310)/this.cos+310;
   this.renderer=new T.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
-  this.renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.75));this.renderer.setSize(1000,620,false);this.renderer.shadowMap.enabled=false;this.renderer.outputColorSpace=T.SRGBColorSpace;this.renderer.toneMapping=T.ACESFilmicToneMapping;this.renderer.toneMappingExposure=.96;
+  this.renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.75));this.renderer.setSize(1000,620,false);this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=T.PCFSoftShadowMap;this.renderer.outputColorSpace=T.SRGBColorSpace;this.renderer.toneMapping=T.ACESFilmicToneMapping;this.renderer.toneMappingExposure=.96;
   this.scene=new T.Scene();this.scene.background=new T.Color('#adc6d2');this.scene.fog=new T.Fog('#bacbd0',1800,3800);
   this.camera=new T.OrthographicCamera(-500,500,310,-310,1,5500);this.camera.position.set(0,310+Math.sin(this.tilt)*1250,Math.cos(this.tilt)*1250);this.camera.lookAt(0,310,0);
-  const hemisphere=new T.HemisphereLight(0xe3f5ff,0x344432,1.6);this.scene.add(hemisphere);const sun=new T.DirectionalLight(0xffecc8,2.5);sun.position.set(-350,800,420);sun.target.position.set(0,100,-180);this.scene.add(sun,sun.target);
+  const hemisphere=new T.HemisphereLight(0xe3f5ff,0x344432,1.6);this.scene.add(hemisphere);const sun=new T.DirectionalLight(0xffecc8,2.5);sun.position.set(-350,800,420);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);Object.assign(sun.shadow.camera,{left:-850,right:850,top:650,bottom:-650,near:1,far:2100});sun.target.position.set(0,100,-180);this.scene.add(sun,sun.target);
   const fill=new T.DirectionalLight(0x9ed6ed,0.6);fill.position.set(300,280,-300);this.scene.add(fill);this.trainingLights=[hemisphere,sun,fill];
   this.sphereGeo=new T.SphereGeometry(1,24,16);this.cylinderGeo=new T.CylinderGeometry(1,1,1,16);this.boxGeo=new T.BoxGeometry(1,1,1);
   this.buildGround();this.buildEnvironment();
@@ -48,12 +48,12 @@ class PrimeRenderer{
     x.fillStyle='rgba(70,82,78,.10)';x.fillRect(px,py,1,1);
    }
   });
-  this.ball=new T.Mesh(new T.SphereGeometry(c.BALL_RADIUS,32,24),new T.MeshStandardMaterial({map:ballTex,roughness:0.38,metalness:0.02}));this.scene.add(this.ball);
+  this.ball=new T.Mesh(new T.SphereGeometry(c.BALL_RADIUS,32,24),new T.MeshStandardMaterial({map:ballTex,roughness:0.38,metalness:0.02}));this.ball.castShadow=true;this.scene.add(this.ball);this.ballShadow=this.shadow(25,.23);this.scene.add(this.ballShadow);this.playerShadow=this.shadow(58,.28);this.scene.add(this.playerShadow);
 
  }
  mat(color,roughness=.78){return new this.T.MeshStandardMaterial({color,roughness});}
  texture(w,h,paint){const cv=document.createElement('canvas');cv.width=w;cv.height=h;paint(cv.getContext('2d'),w,h);const tex=new this.T.CanvasTexture(cv);tex.colorSpace=this.T.SRGBColorSpace;tex.anisotropy=Math.min(8,this.renderer.capabilities.getMaxAnisotropy());return tex;}
- mesh(geo,material,parent,x,y,z,sx=1,sy=1,sz=1){const m=new this.T.Mesh(geo,material);m.position.set(x,y,z);m.scale.set(sx,sy,sz);parent.add(m);return m;}
+ mesh(geo,material,parent,x,y,z,sx=1,sy=1,sz=1){const m=new this.T.Mesh(geo,material);m.position.set(x,y,z);m.scale.set(sx,sy,sz);m.castShadow=true;parent.add(m);return m;}
  sphere(parent,mat,x,y,z,sx,sy,sz){return this.mesh(this.sphereGeo,mat,parent,x,y,z,sx,sy,sz);}
  box(parent,mat,x,y,z,sx,sy,sz){return this.mesh(this.boxGeo,mat,parent,x,y,z,sx,sy,sz);}
  bone(parent,mat,width){return this.mesh(this.cylinderGeo,mat,parent,0,0,0,width,1,width);}
@@ -61,7 +61,7 @@ class PrimeRenderer{
  shadow(size,opacity){const tex=this.texture(128,128,(x,w,h)=>{const g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(8,24,17,0.8)');g.addColorStop(.45,'rgba(8,24,17,0.35)');g.addColorStop(1,'rgba(8,24,17,0)');x.fillStyle=g;x.fillRect(0,0,w,h);});const m=new this.T.Mesh(new this.T.PlaneGeometry(size*2,size*2),new this.T.MeshBasicMaterial({map:tex,transparent:true,opacity,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.y=this.ground+.3;return m;}
  buildGround(){const T=this.T;let seed=9241;const rand=()=>{seed=(1664525*seed+1013904223)>>>0;return seed/4294967296;};
   const grass=this.texture(512,512,(x,w,h)=>{x.fillStyle='#548341';x.fillRect(0,0,w,h);for(let i=0;i<40000;i++){const px=rand()*w,py=rand()*h;x.strokeStyle=rand()>.5?'rgba(172,189,88,0.20)':'rgba(23,60,30,0.25)';x.beginPath();x.moveTo(px,py);x.lineTo(px+rand()*2-1,py-2-rand()*4);x.stroke();}});grass.wrapS=grass.wrapT=T.RepeatWrapping;grass.repeat.set(12,16);
-  const field=new T.Mesh(new T.PlaneGeometry(2800,3300),new T.MeshStandardMaterial({map:grass,roughness:1}));field.rotation.x=-Math.PI/2;field.position.set(0,this.ground,-300);this.scene.add(field);
+  const field=new T.Mesh(new T.PlaneGeometry(2800,3300),new T.MeshStandardMaterial({map:grass,roughness:1}));field.rotation.x=-Math.PI/2;field.position.set(0,this.ground,-300);field.receiveShadow=true;this.scene.add(field);
   const stripe=new T.MeshStandardMaterial({color:0xd7eab4,transparent:true,opacity:.065,depthWrite:false});for(let i=0;i<12;i++){const m=new T.Mesh(new T.PlaneGeometry(2300,130),stripe);m.rotation.x=-Math.PI/2;m.position.set(0,this.ground+.12,-1700+i*260);this.scene.add(m);}
   const chalk=this.mat('#e5e5c5');const boundary=this.box(this.scene,chalk,0,this.ground+.35,-405,2500,.6,3);boundary.castShadow=false;
   const ring=new T.Mesh(new T.RingGeometry(221,224,120),chalk);ring.rotation.x=-Math.PI/2;ring.position.set(0,this.ground+.4,-10);this.scene.add(ring);
@@ -140,9 +140,9 @@ class PrimeRenderer{
    this.connect(leg.thigh,[s*12,68,0],knee,7.2);leg.knee.position.set(...knee);this.connect(leg.calf,knee,ankle,5.6);leg.ankle.position.set(...ankle);leg.shoe.position.set(ankle[0],ankle[1]-4,ankle[2]+3);leg.shoe.rotation.x=kneeActive&&s===hitSign?ka.toeAngle*kneePose:active&&s===hitSign&&a==='FOOT'?-.23*pose:0;
   }
   for(const arm of model.arms){const s=arm.s,raise=spinning?12:inAir?10:active&&(a==='CHEST'||a==='SHOULDER')?9:kneeActive?5*kneePose:0;const shoulderLift=active&&a==='SHOULDER'&&s===hitSign?16*pose:0;const elbow=[s*(31+raise*.15),100+raise+shoulderLift,active&&a==='CHEST'?-5:stride*s*5],hand=[s*(35+raise*.4),82+raise*1.9,7+stride*s*9];this.connect(arm.upper,[s*21,117+shoulderLift,0],elbow,7);this.connect(arm.fore,elbow,hand,4.8);arm.shoulder.position.set(s*21,117+shoulderLift,0);arm.elbow.position.set(...elbow);arm.hand.position.set(...hand);}
-  model.torso.rotation.z=kneeActive?hitSign*.035*kneePose:active&&a==='SHOULDER'?-hitSign*.11*pose:stride*.018;
+  model.torso.rotation.z=kneeActive?hitSign*.035*kneePose:active&&a==='SHOULDER'?-hitSign*.11*pose:0;
   model.torso.rotation.x=active&&a==='CHEST'?-.13*pose:active&&a==='SHOULDER'?-.025*pose:0;model.head.rotation.z=active&&a==='SHOULDER'?hitSign*.16*pose:0;model.head.rotation.x=active&&(a==='HEADER'||a==='JUMP_HEADER')?.15*pose:-.06;model.head.rotation.y=spinning?0:Math.max(-.2,Math.min(.2,(g.ball.x-p.x)*.004));
-  const ballDepth=19+26*kneePose;this.ball.visible=g.ball.active;this.ball.position.set(g.ball.x-c.WORLD_WIDTH/2,(c.WORLD_HEIGHT-g.ball.y-310+ballDepth*Math.sin(this.tilt))/this.cos+310,ballDepth);this.ball.rotation.set(t*.3,g.ball.rotation,g.ball.rotation*.6);
+  const ballDepth=19+26*kneePose;this.ball.visible=g.ball.active;this.ball.position.set(g.ball.x-c.WORLD_WIDTH/2,(c.WORLD_HEIGHT-g.ball.y-310+ballDepth*Math.sin(this.tilt))/this.cos+310,ballDepth);this.ball.rotation.set(t*.3,g.ball.rotation,g.ball.rotation*.6);const height=c.GROUND_Y-g.ball.y;this.ballShadow.visible=g.ball.active;this.ballShadow.position.x=g.ball.x-c.WORLD_WIDTH/2;this.ballShadow.scale.setScalar(.45+height*.0014);this.ballShadow.material.opacity=Math.max(.07,.3-height*.0005);this.playerShadow.position.x=p.x-c.WORLD_WIDTH/2;this.playerShadow.scale.setScalar(.65+(c.GROUND_Y-p.y)*.003);this.playerShadow.material.opacity=inAir?.15:.3;
 
   for(const person of this.spectators){person.rotation.z=Math.sin(t*.65+person.userData.phase)*.008;}
   this.renderer.render(this.scene,this.camera);
