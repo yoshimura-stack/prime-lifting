@@ -501,3 +501,30 @@ body.touch-landscape #ranking-dialog #ranking-dialog-refresh{padding:6px 12px!im
 
 /* Mobile result: rival summary duplicates the full ranking action and collides with replay. */
 body.touch-landscape #result-next-rival{display:none!important}
+
+/* Mobile landscape: right-edge triangle keeps the player clear. */
+.touch-landscape .touch-actions{
+ position:fixed!important;
+ right:max(6px,env(safe-area-inset-right))!important;
+ bottom:max(12px,env(safe-area-inset-bottom))!important;
+ width:clamp(198px,43dvh,230px);
+ height:clamp(170px,38dvh,204px);
+ display:block!important;
+ pointer-events:none;
+}
+.touch-landscape .touch-actions>div{
+ position:absolute!important;
+ right:clamp(105px,23dvh,127px);
+ bottom:clamp(29px,6dvh,40px);
+ display:flex!important;
+ flex-direction:column!important;
+ gap:clamp(8px,2dvh,12px)!important;
+ align-items:center;
+ pointer-events:none;
+}
+.touch-landscape #touch-controls .touch-actions button{pointer-events:auto}
+.touch-landscape #touch-controls .touch-actions .touch-kick{
+ position:absolute!important;
+ right:0!important;
+ bottom:0!important;
+}
