@@ -51,7 +51,7 @@ class LiftingGame{
   // Every round starts with a grounded ball. A deliberate foot pickup
   // starts juggling; the pickup itself never awards score or combo.
   this.ball={
-   x:this.c.WORLD_WIDTH/2,
+   x:clamp(this.player.x+34,this.c.BALL_RADIUS,this.c.WORLD_WIDTH-this.c.BALL_RADIUS),
    y:this.c.GROUND_Y-this.c.BALL_RADIUS,
    vx:0,vy:0,rotation:0,active:true,pickup:true
   };
