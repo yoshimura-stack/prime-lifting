@@ -112,7 +112,11 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   if(path==='/api/achievements'){await db.call('me',{playerId:session.sub});const base=publicProgress(await db.call('achievement_get',{playerId:session.sub}));let next=null;try{const data=await db.call('next_achievement_get',{playerId:session.sub});const mask=data?.mask;if(Number.isInteger(mask)&&mask>=0&&mask<=255)next={mask,earned:NEXT_TITLES.filter((_,i)=>!!(mask&(1<<i))),god:base.master&&mask===255};}catch{}return json({progress:{...base,next}});}
   if(path==='/api/game/start'){
    await db.call('me',{playerId:session.sub});
-    return json({ruleset:RULESET,token:await sign({kind:'run',sub:session.sub,id:crypto.randomUUID(),started:time,exp:time+86400000,ruleset:RULESET,device:requestDevice(request)},env.SESSION_SECRET)});
+   const startBody=await readBody(request);
+   const width=startBody.worldWidth??1000;
+   if(!Number.isInteger(width)||width<1000||width>1800||width%100!==0)throw new ApiError(400,'フィールド幅が正しくありません。');
+   const worldWidth=requestDevice(request)==='mobile'?1000:width;
+   return json({ruleset:RULESET,worldWidth,token:await sign({kind:'run',sub:session.sub,id:crypto.randomUUID(),started:time,exp:time+86400000,ruleset:RULESET,device:requestDevice(request),worldWidth},env.SESSION_SECRET)});
   }
   const body=await readBody(request),run=await verify(body.token,env.SESSION_SECRET,'run',time);
   if(run.sub!==session.sub||run.ruleset!==RULESET||body.ruleset!==RULESET)throw new ApiError(403,'このプレイは登録できません。');
@@ -120,7 +124,7 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   if(time-run.started<60000)throw new ApiError(400,'プレイ終了後に再試行してください。');
   const device=run.device??requestDevice(request);
   if(!validKit(body.kit)||!['pc','mobile'].includes(device))throw new ApiError(400,'端末・ユニフォームの指定が正しくありません。');
-  const result=replayGame(body.events),score=finalScore(result.score,device);
+  const result=replayGame(body.events,run.worldWidth??1000),score=finalScore(result.score,device);
   const saved=await db.call('submit',{playerId:session.sub,runId:run.id,...result,score,baseScore:result.score,mobileBonus:score-result.score,kit:body.kit,device,gameVersion:VERSION});
   // Only an accepted and saved standard run can grant titles.
   // Progress is isolated from score storage; a progress outage must not erase a score.
