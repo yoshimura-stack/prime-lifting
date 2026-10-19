@@ -507,20 +507,28 @@ body.touch-landscape #result-next-rival{display:none!important}
  position:fixed!important;
  right:max(6px,env(safe-area-inset-right))!important;
  bottom:max(12px,env(safe-area-inset-bottom))!important;
- width:clamp(198px,43dvh,230px);
- height:clamp(170px,38dvh,204px);
+ width:clamp(214px,48dvh,250px);
+ height:clamp(180px,42dvh,218px);
  display:block!important;
  pointer-events:none;
 }
 .touch-landscape .touch-actions>div{
  position:absolute!important;
- right:clamp(105px,23dvh,127px);
- bottom:clamp(29px,6dvh,40px);
- display:flex!important;
- flex-direction:column!important;
- gap:clamp(8px,2dvh,12px)!important;
- align-items:center;
+ inset:0!important;
+ display:block!important;
  pointer-events:none;
+}
+.touch-landscape #touch-controls .touch-actions button[data-action="jump"]{
+ position:absolute!important;
+ right:clamp(32px,8dvh,46px)!important;
+ top:0!important;
+ bottom:auto!important;
+}
+.touch-landscape #touch-controls .touch-actions button[data-action="spin"]{
+ position:absolute!important;
+ left:0!important;
+ bottom:0!important;
+ top:auto!important;
 }
 .touch-landscape #touch-controls .touch-actions button{pointer-events:auto}
 .touch-landscape #touch-controls .touch-actions .touch-kick{
