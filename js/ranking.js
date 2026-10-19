@@ -355,9 +355,12 @@ function renderLive(stats,animate=true){
 function resetAchievements(){unlocked.clear();lastLiveStats=emptyLiveStats();clearTimeout(unlockTimer);const toast=document.getElementById('achievement-unlock');toast.className='achievement-unlock';toast.textContent='';renderLive(lastLiveStats,false);document.getElementById('achievement-panel').hidden=true;document.getElementById('achievement-badges').replaceChildren();}
 function showAchievements(stats){
  const panel=$('achievement-panel'),badges=$('achievement-badges');badges.replaceChildren();
- const earned=achievementDefinitions.filter(b=>b.earned(stats));
+ // Only show titles first unlocked by this run, not previously earned titles.
+ // If progress is unavailable, avoid presenting old titles as new awards.
+ const persistent=player&&progressOwner===player.id?cumulativeEarned:null;
+ const earned=persistent?achievementDefinitions.filter(b=>b.earned(stats)&&!persistent.has(b.name)):[];
  for(const badge of earned){const el=document.createElement('span');el.className='achievement-badge'+(badge.legendary?' legendary':'');el.textContent=`${badge.icon} ${badge.name}`;badges.append(el);}
- panel.hidden=false;if(!earned.length){const el=document.createElement('span');el.textContent='今回は未獲得。次のプレイで挑戦！';badges.append(el);}
+ panel.hidden=false;if(!earned.length){const el=document.createElement('span');el.textContent=persistent?'今回新しく獲得した称号はありません':'称号の獲得状況を確認中です';badges.append(el);}
 }
 let preflightFailures=0,preflightBusy=false;
 const preflightStatus=$('preflight-status'),preflightRetry=$('preflight-retry'),preflightContact=$('preflight-contact');
