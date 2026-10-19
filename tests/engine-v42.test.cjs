@@ -12,6 +12,14 @@ test('round starts with a grounded ball and pickup scores nothing',()=>{
  assert.equal(g.act(),'PICKUP');assert.equal(g.ball.pickup,false);
  assert.ok(g.ball.vy<0);assert.equal(g.score,0);assert.equal(g.hits,0);assert.equal(g.combo,0);
 });
+test('grounded loose ball stays exactly on the grass without jitter',()=>{
+ const g=new LiftingGame(structuredClone(PRIME_DEFAULTS));g.phase='playing';
+ step(g,2);
+ assert.equal(g.ball.y,g.c.GROUND_Y-g.c.BALL_RADIUS);
+ assert.equal(g.ball.vy,0);
+ assert.equal(g.ball.vx,0);
+ assert.equal(g.drops,0);
+});
 test('sideline throw-in bounces and remains kickable after settling',()=>{
  for(const side of [-1,1]){
   const g=fresh();g.ball.x=side<0?-20:1020;g.ball.vx=side*150;
