@@ -96,3 +96,10 @@
  body:not(.touch-landscape) .pc-king-ticker{height:25px}
  body:not(.touch-landscape) .field-bottom{bottom:25px}
 }
+
+/* PC utility actions stay at the bottom of their respective rails.
+   The scrollable rail and touch-landscape layouts are otherwise unchanged. */
+@media (min-width:951px) and (pointer:fine){
+ body:not(.touch-landscape) .pc-rail>.pc-rail-bottom-start{margin-top:auto}
+ body:not(.touch-landscape) .pc-rail>.pc-rail-bottom-action{margin-bottom:2px}
+}
