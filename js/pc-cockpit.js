@@ -30,12 +30,14 @@
   ['🏅','称号の獲得条件',[],'title-guide-open'],
   ['☰','ゲームメニュー',[],'game-menu-open'],
   ['🪙','PRIME COIN',[],'prime-coin-info-open'],
-  ['🔔','アップデート情報',[],'update-news-dialog']
+  ['🔔','アップデート情報',[],'update-news-dialog'],
+  ['⏸','一時停止',[],'pause']
  ]);
  const b=setup(right,'right',[
   ['⚽','得点とボーナス',['.panel-block:not(.stage-block)','.bonus-card']],
   ['🏟','ステージ',['.stage-block']],
-  ['🏆','現在のランキング',[],'view-ranking']
+  ['🏆','現在のランキング',[],'view-ranking'],
+  ['↻','リスタート',[],'restart-pc']
  ]);
  document.addEventListener('pointerdown',e=>{for(const p of [a,b])if(!p.popup.hidden&&!p.popup.contains(e.target)&&!e.target.closest('.pc-rail'))p.hide()});
  document.addEventListener('keydown',e=>{if(e.key==='Escape')for(const p of [a,b])if(!p.popup.hidden)p.hide()});
