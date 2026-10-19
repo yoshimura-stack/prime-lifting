@@ -117,6 +117,11 @@ class LiftingGame{
   if(b.active&&b.pickup&&p.spin<=0&&
      Math.abs(b.x-p.x)<=65&&b.y>=this.c.GROUND_Y-85){
    b.pickup=false;
+   this.pendingSpins=0;
+   this.eligibleSpin=false;
+   this.spinStreak=0;
+   this.airStreak=0;
+   p.spinEligible=false;
    b.vy=-this.c.ACTIONS.FOOT.verticalVelocity;
    b.vx=clamp((b.x-p.x)*1.8+p.vx*.08,-this.c.BALL_MAX_HORIZONTAL_SPEED,this.c.BALL_MAX_HORIZONTAL_SPEED);
    this.action='FOOT';this.actionSide=b.x>=p.x?'LEFT':'RIGHT';
