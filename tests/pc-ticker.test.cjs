@@ -77,6 +77,10 @@ test('mobile landscape buttons use right-edge triangle without changing actions'
  assert.match(css,/Mobile landscape: right-edge triangle/);
  assert.match(css,/\.touch-landscape \.touch-actions>div\{/);
  assert.match(css,/\.touch-landscape #touch-controls \.touch-actions \.touch-kick\{/);
+ assert.match(css,/button\[data-action="jump"\]\{/,'jump positioned separately');
+ assert.match(css,/button\[data-action="spin"\]\{/,'spin positioned separately');
+ assert.match(css,/right:clamp\(32px,8dvh,46px\)!important/,'jump at upper right');
+ assert.match(css,/left:0!important/,'spin at lower left');
  assert.match(css,/right:0!important/);
  assert.match(html,/data-action="jump">JUMP<\/button><button data-action="spin">SPIN<\/button>/);
  assert.match(html,/data-action="act">KICK<\/button>/);
