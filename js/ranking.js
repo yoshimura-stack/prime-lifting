@@ -383,6 +383,7 @@ async function preflight(){
 }
 preflightRetry.onclick=()=>{$('start').click();};
 window.PRIME_RANKING={
+ worldWidth:()=>ticket?.worldWidth??1000,
  achievements(stats){renderLive(stats,false);showAchievements(stats);},resetAchievements,updateAchievements(stats){renderLive(stats,true);},preflight,
  async begin(standard){
   ++generation;pending=null;$('achievement-panel').hidden=true;$('achievement-badges').replaceChildren();$('result-ranking').hidden=true;$('account-panel').hidden=false;
