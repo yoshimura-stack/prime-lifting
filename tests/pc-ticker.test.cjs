@@ -84,5 +84,15 @@ test('mobile landscape buttons use right-edge triangle without changing actions'
  assert.match(css,/right:0!important/);
  assert.match(html,/data-action="jump">JUMP<\/button><button data-action="spin">SPIN<\/button>/);
  assert.match(html,/data-action="act">KICK<\/button>/);
- assert.match(html,/mobile-ranking\.css\?v=triangle-controls-1/);
+ assert.match(html,/mobile-ranking\.css\?v=clear-actions-1/);
+});
+
+test('mobile action buttons keep outlines while remaining translucent',()=>{
+ const css=read('mobile-ranking.css'),html=read('index.html');
+ assert.match(css,/top:clamp\(34px,8dvh,52px\)!important/,'JUMP is lowered');
+ assert.match(css,/\.touch-actions button:not\(\.pressed\)\{/,'action buttons use transparent default');
+ assert.match(css,/background:rgba\(12,31,26,\.13\)!important/,'player remains visible through action buttons');
+ assert.match(css,/border:2\.5px solid rgba\(236,255,210,\.96\)!important/,'circular outline stays clear');
+ assert.match(css,/\.touch-kick:not\(\.pressed\)\{/,'KICK retains transparent accent');
+ assert.match(html,/mobile-ranking\.css\?v=clear-actions-1/,'new stylesheet cache version');
 });

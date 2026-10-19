@@ -521,7 +521,7 @@ body.touch-landscape #result-next-rival{display:none!important}
 .touch-landscape #touch-controls .touch-actions button[data-action="jump"]{
  position:absolute!important;
  right:clamp(32px,8dvh,46px)!important;
- top:0!important;
+ top:clamp(34px,8dvh,52px)!important;
  bottom:auto!important;
 }
 .touch-landscape #touch-controls .touch-actions button[data-action="spin"]{
@@ -536,4 +536,20 @@ body.touch-landscape #result-next-rival{display:none!important}
  position:absolute!important;
  right:0!important;
  bottom:0!important;
+}
+
+/* Keep the player and ball visible through the right-hand action buttons. */
+.touch-landscape #touch-controls .touch-actions button:not(.pressed){
+ background:rgba(12,31,26,.13)!important;
+ border:2.5px solid rgba(236,255,210,.96)!important;
+ color:#fff!important;
+ text-shadow:0 1px 3px #102019,0 0 6px #102019!important;
+ box-shadow:0 1px 6px #0005,inset 0 0 0 1px #10251b44!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+}
+.touch-landscape #touch-controls .touch-actions .touch-kick:not(.pressed){
+ background:rgba(186,226,66,.16)!important;
+ border-color:#e5ff88!important;
+ color:#fff!important;
 }
