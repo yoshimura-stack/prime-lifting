@@ -12,7 +12,7 @@
   const hide=(restoreFocus=true)=>{if(popup.hidden)return;popup.hidden=true;for(const item of moved){item.anchor.replaceWith(item.node)}moved=[];content.replaceChildren();if(restoreFocus)lastButton?.focus();};
   close.addEventListener('click',hide);popup.addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();hide()}});
   entries.forEach(([symbol,title,selectors,clickId])=>{
-   const btn=document.createElement('button');btn.type='button';btn.textContent=symbol;btn.title=title;btn.setAttribute('aria-label',title);rail.append(btn);
+   const btn=document.createElement('button');btn.type='button';btn.textContent=symbol;btn.title=title;btn.setAttribute('aria-label',title);if(clickId==='pause'||clickId==='restart-pc')btn.classList.add('pc-rail-bottom-start');if(clickId==='game-menu-open')btn.classList.add('pc-rail-bottom-action');rail.append(btn);
    btn.addEventListener('click',()=>{
     if(clickId==='update-news-dialog'){hide(false);document.querySelector('[data-open-updates]')?.click();return}
     if(clickId){hide(false);document.getElementById(clickId)?.click();return}
@@ -28,10 +28,10 @@
  const a=setup(left,'left',[
   ['🎮','操作説明',['.controls-content-scroll > .panel-block:first-child']],
   ['🏅','称号の獲得条件',[],'title-guide-open'],
-  ['☰','ゲームメニュー',[],'game-menu-open'],
   ['🪙','PRIME COIN',[],'prime-coin-info-open'],
   ['🔔','アップデート情報',[],'update-news-dialog'],
-  ['⏸','一時停止',[],'pause']
+  ['⏸','一時停止',[],'pause'],
+  ['☰','ゲームメニュー',[],'game-menu-open']
  ]);
  const b=setup(right,'right',[
   ['⚽','得点とボーナス',['.panel-block:not(.stage-block)','.bonus-card']],
