@@ -20,11 +20,18 @@ test('grounded loose ball stays exactly on the grass without jitter',()=>{
  assert.equal(g.ball.vx,0);
  assert.equal(g.drops,0);
 });
+test('ordinary ground miss respawns by player feet without sideline throw',()=>{
+ const g=fresh();g.player.x=720;g.ball.x=705;g.ball.y=g.c.GROUND_Y-g.c.BALL_RADIUS-1;g.ball.vy=200;
+ g.update(1/120);assert.equal(g.ball.active,false);assert.equal(g.respawnMode,'feet');
+ step(g,1);assert.equal(g.ball.pickup,true);assert.equal(g.ball.active,true);
+ assert.ok(Math.abs(g.ball.x-g.player.x)<=40);assert.equal(g.ball.vx,0);assert.equal(g.ball.vy,0);
+ assert.equal(g.score,0);assert.equal(g.drops,1);
+});
 test('sideline throw-in bounces and remains kickable after settling',()=>{
  for(const side of [-1,1]){
   const g=fresh();g.ball.x=side<0?-20:1020;g.ball.vx=side*150;
   g.update(1/120);assert.equal(g.ball.active,false);
-  assert.equal(g.respawnSide,side);
+  assert.equal(g.respawnSide,side);assert.equal(g.respawnMode,'throw');
   step(g,1);assert.equal(g.ball.active,true);assert.equal(g.ball.pickup,true);
   assert.ok(g.ball.vx*side<0,'throw-in travels toward center');
   step(g,3);assert.equal(g.ball.active,true);assert.equal(g.ball.pickup,true);

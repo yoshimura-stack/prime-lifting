@@ -28,6 +28,7 @@ class LiftingGame{
   this.airStreak=0;
   this.respawn=0;
   this.respawnSide=1;
+  this.respawnMode='throw';
   this.elapsed=0;
   this.cooldown=0;
   this.action='IDLE';
@@ -54,6 +55,12 @@ class LiftingGame{
    y:this.c.GROUND_Y-this.c.BALL_RADIUS,
    vx:0,vy:0,rotation:0,active:true,pickup:true
   };
+  this.trail=[];
+ }
+ respawnAtFeet(){
+  const c=this.c;
+  this.ball={x:clamp(this.player.x+34,c.BALL_RADIUS,c.WORLD_WIDTH-c.BALL_RADIUS),y:c.GROUND_Y-c.BALL_RADIUS,vx:0,vy:0,rotation:0,active:true,pickup:true};
+  this.respawn=0;
   this.trail=[];
  }
  throwIn(){
@@ -295,7 +302,9 @@ class LiftingGame{
     b.x<-c.BALL_RADIUS||
     b.x>c.WORLD_WIDTH+c.BALL_RADIUS
    ){
-    this.respawnSide=b.x<c.BALL_RADIUS?-1:b.x>c.WORLD_WIDTH-c.BALL_RADIUS?1:(b.x<c.WORLD_WIDTH/2?-1:1);
+    const outLeft=b.x<-c.BALL_RADIUS,outRight=b.x>c.WORLD_WIDTH+c.BALL_RADIUS;
+     this.respawnMode=outLeft||outRight?'throw':'feet';
+     this.respawnSide=outLeft?-1:outRight?1:this.respawnSide;
     b.y=Math.min(b.y,c.GROUND_Y-c.BALL_RADIUS);
     b.active=false;
     this.combo=0;
@@ -310,7 +319,7 @@ class LiftingGame{
    }
   }else{
    this.respawn-=dt;
-   if(this.respawn<=0)this.throwIn();
+   if(this.respawn<=0){if(this.respawnMode==='throw')this.throwIn();else this.respawnAtFeet();}
   }
 
   if(this.remaining<=0){
