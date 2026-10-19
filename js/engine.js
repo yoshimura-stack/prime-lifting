@@ -27,6 +27,7 @@ class LiftingGame{
   this.spinStreak=0;
   this.airStreak=0;
   this.respawn=0;
+  this.respawnSide=1;
   this.elapsed=0;
   this.cooldown=0;
   this.action='IDLE';
@@ -46,13 +47,21 @@ class LiftingGame{
  }
 
  spawn(){
+  // Every round starts with a grounded ball. A deliberate foot pickup
+  // starts juggling; the pickup itself never awards score or combo.
   this.ball={
    x:this.c.WORLD_WIDTH/2,
-   y:this.c.GROUND_Y-this.c.BALL_SPAWN_HEIGHT,
-   vx:this.c.BALL_SPAWN_VX,
-   vy:0,
-   rotation:0,
-   active:true
+   y:this.c.GROUND_Y-this.c.BALL_RADIUS,
+   vx:0,vy:0,rotation:0,active:true,pickup:true
+  };
+  this.trail=[];
+ }
+ throwIn(){
+  const c=this.c,side=this.respawnSide;
+  this.ball={
+   x:side<0?c.BALL_RADIUS+2:c.WORLD_WIDTH-c.BALL_RADIUS-2,
+   y:c.GROUND_Y-c.BALL_RADIUS-110,
+   vx:-side*170,vy:-130,rotation:0,active:true,pickup:true
   };
   this.trail=[];
  }
@@ -103,9 +112,25 @@ class LiftingGame{
   this.actionTime=this.c.ACTION_DURATION;
 
   const p=this.player,b=this.ball;
+  // A loose ball can be scooped up while rolling or bouncing. This is
+  // intentionally separate from scored airborne FOOT/KNEE contacts.
+  if(b.active&&b.pickup&&p.spin<=0&&
+     Math.abs(b.x-p.x)<=65&&b.y>=this.c.GROUND_Y-85){
+   b.pickup=false;
+   this.pendingSpins=0;
+   this.eligibleSpin=false;
+   this.spinStreak=0;
+   this.airStreak=0;
+   p.spinEligible=false;
+   b.vy=-this.c.ACTIONS.FOOT.verticalVelocity;
+   b.vx=clamp((b.x-p.x)*1.8+p.vx*.08,-this.c.BALL_MAX_HORIZONTAL_SPEED,this.c.BALL_MAX_HORIZONTAL_SPEED);
+   this.action='FOOT';this.actionSide=b.x>=p.x?'LEFT':'RIGHT';
+   this.emit('pickup',{x:b.x,y:b.y});
+   return 'PICKUP';
+  }
   let hit=null;
 
-  if(b.active&&p.spin<=0){
+  if(b.active&&!b.pickup&&p.spin<=0){
    for(const region of this.regions()){
     const distance=Math.hypot(b.x-region.x,b.y-region.y);
     if(distance<=region.r&&(!hit||distance/region.r<hit.ratio))
@@ -243,19 +268,34 @@ class LiftingGame{
    this.action=p.y<c.GROUND_Y?'JUMP':direction?(direction<0?'MOVE LEFT':'MOVE RIGHT'):'IDLE';
 
   if(b.active){
-   b.vy+=c.BALL_GRAVITY*dt;
+   // Resting loose balls stay on the turf; only airborne balls fall.
+   // Horizontal roll decelerates deterministically for browser/server replay.
+   const resting=b.pickup&&b.y>=c.GROUND_Y-c.BALL_RADIUS&&b.vy===0;
+   if(!resting)b.vy+=c.BALL_GRAVITY*dt;
    b.x+=b.vx*dt;
-   b.y+=b.vy*dt;
+   if(!resting)b.y+=b.vy*dt;
    b.rotation+=b.vx*dt/c.BALL_RADIUS;
 
    this.trail.push({x:b.x,y:b.y});
    if(this.trail.length>85)this.trail.shift();
 
+   // During a throw-in the ball bounces inward, loses energy, and
+   // settles on the grass until the player kicks it up.
+   if(b.pickup&&b.y+c.BALL_RADIUS>=c.GROUND_Y){
+    b.y=c.GROUND_Y-c.BALL_RADIUS;
+    if(b.vy>65){b.vy=-b.vy*.48;b.vx*=.75;}
+    else {b.vy=0;b.vx*=Math.max(0,1-4*dt);if(Math.abs(b.vx)<3)b.vx=0;}
+   }
+   if(b.pickup&&b.y>=c.GROUND_Y-c.BALL_RADIUS&&b.vy===0){
+    b.vx*=Math.max(0,1-3*dt);
+    if(Math.abs(b.vx)<3)b.vx=0;
+   }
    if(
-    b.y+c.BALL_RADIUS>=c.GROUND_Y||
+    (!b.pickup&&b.y+c.BALL_RADIUS>=c.GROUND_Y)||
     b.x<-c.BALL_RADIUS||
     b.x>c.WORLD_WIDTH+c.BALL_RADIUS
    ){
+    this.respawnSide=b.x<c.BALL_RADIUS?-1:b.x>c.WORLD_WIDTH-c.BALL_RADIUS?1:(b.x<c.WORLD_WIDTH/2?-1:1);
     b.y=Math.min(b.y,c.GROUND_Y-c.BALL_RADIUS);
     b.active=false;
     this.combo=0;
@@ -270,7 +310,7 @@ class LiftingGame{
    }
   }else{
    this.respawn-=dt;
-   if(this.respawn<=0)this.spawn();
+   if(this.respawn<=0)this.throwIn();
   }
 
   if(this.remaining<=0){
