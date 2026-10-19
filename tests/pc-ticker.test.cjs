@@ -84,7 +84,7 @@ test('mobile landscape buttons use right-edge triangle without changing actions'
  assert.match(css,/right:0!important/);
  assert.match(html,/data-action="jump">JUMP<\/button><button data-action="spin">SPIN<\/button>/);
  assert.match(html,/data-action="act">KICK<\/button>/);
- assert.match(html,/mobile-ranking\.css\?v=triangle-controls-1/);
+ assert.match(html,/mobile-ranking\.css\?v=clear-actions-1/);
 });
 
 test('mobile action buttons keep outlines while remaining translucent',()=>{
