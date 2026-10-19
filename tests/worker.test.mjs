@@ -50,7 +50,7 @@ test('server replay matches unchanged engine on real timed input',()=>{
  const game=new LiftingGame(structuredClone(PRIME_DEFAULTS));game.reset();const events=[];let tick=0,lastDir=0;
  while(game.phase!=='ended'){
   const p=game.player,b=game.ball,r=game.regions().find(r=>r.name==='FOOT'&&r.side==='LEFT');
-  if(game.phase==='playing'&&b.active&&b.vy>0&&Math.hypot(b.x-r.x,b.y-r.y)<r.r*.65&&game.cooldown===0){events.push({t:tick,n:'act'});game.act();}
+  if(game.phase==='playing'&&b.active&&game.cooldown===0&&((b.pickup&&Math.abs(b.x-p.x)<=65&&b.y>=game.c.GROUND_Y-85)||(!b.pickup&&b.vy>0&&Math.hypot(b.x-r.x,b.y-r.y)<r.r*.65))){events.push({t:tick,n:'act'});game.act();}
   const error=b.x-19-p.x,dir=Math.abs(error)<4?0:Math.sign(error);if(dir!==lastDir){events.push({t:tick,n:'move',v:dir});lastDir=dir;}
   game.update(PRIME_DEFAULTS.FIXED_STEP,dir);tick++;
  }
