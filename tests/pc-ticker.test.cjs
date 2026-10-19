@@ -65,3 +65,9 @@ test('PC rail pause and restart reuse the existing game handlers',()=>{
  assert.match(game,/\$\('restart-pc'\)\.onclick=restartRound/);
  assert.match(game,/\$\('restart-confirm'\)\.hidden=false/);
 });
+
+test('play start uses ranking ticket world width getter',()=>{
+ const game=read('game.js'),ranking=read('js/ranking.js');
+ assert.match(game,/PRIME_RANKING\.worldWidth\(\)/,'game reads width before reset');
+ assert.match(ranking,/worldWidth:\(\)=>ticket\?\.worldWidth\?\?1000/,'ranking exposes signed width or standard fallback');
+});
