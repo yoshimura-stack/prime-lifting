@@ -263,9 +263,12 @@ class LiftingGame{
    this.action=p.y<c.GROUND_Y?'JUMP':direction?(direction<0?'MOVE LEFT':'MOVE RIGHT'):'IDLE';
 
   if(b.active){
-   b.vy+=c.BALL_GRAVITY*dt;
+   // Resting loose balls stay on the turf; only airborne balls fall.
+   // Horizontal roll decelerates deterministically for browser/server replay.
+   const resting=b.pickup&&b.y>=c.GROUND_Y-c.BALL_RADIUS&&b.vy===0;
+   if(!resting)b.vy+=c.BALL_GRAVITY*dt;
    b.x+=b.vx*dt;
-   b.y+=b.vy*dt;
+   if(!resting)b.y+=b.vy*dt;
    b.rotation+=b.vx*dt/c.BALL_RADIUS;
 
    this.trail.push({x:b.x,y:b.y});
