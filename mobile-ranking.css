@@ -501,3 +501,39 @@ body.touch-landscape #ranking-dialog #ranking-dialog-refresh{padding:6px 12px!im
 
 /* Mobile result: rival summary duplicates the full ranking action and collides with replay. */
 body.touch-landscape #result-next-rival{display:none!important}
+
+/* Mobile landscape: right-edge triangle keeps the player clear. */
+.touch-landscape .touch-actions{
+ position:fixed!important;
+ right:max(6px,env(safe-area-inset-right))!important;
+ bottom:max(12px,env(safe-area-inset-bottom))!important;
+ width:clamp(214px,48dvh,250px);
+ height:clamp(180px,42dvh,218px);
+ display:block!important;
+ pointer-events:none;
+}
+.touch-landscape .touch-actions>div{
+ position:absolute!important;
+ inset:0!important;
+ display:block!important;
+ pointer-events:none;
+}
+.touch-landscape #touch-controls .touch-actions button[data-action="jump"]{
+ position:absolute!important;
+ right:clamp(32px,8dvh,46px)!important;
+ top:0!important;
+ bottom:auto!important;
+}
+.touch-landscape #touch-controls .touch-actions button[data-action="spin"]{
+ position:absolute!important;
+ right:clamp(82px,19dvh,102px)!important;
+ left:auto!important;
+ bottom:clamp(10px,2.5dvh,16px)!important;
+ top:auto!important;
+}
+.touch-landscape #touch-controls .touch-actions button{pointer-events:auto}
+.touch-landscape #touch-controls .touch-actions .touch-kick{
+ position:absolute!important;
+ right:0!important;
+ bottom:0!important;
+}

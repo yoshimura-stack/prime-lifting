@@ -71,3 +71,18 @@ test('play start uses ranking ticket world width getter',()=>{
  assert.match(game,/PRIME_RANKING\.worldWidth\(\)/,'game reads width before reset');
  assert.match(ranking,/worldWidth:\(\)=>ticket\?\.worldWidth\?\?1000/,'ranking exposes signed width or standard fallback');
 });
+
+test('mobile landscape buttons use right-edge triangle without changing actions',()=>{
+ const css=read('mobile-ranking.css'),html=read('index.html');
+ assert.match(css,/Mobile landscape: right-edge triangle/);
+ assert.match(css,/\.touch-landscape \.touch-actions>div\{/);
+ assert.match(css,/\.touch-landscape #touch-controls \.touch-actions \.touch-kick\{/);
+ assert.match(css,/button\[data-action="jump"\]\{/,'jump positioned separately');
+ assert.match(css,/button\[data-action="spin"\]\{/,'spin positioned separately');
+ assert.match(css,/right:clamp\(32px,8dvh,46px\)!important/,'jump at upper right');
+ assert.match(css,/right:clamp\(82px,19dvh,102px\)!important/,'spin tucked near kick');
+ assert.match(css,/right:0!important/);
+ assert.match(html,/data-action="jump">JUMP<\/button><button data-action="spin">SPIN<\/button>/);
+ assert.match(html,/data-action="act">KICK<\/button>/);
+ assert.match(html,/mobile-ranking\.css\?v=triangle-controls-1/);
+});
