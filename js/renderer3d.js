@@ -143,7 +143,7 @@ class PrimeRenderer{
   model.torso.rotation.z=kneeActive?hitSign*.035*kneePose:active&&a==='SHOULDER'?-hitSign*.11*pose:stride*.018;
   model.torso.rotation.x=active&&a==='CHEST'?-.13*pose:active&&a==='SHOULDER'?-.025*pose:0;model.head.rotation.z=active&&a==='SHOULDER'?hitSign*.16*pose:0;model.head.rotation.x=active&&(a==='HEADER'||a==='JUMP_HEADER')?.15*pose:-.06;model.head.rotation.y=spinning?0:Math.max(-.2,Math.min(.2,(g.ball.x-p.x)*.004));
   const ballDepth=19+26*kneePose;this.ball.visible=g.ball.active;this.ball.position.set(g.ball.x-c.WORLD_WIDTH/2,(c.WORLD_HEIGHT-g.ball.y-310+ballDepth*Math.sin(this.tilt))/this.cos+310,ballDepth);this.ball.rotation.set(t*.3,g.ball.rotation,g.ball.rotation*.6);
-  const height=c.GROUND_Y-g.ball.y;this.ballShadow.visible=g.ball.active;this.ballShadow.position.x=g.ball.x-c.WORLD_WIDTH/2;this.ballShadow.scale.setScalar(.45+height*.0014);this.ballShadow.material.opacity=Math.max(.07,.3-height*.0005);this.playerShadow.position.x=p.x-500;this.playerShadow.scale.setScalar(.65+(c.GROUND_Y-p.y)*.003);this.playerShadow.material.opacity=inAir?.15:.3;
+  const height=c.GROUND_Y-g.ball.y;this.ballShadow.visible=g.ball.active;this.ballShadow.position.x=g.ball.x-c.WORLD_WIDTH/2;this.ballShadow.scale.setScalar(.45+height*.0014);this.ballShadow.material.opacity=Math.max(.07,.3-height*.0005);this.playerShadow.position.x=p.x-c.WORLD_WIDTH/2;this.playerShadow.scale.setScalar(.65+(c.GROUND_Y-p.y)*.003);this.playerShadow.material.opacity=inAir?.15:.3;
   for(const person of this.spectators){person.rotation.z=Math.sin(t*.65+person.userData.phase)*.008;}
   this.renderer.render(this.scene,this.camera);
  }
