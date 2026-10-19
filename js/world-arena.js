@@ -9,7 +9,7 @@ root.PRIME_WORLD_ARENA=function(host){
  const pink=new T.MeshBasicMaterial({color:'#ff69be'}),ice=new T.MeshBasicMaterial({color:'#a2e9ff'});
  const dark=material('#101b2c'),metal=material('#506079');
  const box=(name,x,y,z,w,h,d,mat)=>{const m=new T.Mesh(host.boxGeo,mat);m.name=name;m.position.set(x,y,z);m.scale.set(w,h,d);group.add(m);return m;};
- const floor=(name,x,z,w,d,mat,y=g)=>{const m=new T.Mesh(new T.PlaneGeometry(w,d),mat);m.name=name;m.rotation.x=-Math.PI/2;m.position.set(x,y,z);m.receiveShadow=true;group.add(m);return m;};
+ const floor=(name,x,z,w,d,mat,y=g)=>{const m=new T.Mesh(new T.PlaneGeometry(w,d),mat);m.name=name;m.rotation.x=-Math.PI/2;m.position.set(x,y,z);group.add(m);return m;};
 
  // Turf is exclusively horizontal. Its rear edge meets the service apron,
  // rather than extending upward behind the people or through the stands.
@@ -25,7 +25,7 @@ root.PRIME_WORLD_ARENA=function(host){
  for(let i=0;i<8;i++)floor('mowing-band',0,-585+i*260,2800,130,mowing,g+.12);
  const chalk=material('#dde5dc');floor('back-touchline',0,-405,2500,3,chalk,g+.35);
  floor('side-touchline',-448,80,3,1850,chalk,g+.35);
- const ring=new T.Mesh(new T.RingGeometry(221,224,120),chalk);ring.name='center-circle';ring.rotation.x=-Math.PI/2;ring.position.set(0,g+.4,-10);ring.receiveShadow=true;group.add(ring);
+ const ring=new T.Mesh(new T.RingGeometry(221,224,120),chalk);ring.name='center-circle';ring.rotation.x=-Math.PI/2;ring.position.set(0,g+.4,-10);group.add(ring);
 
  // Curved strips use real x/y/z geometry. Each tread is horizontal and each
  // riser vertical; increasing radius and elevation form the stadium bowl.
@@ -149,10 +149,9 @@ root.PRIME_WORLD_ARENA=function(host){
  for(const {geometry,parts} of batches.values()){
   const mesh=new T.InstancedMesh(geometry,new T.MeshStandardMaterial({color:0xffffff,roughness:.85}),parts.length);
   mesh.name='technical-area-people';parts.forEach((part,i)=>{mesh.setMatrixAt(i,part.matrix);mesh.setColorAt(i,part.color);});
-  mesh.instanceMatrix.needsUpdate=true;mesh.instanceColor.needsUpdate=true;mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);
+  mesh.instanceMatrix.needsUpdate=true;mesh.instanceColor.needsUpdate=true;group.add(mesh);
  }
- const contact=host.shadow(25,.23);contact.name='crew-contact-shadow';
- crew.forEach((person,i)=>{const shadow=i===0?contact:contact.clone();shadow.position.set(person.x,g+.3,person.z);group.add(shadow);});
+
  group.userData.staffCount=crew.length;group.userData.crew=crew;
 
  // Merge repeated static architectural boxes into material batches.
@@ -164,7 +163,7 @@ root.PRIME_WORLD_ARENA=function(host){
  for(const [mat,matrices] of trimBatches){const batch=new T.InstancedMesh(host.boxGeo,mat,matrices.length);batch.name='architecture-trim';matrices.forEach((m,i)=>batch.setMatrixAt(i,m));group.add(batch);}
  const ambient=new T.HemisphereLight(0xb8d7f5,0x17251e,.95);group.add(ambient);
  const key=new T.DirectionalLight(0xeaf4ff,3.1);key.name='arena-shadow-light';key.position.set(-350,800,420);key.target.position.set(0,g,-180);
- key.castShadow=true;key.shadow.mapSize.set(1024,1024);Object.assign(key.shadow.camera,{left:-750,right:750,top:750,bottom:-750,near:1,far:2400});key.shadow.normalBias=.6;key.shadow.bias=-.0003;key.shadow.radius=3;group.add(key,key.target);
+ group.add(key,key.target);
  const pinkFill=new T.DirectionalLight(0xff77bc,.45);pinkFill.position.set(-650,350,-400);group.add(pinkFill);
  const blueFill=new T.DirectionalLight(0x8adfff,.65);blueFill.position.set(650,400,200);group.add(blueFill);
  const sky=new T.Color('#080f20'),fog=new T.Fog('#141e33',2600,5500);

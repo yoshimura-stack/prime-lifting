@@ -21,7 +21,7 @@ test('grass is a horizontal floor, with real tier elevations behind the crew',()
  const heights=new Set();for(let i=0;i<treads.count;i++){heights.add(Math.round(treads.getY(i)));assert.ok(treads.getZ(i)<0);}
  assert.equal(heights.size,24);assert.equal(arena.group.userData.crowdCount,7104);
  assert.equal(arena.group.children.filter(m=>m.name.startsWith('crowd-')).length,2);
- assert.equal(arena.group.children.filter(m=>m.isLight&&m.castShadow).length,1);
+ assert.equal(arena.group.children.filter(m=>m.isLight&&m.castShadow).length,0);
  assert.ok(!arena.group.getObjectByName('panorama'));
 });
 test('stage switches restore all training lights and atmosphere without allocations',()=>{
