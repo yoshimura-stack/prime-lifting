@@ -1,10 +1,38 @@
 // V4.2 expectations: +150 first AIR; SPIN +100 * streak * rotations.
 const assert=require('node:assert/strict');
 require('../js/config.js');require('../js/engine.js');
-const fresh=()=>{const g=new LiftingGame(structuredClone(PRIME_DEFAULTS));g.phase='playing';return g;};
+const fresh=()=>{const g=new LiftingGame(structuredClone(PRIME_DEFAULTS));g.phase='playing';Object.assign(g.ball,{pickup:false,y:g.c.GROUND_Y-g.c.BALL_SPAWN_HEIGHT,vx:g.c.BALL_SPAWN_VX,vy:0});return g;};
 const step=(g,t,d=0)=>{for(let s=0;s<t;s+=1/120)g.update(1/120,d);};
 const place=(g,name)=>{const r=g.regions().find(r=>r.name===name);Object.assign(g.ball,{x:r.x,y:r.y,vx:23,vy:90});g.cooldown=0;};
 let checks=0;function test(name,fn){fn();checks++;console.log('PASS '+name);}
+test('round starts with a grounded ball and pickup scores nothing',()=>{
+ const g=new LiftingGame(structuredClone(PRIME_DEFAULTS));g.phase='playing';
+ assert.equal(g.ball.pickup,true);assert.equal(g.ball.y,g.c.GROUND_Y-g.c.BALL_RADIUS);
+ assert.equal(g.ball.vx,0);assert.equal(g.ball.vy,0);
+ assert.equal(g.act(),'PICKUP');assert.equal(g.ball.pickup,false);
+ assert.ok(g.ball.vy<0);assert.equal(g.score,0);assert.equal(g.hits,0);assert.equal(g.combo,0);
+});
+test('grounded loose ball stays exactly on the grass without jitter',()=>{
+ const g=new LiftingGame(structuredClone(PRIME_DEFAULTS));g.phase='playing';
+ step(g,2);
+ assert.equal(g.ball.y,g.c.GROUND_Y-g.c.BALL_RADIUS);
+ assert.equal(g.ball.vy,0);
+ assert.equal(g.ball.vx,0);
+ assert.equal(g.drops,0);
+});
+test('sideline throw-in bounces and remains kickable after settling',()=>{
+ for(const side of [-1,1]){
+  const g=fresh();g.ball.x=side<0?-20:1020;g.ball.vx=side*150;
+  g.update(1/120);assert.equal(g.ball.active,false);
+  assert.equal(g.respawnSide,side);
+  step(g,1);assert.equal(g.ball.active,true);assert.equal(g.ball.pickup,true);
+  assert.ok(g.ball.vx*side<0,'throw-in travels toward center');
+  step(g,3);assert.equal(g.ball.active,true);assert.equal(g.ball.pickup,true);
+  g.player.x=g.ball.x;
+  assert.equal(g.act(),'PICKUP');assert.equal(g.score,0);assert.equal(g.hits,0);
+ }
+});
+
 test('all four grounded body regions produce their own action',()=>{for(const name of ['FOOT','KNEE','CHEST','HEADER']){const g=fresh();place(g,name);assert.equal(g.act(),name);assert.equal(g.score,g.c.ACTIONS[name].score);}});
 test('jump never touches ball without explicit ball action',()=>{const g=fresh();place(g,'HEADER');const before={...g.ball};g.jump();assert.deepEqual(g.ball,before);step(g,.1);assert.equal(g.score,0);assert.equal(g.hits,0);});
 test('airborne header requires valid contact and explicit action',()=>{const g=fresh();g.jump();step(g,.12);place(g,'JUMP_HEADER');assert.equal(g.act(),'JUMP_HEADER');assert.equal(g.score,650);});
