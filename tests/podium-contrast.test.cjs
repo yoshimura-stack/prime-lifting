@@ -76,6 +76,6 @@ test('medal colors and typography match between mobile and PC',()=>{
  assert.match(pcCss,/\.pc-king-ticker\{[^\n]*background:#10241a/,'PC background dark enough for white names');
  assert.match(html,/mobile-king-marquee\.css\?v=top10-mobile-1/);
  assert.match(html,/js\/mobile-king-marquee\.js\?v=top10-mobile-1/);
- assert.match(html,/pc-cockpit\.css\?v=top10-seamless-1/);
- assert.match(html,/js\/pc-cockpit\.js\?v=pc-pause-restart-1/);
+ assert.match(html,/pc-cockpit\.css\?v=bottom-rail-actions-1/);
+ assert.match(html,/js\/pc-cockpit\.js\?v=bottom-rail-actions-1/);
 });
