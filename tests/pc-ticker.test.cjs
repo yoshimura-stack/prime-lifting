@@ -39,7 +39,7 @@ test('PC trophy opens the same full-screen online leaderboard as ranking button'
  assert.match(html,/id="ranking-dialog-list"/,'full ranking list still present');
 });
 
-test('PC wide field reveals extra scenery without stretching 2D game coordinates',()=>{
+test('PC wide field reveals extra scenery and signs playable world width',()=>{
  const css=read('pc-cockpit.css');
  const renderer=read('js/renderer3d.js');
  const html=read('index.html');
@@ -51,7 +51,9 @@ test('PC wide field reveals extra scenery without stretching 2D game coordinates
  assert.match(renderer,/this\.camera\.left=-width\/2/,'orthographic camera widens rather than stretching model');
  assert.match(renderer,/this\.camera\.right=width\/2/);
  assert.match(renderer,/this\.camera\.updateProjectionMatrix\(\)/);
- assert.match(html,/js\/renderer3d\.js\?v=wide-field-2/,'cache bust Three.js rendering update');
+ assert.match(html,/js\/renderer3d\.js\?v=signed-field-1/,'cache bust Three.js rendering update');
+ assert.match(read('game.js'),/window\.PRIME_FIELD_WIDTH=/,'PC gameplay width follows stage');
+ assert.match(read('server/worker.mjs'),/worldWidth/,'server signs gameplay width');
 });
 
 test('PC rail pause and restart reuse the existing game handlers',()=>{
