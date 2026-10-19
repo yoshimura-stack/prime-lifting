@@ -11,11 +11,12 @@ export function normalizeName(value){
  if([...name].length<1||[...name].length>16||/[\p{Cc}\p{Cf}<>]/u.test(name))throw new ApiError(400,'名前は1〜16文字で入力してください。');
  return {name,key:name.toLocaleLowerCase('ja')};
 }
-export function replay(events){
+export function replay(events,worldWidth=1000){
+ if(!Number.isInteger(worldWidth)||worldWidth<1000||worldWidth>1800||worldWidth%100!==0)throw new ApiError(400,'フィールド幅が正しくありません。');
  if(!Array.isArray(events)||events.length>10000)throw new ApiError(400,'プレイ記録が正しくありません。');
  let prev=-1;
  for(const e of events){if(!e||!Number.isInteger(e.t)||e.t<prev||e.t<0||e.t>7800||!['move','jump','act','spin'].includes(e.n)||(e.n==='move'&&![-1,0,1].includes(e.v)))throw new ApiError(400,'プレイ記録が正しくありません。');prev=e.t;}
- const c=structuredClone(globalThis.PRIME_DEFAULTS),g=new globalThis.LiftingGame(c);g.reset();let at=0,dir=0,tick=0,jumpsSinceHit=0,maxAirStreak=0,shoulderHits=0,spinKing=false,quadMaster=false,airQuad=false,doubleAir=false;
+ const c=structuredClone(globalThis.PRIME_DEFAULTS);c.WORLD_WIDTH=worldWidth;const g=new globalThis.LiftingGame(c);g.reset();let at=0,dir=0,tick=0,jumpsSinceHit=0,maxAirStreak=0,shoulderHits=0,spinKing=false,quadMaster=false,airQuad=false,doubleAir=false;
  const nextProof={totalHits:0,foot:0,knee:0,chest:0,heading:0,shoulder:0,spin:0,jump:0,allSpin:true,allJump:true,first30:null};
  const prefix={hits:0,foot:0,knee:0,chest:0,heading:0,spin:0,jump:0,unbroken:true};
  while(g.phase!=='ended'&&tick<7800){while(at<events.length&&events[at].t===tick){const e=events[at++];if(e.n==='move')dir=e.v;else {const accepted=g[e.n]();if(e.n==='jump'&&accepted===true)jumpsSinceHit++;}}g.update(c.FIXED_STEP,dir);for(const event of g.events){if(event.type==='hit'){
