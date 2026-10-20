@@ -16,5 +16,12 @@
   "vars": {
     "BOOST_PREVIEW_ENABLED": "false",
     "BOOST_PREVIEW_PROJECT_ID": "tarnzjkxexlozqqmyqof"
+  },
+  "assets": {
+    "directory": "./boost-preview-public",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/api/*"
+    ]
   }
 }
