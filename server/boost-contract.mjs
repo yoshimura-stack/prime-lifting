@@ -17,7 +17,7 @@ export function boostReservePayload(playerId,runId,boost){
  return {payload:{playerId,runId,boost:type}};
 }
 export function parseSlotResult(value){
- if(!value||typeof value!=='object'||Array.isArray(value)||typeof value.day!=='string'||!/^\\d{4}-\\d{2}-\\d{2}$/.test(value.day)||typeof value.replayed!=='boolean')throw new TypeError('Invalid slot result');
+ if(!value||typeof value!=='object'||Array.isArray(value)||typeof value.day!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value.day)||typeof value.replayed!=='boolean')throw new TypeError('Invalid slot result');
  if(value.allFull===true){
   if(value.boost!==null||value.reels!==null||value.replayed)throw new TypeError('Invalid full slot');
   return {day:value.day,boost:null,reels:null,allFull:true,replayed:false};
