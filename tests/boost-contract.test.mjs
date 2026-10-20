@@ -18,4 +18,5 @@ test('slot validates triple matching symbols and full-stock skip',()=>{
  assert.deepEqual(parseSlotResult({day:'2026-10-20',boost:'sc',reels:['sc','sc','sc'],replayed:false}),{day:'2026-10-20',boost:'sc',reels:['sc','sc','sc'],replayed:false});
  assert.deepEqual(parseSlotResult({day:'2026-10-20',boost:null,reels:null,allFull:true,replayed:false}),{day:'2026-10-20',boost:null,reels:null,allFull:true,replayed:false});
  assert.throws(()=>parseSlotResult({day:'2026-10-20',boost:'sc',reels:['sc','time','sc'],replayed:false}),TypeError);
+ assert.throws(()=>parseSlotResult({day:'not-a-day',boost:'sc',reels:['sc','sc','sc'],replayed:false}),TypeError);
 });
