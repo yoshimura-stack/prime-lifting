@@ -1,0 +1,14 @@
+/* UI-only BOOST staging preview. No changes to live gameplay hitboxes. */
+.prime-boost-preview{width:min(100%,520px);margin:8px auto;padding:10px;border:1px solid rgba(255,255,255,.23);border-radius:12px;background:rgba(6,20,29,.92);color:#fff;box-sizing:border-box}
+.prime-boost-preview[hidden]{display:none!important}
+.prime-boost-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;font-size:12px}
+.prime-boost-heading small{font-size:9px;color:#facc15}
+.prime-boost-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.prime-boost-card{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;padding:8px 4px;border:1px solid #496070;border-radius:9px;background:#122936;color:#e9f2f5;opacity:.76;cursor:not-allowed}
+.prime-boost-ball{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--boost-color);font-size:20px;text-shadow:0 1px 3px #000}
+.prime-boost-copy{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;min-width:0}
+.prime-boost-copy strong{font-size:10px;line-height:1.2}
+.prime-boost-copy small{font-size:9px;line-height:1.2}
+.prime-boost-count{font-size:9px;color:#9eb7c7}
+.prime-boost-lock{display:block;text-align:center;margin-top:6px;color:#d9b86e;font-size:10px}
+@media(max-width:700px){.prime-boost-preview{width:min(100%,480px);padding:6px;margin:4px auto}.prime-boost-card{padding:4px 2px}.prime-boost-ball{width:24px;height:24px;font-size:16px}.prime-boost-copy small{font-size:8px}}
