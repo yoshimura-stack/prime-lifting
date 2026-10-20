@@ -9,7 +9,7 @@ export function createSlotPreview(root,{spin,enabled=false}={}){
  if(!root||typeof root.append!=='function')throw new TypeError('Root element required');
  root.replaceChildren();
  const heading=document.createElement('h2');heading.textContent='⚽ DAILY SLOT — STAGING';
- const status=document.createElement('p');status.setAttribute('role','status');
+ const status=document.createElement('p');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  status.textContent=enabled?'検証用スロット（本番報酬には反映されません）':'🔒 開発プレビュー：抽選・付与は無効';
  const reels=document.createElement('div');reels.className='boost-slot-reels';
  const cells=Array.from({length:3},()=>{
