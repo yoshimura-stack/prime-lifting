@@ -21,6 +21,7 @@ export function createBoostPreviewHandler({transport,resolvePlayer,enabled=false
   if(typeof playerId!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(playerId))return json({error:'Unauthorized'},401);
   let body;
   try{
+   if(Number(request.headers.get('content-length'))>2048)return json({error:'Payload too large'},413);
    const raw=await request.text();
    if(raw.length>2048) return json({error:'Payload too large'},413);
    body=JSON.parse(raw);
