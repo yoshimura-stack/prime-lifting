@@ -72,3 +72,13 @@ test('preview Worker root points only to isolated slot page',async()=>{
  assert.equal(res.status,302);
  assert.equal(res.headers.get('location'),'https://preview.example/boost-slot-preview.html');
 });
+
+test('preview static response cannot be cached or framed',async()=>{
+ const res=await worker.fetch(new Request('https://preview.example/boost-slot-preview.html'),{
+  ASSETS:{fetch:async()=>new Response('preview',{headers:{'content-type':'text/html'}})}
+ });
+ assert.equal(res.status,200);
+ assert.equal(res.headers.get('cache-control'),'no-store');
+ assert.equal(res.headers.get('x-frame-options'),'DENY');
+ assert.equal(res.headers.get('x-content-type-options'),'nosniff');
+});
