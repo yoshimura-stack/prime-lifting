@@ -15,6 +15,9 @@ Environment: isolated Supabase project `prime-boost-staging` (Tokyo, Free). Prod
 - SQL transactions used ROLLBACK; test-player rows were not retained.
 - Verified BOOST tables do not grant privileges to `anon` or `authenticated`; `service_role` grants exist.
 
+- Verified RPC EXECUTE privileges: anon=false, authenticated=false, service_role=true for both functions.
+- Verified cross-player reuse of an existing run ID is rejected, while the original use record and stock remain consistent.
+
 ## Important limitations
 - These are **sequential calls inside SQL transactions**, not two concurrent connections. Race-condition tests remain pending.
 - This is a standalone preview database, not the live game database. Its minimal `lifting_players` table is for DB testing only.
