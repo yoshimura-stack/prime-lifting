@@ -46,3 +46,9 @@ Status: DESIGN ONLY. Not deployed, not enabled, and no production SQL executed.
 - Ranked icon persistence, best-score replacement and historical record representation.
 
 Current staging guard: all `/api/boost/*` paths return 403 and both game start and score submission reject client-supplied boost fields. Do not relax until verified end-to-end.
+
+## 2026-10-20 implementation draft inventory
+- `docs/sql/prime-boost-preview-schema.sql`: inventory, per-run uses, per-day slot tables. Preview only.
+- `docs/sql/prime-boost-preview-reserve.sql`: row-locked atomic decrement, idempotent run id. Preview only.
+- `docs/sql/prime-boost-preview-slot.sql`: database-derived JST day, row-locked once/day matching-reel grant, full-stock skip. Preview only.
+- All SQL files are **unapplied drafts**, not migrations. Check `lifting_players.id` type and actual grants in isolated preview DB before any execution. No production execution authorized.
