@@ -553,3 +553,22 @@ body.touch-landscape #result-next-rival{display:none!important}
  border-color:#e5ff88!important;
  color:#fff!important;
 }
+
+/* Floating joystick: only the left half of the mobile viewport is an input zone.
+   The right action buttons and all desktop layouts remain unchanged. */
+.touch-landscape #touch-controls .touch-stick-zone{
+ position:fixed;left:0;top:0;width:50vw;height:100dvh;
+ z-index:0;pointer-events:auto;touch-action:none;
+ -webkit-tap-highlight-color:transparent;
+}
+.touch-landscape #touch-controls .touch-stick-zone .touch-stick{
+ position:absolute!important;left:0;top:0;bottom:auto!important;
+ opacity:0;visibility:hidden;pointer-events:none!important;
+ transform:none!important;transition:none!important;
+}
+.touch-landscape #touch-controls .touch-stick-zone .touch-stick.floating-visible{
+ opacity:1;visibility:visible;
+}
+.touch-landscape #touch-controls .touch-actions{
+ position:absolute;z-index:2;
+}
