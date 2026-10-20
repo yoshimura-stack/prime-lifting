@@ -19,3 +19,5 @@ jobs:
         run: npm test
       - name: Build preview assets without deploying
         run: npm run build
+      - name: Validate isolated preview Worker without deploying
+        run: npm run check:boost-preview
