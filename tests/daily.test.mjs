@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {jstDay,dailyChallenges,completedDailyChallenges,earnedPlayCoins,rankingTotal,jstMonth} from '../server/daily.mjs';
+import {DAILY_POOLS,jstDay,dailyChallenges,completedDailyChallenges,earnedPlayCoins,rankingTotal,jstMonth} from '../server/daily.mjs';
 test('JST day boundary, not UTC',()=>{
  assert.equal(jstDay(Date.parse('2026-10-16T14:59:59Z')),'2026-10-16');
  assert.equal(jstDay(Date.parse('2026-10-16T15:00:00Z')),'2026-10-17');
@@ -43,4 +43,24 @@ test('signed start day remains stable when a play ends after JST midnight',()=>{
  const result={combo:100,nextProof:{foot:100,knee:100,chest:100,shoulder:100,spin:100,jump:100},achievementProof:{quadMaster:true}};
  assert.deepEqual(completedDailyChallenges(jstDay(started),result),dailyChallenges('2026-10-18').map(c=>c.id));
  assert.deepEqual(completedDailyChallenges(jstDay(ended),result),dailyChallenges('2026-10-19').map(c=>c.id));
+});
+
+test('thirty unique bank missions rotate for everyone without repeats across ten days',()=>{
+ const difficulties=['easy','normal','hard'];
+ for(const difficulty of difficulties){
+  const pool=DAILY_POOLS[difficulty];
+  assert.equal(pool.length,10);
+  assert.equal(new Set(pool.map(c=>c.id)).size,10);
+  assert.ok(pool.every(c=>['combo','foot','knee','chest','shoulder','spin','jump','quad'].includes(c.metric)&&Number.isSafeInteger(c.target)&&c.target>0));
+  const chosen=[];
+  for(let offset=0;offset<11;offset++){
+   const day=new Date(Date.parse('2026-10-20T00:00:00Z')+offset*86400000).toISOString().slice(0,10);
+   const selected=dailyChallenges(day).find(c=>c.difficulty===difficulty);
+   assert.deepEqual(selected,dailyChallenges(day).find(c=>c.difficulty===difficulty));
+   chosen.push(selected.id);
+  }
+  assert.equal(new Set(chosen.slice(0,10)).size,10);
+  for(let i=1;i<chosen.length;i++)assert.notEqual(chosen[i],chosen[i-1]);
+  assert.equal(chosen[0],chosen[10]);
+ }
 });
