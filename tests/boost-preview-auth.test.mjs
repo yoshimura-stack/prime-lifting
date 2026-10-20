@@ -39,3 +39,30 @@ test('isolated Worker denies API access even when assets are configured',async()
  assert.equal(res.status,503);
  assert.equal(served,0);
 });
+
+test('preview Worker requires rate limiter before any database RPC',async()=>{
+ const env={
+  BOOST_PREVIEW_ENABLED:'true',
+  BOOST_PREVIEW_PROJECT_ID:'tarnzjkxexlozqqmyqof',
+  BOOST_PREVIEW_SESSION_SECRET:secret,
+  BOOST_PREVIEW_SERVICE_KEY:'isolated-staging-test-key'
+ };
+ const res=await worker.fetch(new Request('https://preview.example/api/boost-preview/slot/spin',{method:'POST'}),env);
+ assert.equal(res.status,429);
+});
+test('preview Worker keeps reservation endpoint locked when enabled',async()=>{
+ const env={
+  BOOST_PREVIEW_ENABLED:'true',
+  BOOST_PREVIEW_PROJECT_ID:'tarnzjkxexlozqqmyqof',
+  BOOST_PREVIEW_SESSION_SECRET:secret,
+  BOOST_PREVIEW_SERVICE_KEY:'isolated-staging-test-key',
+  BOOST_PREVIEW_LIMITER:{limit:async()=>({success:true})}
+ };
+ const req=new Request('https://preview.example/api/boost-preview/reserve',{
+  method:'POST',
+  headers:{origin:'https://preview.example','content-type':'application/json','CF-Connecting-IP':'192.0.2.3'},
+  body:JSON.stringify({runId:'123e4567-e89b-42d3-a456-426614174002',boost:'time'})
+ });
+ const res=await worker.fetch(req,env);
+ assert.equal(res.status,403);
+});
