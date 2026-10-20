@@ -5,7 +5,7 @@ Status: source-code scaffolding only, NOT deployed or connected to the productio
 ## Source files
 - `server/boost-preview-transport.mjs`: allowlisted Supabase RPC transport, accepts an exact `expectedProjectHost` so a production URL cannot accidentally be substituted.
 - `server/boost-preview-service.mjs`: validates inputs and RPC output.
-- `server/boost-preview-handler.mjs`: POST-only handler, same-origin requirement, server-derived player identity, default OFF.
+- `server/boost-preview-handler.mjs`: POST-only handler, same-origin requirement, server-derived UUID identity, default OFF. Reservation requires a **second explicit** `allowReserve:true` gate, independent of slot-preview `enabled:true`. Unknown preview routes return 404 before DB access.
 - `tests/boost-preview-transport.test.mjs`, `tests/boost-preview-service.test.mjs`, `tests/boost-preview-handler.test.mjs` added to `npm test`.
 
 ## Do not deploy this handler yet
@@ -16,7 +16,7 @@ The `reserve` endpoint is a low-level test hook accepting a run ID. It MUST NOT 
 ## Next implementation gates
 1. Dedicated preview Worker entrypoint, using **only** the isolated Supabase project `tarnzjkxexlozqqmyqof` and a separately configured test account/session. Never copy production session secrets or production service keys.
 2. Preview-specific authentication, CSRF and request throttling. Bind only to test players created in the staging database.
-3. Run `npm test` and `npm run build`; inspect results. CI execution is not yet verified.
+3. Run `npm test` and `npm run build`; inspect results. CI execution is not yet verified. Updated handler tests cover the separate reservation lock and unknown-route rejection.
 4. Exercise isolated preview endpoints from a browser, then conduct stronger overlapping-transaction concurrency tests.
 5. Complete official run-token binding, BOOST replay verification (+5 seconds, score multiplier, first-drop protection), ranking metadata and server-side inventory consumption before any production rollout.
 
