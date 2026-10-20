@@ -1,16 +1,22 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {eligibleBoosts,slotOutcome,scoreMultiplier,finalScore,ballColor,shouldProtectDrop,createBoostRun,validateBoostSelection} from '../js/boost-rules.mjs';
-test('slot excludes full items and always returns triple match',()=>{
+test('slot excludes full items and preserves miss as an eligible outcome',()=>{
  assert.deepEqual(eligibleBoosts({time:2,score:0,sc:2}),['score']);
+ assert.deepEqual(slotOutcome({time:2,score:0,sc:2},()=>0),{type:'miss',reels:['miss','miss','miss']});
  assert.deepEqual(slotOutcome({time:2,score:0,sc:2},()=>0.9),{type:'score',reels:['score','score','score']});
  assert.equal(slotOutcome({time:2,score:2,sc:2}),null);
 });
-test('slot boundaries are deterministic and validated',()=>{
- assert.equal(slotOutcome({time:0,score:0,sc:0},()=>0).type,'time');
- assert.equal(slotOutcome({time:0,score:0,sc:0},()=>0.5).type,'score');
- assert.equal(slotOutcome({time:0,score:0,sc:0},()=>0.999).type,'sc');
- assert.throws(()=>slotOutcome({time:0,score:0,sc:0},()=>1),RangeError);
+test('slot weights use 40 percent miss and 20 percent each boost',()=>{
+ const empty={time:0,score:0,sc:0};
+ for(const [roll,type] of [[0,'miss'],[.3999,'miss'],[.4,'time'],[.5999,'time'],[.6,'score'],[.7999,'score'],[.8,'sc'],[.9999,'sc']]){
+  assert.equal(slotOutcome(empty,()=>roll).type,type);
+ }
+ const onlyScore={time:2,score:1,sc:2};
+ assert.equal(slotOutcome(onlyScore,()=>0.6666).type,'miss');
+ assert.equal(slotOutcome(onlyScore,()=>0.6667).type,'score');
+ assert.throws(()=>slotOutcome(empty,()=>1),RangeError);
+ assert.throws(()=>slotOutcome(empty,()=>-0.1),RangeError);
 });
 test('mobile bonus is additive x1.2 not compounded x1.21',()=>{
  assert.equal(scoreMultiplier('pc','score'),11);
