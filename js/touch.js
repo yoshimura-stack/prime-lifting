@@ -8,7 +8,7 @@ class PrimeTouchController {
    if(b.dataset.action==='stick'&&[...this.pointers.values()].some(pointer=>pointer.dataset.action==='stick'))return;
    e.preventDefault();e.stopPropagation();
    this.pointers.set(e.pointerId,b);b.setPointerCapture(e.pointerId);
-   if(b.dataset.action==='stick')this.updateStick(e,b);
+   if(b.dataset.action==='stick'){this.placeStick(e,b);this.updateStick(e,b);}
    this.paint();
    if(!['left','right','stick'].includes(b.dataset.action))action(b.dataset.action);
   });
@@ -22,7 +22,17 @@ class PrimeTouchController {
   root.addEventListener('orientationchange',()=>this.clear());
   document.addEventListener('visibilitychange',()=>{if(document.hidden)this.clear();});
  }
- updateStick(e,stick){
+ placeStick(e,zone){
+  const stick=zone.querySelector('.touch-stick');if(!stick)return;
+  const rect=zone.getBoundingClientRect();
+  const size=stick.getBoundingClientRect().width;
+  const x=Math.max(size/2,Math.min(rect.width-size/2,e.clientX-rect.left));
+  const y=Math.max(size/2,Math.min(rect.height-size/2,e.clientY-rect.top));
+  stick.style.left=(x-size/2)+'px';stick.style.top=(y-size/2)+'px';
+  stick.classList.add('floating-visible');
+ }
+ updateStick(e,zone){
+  const stick=zone.querySelector('.touch-stick');if(!stick)return;
   const rect=stick.getBoundingClientRect(),radius=Math.min(rect.width,rect.height)/2;
   const knob=stick.querySelector('.touch-stick-knob'),knobRadius=knob.getBoundingClientRect().width/2;
   const maxOffset=Math.max(1,radius-knobRadius-4),x=e.clientX-(rect.left+rect.width/2),y=e.clientY-(rect.top+rect.height/2);
@@ -49,9 +59,11 @@ class PrimeTouchController {
  }
  paint(){
   this.element.querySelectorAll('[data-action]').forEach(b=>b.classList.toggle('pressed',[...this.pointers.values()].includes(b)));
-  const stick=this.element.querySelector('[data-action="stick"]'),knob=stick?.querySelector('.touch-stick-knob');
-  if(stick&&knob&&![...this.pointers.values()].includes(stick)){
-   knob.style.transform='translate(-50%, -50%)';
+  const zone=this.element.querySelector('[data-action="stick"]'),stick=zone?.querySelector('.touch-stick'),knob=stick?.querySelector('.touch-stick-knob');
+  if(stick&&knob){
+   const active=[...this.pointers.values()].includes(zone);
+   if(!active){knob.style.transform='translate(-50%, -50%)';stick.classList.remove('floating-visible');}
+   stick.classList.toggle('pressed',active);
   }
   stick?.classList.toggle('is-left',[...this.stickDirections.values()].includes('left'));
   stick?.classList.toggle('is-right',[...this.stickDirections.values()].includes('right'));
