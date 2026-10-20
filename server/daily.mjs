@@ -43,15 +43,13 @@ export function jstDay(ms){
  return new Date(ms+9*3600000).toISOString().slice(0,10);
 }
 function hash(value){let n=2166136261;for(const c of value){n=Math.imul(n^c.charCodeAt(0),16777619)>>>0;}return n;}
-// All players see the same mission. Avoid yesterday's mission without any DB writes.
+// Deterministic shared rotation: every mission appears once per 10-day cycle,
+// with a different pseudo-random order per difficulty and no consecutive repeats.
 function missionIndex(day,difficulty,length){
- const previous=new Date(Date.parse(day+'T00:00:00Z')-86400000).toISOString().slice(0,10);
- const beforePrevious=new Date(Date.parse(day+'T00:00:00Z')-172800000).toISOString().slice(0,10);
- const priorRaw=hash(previous+':'+difficulty)%length;
- const priorPriorRaw=hash(beforePrevious+':'+difficulty)%length;
- const priorIndex=priorRaw===priorPriorRaw?(priorRaw+1)%length:priorRaw;
- const index=hash(day+':'+difficulty)%length;
- return index===priorIndex?(index+1)%length:index;
+ const dayNumber=Math.floor(Date.parse(day+'T00:00:00Z')/86400000);
+ const seed=hash('daily-bank:'+difficulty);
+ const stride=[1,3,7,9][seed%4]; // each is coprime to the 10-item pool
+ return ((dayNumber*stride+Math.floor(seed/4))%length+length)%length;
 }
 export function dailyChallenges(day){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||new Date(day+'T00:00:00Z').toISOString().slice(0,10)!==day)throw new TypeError('Invalid day');
