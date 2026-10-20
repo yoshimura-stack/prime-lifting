@@ -1,0 +1,20 @@
+{
+  "name": "prime-boost-isolated-preview",
+  "main": "server/boost-preview-worker.mjs",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "ratelimits": [
+    {
+      "name": "BOOST_PREVIEW_LIMITER",
+      "namespace_id": "2201",
+      "simple": {
+        "limit": 10,
+        "period": 60
+      }
+    }
+  ],
+  "vars": {
+    "BOOST_PREVIEW_ENABLED": "false",
+    "BOOST_PREVIEW_PROJECT_ID": "tarnzjkxexlozqqmyqof"
+  }
+}
