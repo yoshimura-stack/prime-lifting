@@ -7,6 +7,6 @@ await copyFile(new URL('js/boost-slot-preview.mjs',root),new URL('js/boost-slot-
 await copyFile(new URL('js/boost-slot-client.mjs',root),new URL('js/boost-slot-client.mjs',target));
 const html=await readFile(new URL('boost-slot-preview.html',target),'utf8');
 const client=await readFile(new URL('js/boost-slot-client.mjs',target),'utf8');
-if(!html.includes('disabled')||!client.includes('SLOT_BROWSER_ENABLED=false'))throw new Error('Preview UI must remain locked');
+if(!/id="preview-token"[^>]*disabled/.test(html)||!/id="preview-connect"[^>]*disabled/.test(html)||!client.includes('SLOT_BROWSER_ENABLED=false'))throw new Error('Preview UI must remain locked');
 for(const file of ['boost-slot-preview.css','js/boost-slot-preview.mjs','js/boost-slot-client.mjs'])await access(new URL(file,target));
 console.log('Isolated locked slot preview assets built.');
