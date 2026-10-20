@@ -20,7 +20,7 @@ export function scoreMultiplier(device,boost=null){
 }
 export function finalScore(baseScore,device,boost=null){
  if(!Number.isSafeInteger(baseScore)||baseScore<0)throw new RangeError('Invalid base score');
- return Math.floor(baseScore*scoreMultiplier(device,boost)/10);
+ // Existing production worker uses Math.round; preserve the rounding convention.\n return Math.round(baseScore*scoreMultiplier(device,boost)/10);
 }
 export function ballColor(boost,scUsed=false){
  if(boost===null)return null; // normal white ball renderer
@@ -29,4 +29,26 @@ export function ballColor(boost,scUsed=false){
 }
 export function shouldProtectDrop(boost,scUsed){
  return boost==='sc'&&!scUsed;
+}
+
+/**
+ * Standalone per-run state machine. This does NOT modify the current engine.
+ * An integration must call onDrop BEFORE the existing combo-reset path,
+ * and suppress only that reset when protected. NEXT BALL remains untouched.
+ */
+export function createBoostRun(boost=null){
+ if(boost!==null&&!BOOST_TYPES.includes(boost))throw new TypeError('Unknown boost');
+ let scUsed=false;
+ return Object.freeze({
+  boost,
+  durationSeconds:boost==='time'?65:60,
+  onDrop(){
+   const protectedCombo=shouldProtectDrop(boost,scUsed);
+   if(protectedCombo)scUsed=true;
+   return Object.freeze({protectedCombo,allowExistingRespawn:true});
+  },
+  get scUsed(){return scUsed;},
+  get activeBallColor(){return ballColor(boost,scUsed);},
+  get historyBallColor(){return ballColor(boost,false);}
+ });
 }
