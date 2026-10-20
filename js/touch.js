@@ -29,7 +29,7 @@ class PrimeTouchController {
   const x=Math.max(size/2,Math.min(rect.width-size/2,e.clientX-rect.left));
   const y=Math.max(size/2,Math.min(rect.height-size/2,e.clientY-rect.top));
   stick.style.left=(x-size/2)+'px';stick.style.top=(y-size/2)+'px';
-  stick.classList?.add('floating-visible');
+  stick.classList?.add?.('floating-visible');
  }
  updateStick(e,zone){
   const candidate=zone.querySelector?.('.touch-stick');const stick=candidate?.querySelector?candidate:zone;
@@ -62,7 +62,7 @@ class PrimeTouchController {
   const zone=this.element.querySelector('[data-action="stick"]'),candidate=zone?.querySelector?.('.touch-stick'),stick=candidate?.querySelector?candidate:zone,knob=stick?.querySelector?.('.touch-stick-knob');
   if(stick&&knob){
    const active=[...this.pointers.values()].includes(zone);
-   if(!active){knob.style.transform='translate(-50%, -50%)';stick.classList?.remove('floating-visible');}
+   if(!active){knob.style.transform='translate(-50%, -50%)';stick.classList?.remove?.('floating-visible');}
    stick.classList?.toggle('pressed',active);
   }
   stick?.classList?.toggle('is-left',[...this.stickDirections.values()].includes('left'));
