@@ -4,6 +4,7 @@ Status: DESIGN ONLY. Not deployed, not enabled, and no production SQL executed.
 
 ## Non-negotiable rules
 - Each account owns 0–2 units of each of `time`, `score`, `sc`.
+- There is NO daily BOOST-use limit. A player holding 2 of each type can use all 6 across 6 separate runs in one day; if newly awarded more items later that day, further runs are allowed. The once-per-day limit applies ONLY to DAILY SLOT spins.
 - Exactly one BOOST type or none may be used per run. Arrays, duplicate entries, invalid values and extra boost fields must fail closed.
 - One item is consumed **once** for an accepted game-start reservation; repeated requests with the same idempotency key must never consume twice.
 - The DAILY SLOT is once per account per JST calendar day. The outcome is three matching symbols and awards exactly one eligible BOOST; exclude stock already at 2. When all types are full, do not spin or award.
