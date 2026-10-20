@@ -22,3 +22,20 @@ test('preview token creation rejects invalid identity and short secret',async()=
  await assert.rejects(issuePreviewToken({playerId:'invalid',secret}),TypeError);
  await assert.rejects(issuePreviewToken({playerId:player,secret:'short'}),TypeError);
 });
+
+test('isolated Worker serves static assets without enabling database access',async()=>{
+ let served=0;
+ const res=await worker.fetch(new Request('https://preview.example/boost-slot-preview.html'),{
+  ASSETS:{fetch:async()=>{served++;return new Response('preview page',{status:200});}}
+ });
+ assert.equal(res.status,200);
+ assert.equal(served,1);
+});
+test('isolated Worker denies API access even when assets are configured',async()=>{
+ let served=0;
+ const res=await worker.fetch(new Request('https://preview.example/api/boost-preview/slot/spin',{method:'POST'}),{
+  ASSETS:{fetch:async()=>{served++;return new Response('incorrect');}}
+ });
+ assert.equal(res.status,503);
+ assert.equal(served,0);
+});
