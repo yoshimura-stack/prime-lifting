@@ -35,6 +35,7 @@ export function createSlotPreview(root,{spin,enabled=false}={}){
    status.textContent=result.replayed?'本日は抽選済み：'+item.label:'当選！ '+item.label+' — '+item.detail;
    button.disabled=true;
    button.dataset.completed='true';
+   button.textContent='抽選済み';
   }catch{status.textContent='抽選を確認できませんでした。時間をおいて再試行してください。';}
   finally{reels.classList.remove('is-spinning');if(button.dataset.completed!=='true')button.disabled=false;}
  });
