@@ -6,4 +6,3 @@ test('each target lights once and complete set awards bonus',()=>{const g=new P(
 test('moving left flipper imparts upward velocity',()=>{const g=new P();g.launch();const f=g.flippers[0];g.ball={x:f.x+65,y:f.y+8,vx:0,vy:90};g.step(true,false);assert.ok(g.ball.vy< -100);});
 test('resting flippers leave center drain open',()=>{const g=new P();g.launch();g.saver=0;g.ball={x:300,y:790,vx:0,vy:100};for(let i=0;i<240;i++)g.step();assert.equal(g.balls,2);});
 test('deterministic prolonged play stays finite with bounded speed',()=>{const a=new P(),b=new P();for(let i=0;i<30000;i++){for(const g of [a,b]){if(g.phase==='over')g.reset();if(g.phase==='ready')g.launch();g.step(i%73<30,i%91<40);assert.ok(Number.isFinite(g.ball.x+g.ball.y+g.score));assert.ok(Math.hypot(g.ball.vx,g.ball.vy)<=1801);} }assert.deepEqual(a,b);});
-
