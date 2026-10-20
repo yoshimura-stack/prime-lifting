@@ -10,6 +10,7 @@ export default {
  async fetch(request,env){
   const url=new URL(request.url);
   if(!url.pathname.startsWith('/api/')){
+   if(url.pathname==='/')return Response.redirect(url.origin+'/boost-slot-preview.html',302);
    if(!env.ASSETS||typeof env.ASSETS.fetch!=='function')return unavailable();
    return env.ASSETS.fetch(request);
   }
