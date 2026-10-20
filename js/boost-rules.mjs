@@ -20,7 +20,8 @@ export function scoreMultiplier(device,boost=null){
 }
 export function finalScore(baseScore,device,boost=null){
  if(!Number.isSafeInteger(baseScore)||baseScore<0)throw new RangeError('Invalid base score');
- // Existing production worker uses Math.round; preserve the rounding convention.\n return Math.round(baseScore*scoreMultiplier(device,boost)/10);
+ // Existing production worker uses Math.round; preserve the rounding convention.
+ return Math.round(baseScore*scoreMultiplier(device,boost)/10);
 }
 export function ballColor(boost,scUsed=false){
  if(boost===null)return null; // normal white ball renderer
