@@ -4,8 +4,5 @@
 <link rel="stylesheet" href="./boost-slot-preview.css">
 </head><body style="background:#070e20;margin:0">
 <main id="slot" class="boost-slot-stage"></main>
-<script type="module">
-import {createSlotPreview} from './js/boost-slot-preview.mjs';
-// Deliberately visual-only. No token, API URL or inventory is embedded.
-createSlotPreview(document.getElementById('slot'),{enabled:false});
-</script></body></html>
+<form id="preview-auth" class="boost-slot-stage" aria-label="検証接続（ロック中）"><label for="preview-token">検証専用トークン（未開放）</label><input id="preview-token" type="password" autocomplete="off" disabled><button id="preview-connect" type="submit" disabled>接続（開発中）</button></form>
+<script type="module" src="./js/boost-slot-client.mjs"></script></body></html>
