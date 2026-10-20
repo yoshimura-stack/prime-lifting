@@ -16,7 +16,7 @@ A run may equip at most one boost; NONE is allowed. Selection occurs before run,
 ## Daily slot
 After login / session check, if not yet claimed today, show three animated reels with GUARANTEED triple matching icon and award ONE randomly selected eligible boost. Full (2/2) types excluded; if all three full, skip slot and go to play. Exactly one grant per account per Japan calendar day, atomically server-authorized, retry/idempotency safe. Do not grant on client-only animation. No PRIME COIN and no uniform reward at initial release; future extension architecture is acceptable but do not expose them.
 
-Daily Extreme reward remains one displayed boost on qualifying completion; preserve existing 100 pts per normal challenge and 300/day/monthly reset behavior. Account for full inventory with safe non-overflow behavior to be reviewed.
+Daily Extreme BOOST reward integration is ON HOLD and outside phase one. Preserve existing 100 pts per normal challenge and 300/day/monthly reset behavior unchanged.
 
 ## Release guard
 Production feature OFF by default at BOTH UI and server. Disabled means no accessible equip, slot grant, consume, boost score, or ranking changes, even by direct API call. Avoid shipping unlocked endpoints or a client-only flag. Prefer separate development branch and isolated preview with non-production credentials/DB. Never test consumables against production player inventory. Changes to Supabase schema and any official ranking calculation require explicit approval before production.
@@ -24,7 +24,7 @@ Production feature OFF by default at BOTH UI and server. Disabled means no acces
 ## Development order
 1. Audit actual game UI states, current login/session flow, server replay/ranking verification and mobile multiplier, Cloudflare preview feasibility, and database contract.
 2. Implement guarded UI/ball color and isolated pure boost rules with tests.
-3. Implement guarded transactional inventory, once-daily slot, start-of-run consumption, anti-double-spend/idempotency, server replay/ranking and tests.
+3. Implement guarded transactional inventory, once-daily slot including persisted WHITE BALL miss, start-of-run consumption, anti-double-spend/idempotency, server replay/ranking and tests.
 4. PC and real-device review, CI, and staged release with explicit authorization.
 
 No auto-merge for this feature. Existing production users continue playing unchanged.
@@ -34,4 +34,5 @@ No auto-merge for this feature. Existing production users continue playing uncha
 - Exact score rounding stage in current code and server replay.
 - SC protection against real combo reset event, preserving current ball spawn logic.
 - Preview environment and isolated DB configuration.
-- What to do if a DAILY EXTREME reward type is full.
+- Miss probability and whether it varies by inventory; decide before implementing the slot RNG and SQL migration.
+- DAILY EXTREME BOOST rewards are explicitly deferred; do not build them in phase one.
