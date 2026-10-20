@@ -1,10 +1,10 @@
 // Isolated BOOST preview RPC transport; intentionally not used by the live game Worker.
 // Configure ONLY against the dedicated staging Supabase project.
 const rpcNames=Object.freeze({boost_slot_spin:'lifting_api_boost_slot_spin',boost_reserve:'lifting_api_boost_reserve'});
-export function createBoostPreviewTransport({url,serviceKey,fetcher=fetch}={}){
+export function createBoostPreviewTransport({url,serviceKey,expectedProjectHost,fetcher=fetch}={}){
  if(typeof url!=='string'||typeof serviceKey!=='string'||!serviceKey||typeof fetcher!=='function')throw new TypeError('Missing preview database configuration');
  const base=new URL(url);
- if(base.protocol!=='https:'||base.pathname!=='/'||base.search||base.hash||base.username||base.password)throw new TypeError('Invalid preview database URL');
+ if(base.protocol!=='https:'||base.pathname!=='/'||base.search||base.hash||base.username||base.password||typeof expectedProjectHost!=='string'||base.hostname!==expectedProjectHost)throw new TypeError('Preview database host mismatch');
  return Object.freeze({async call(operation,payload){
   if(!Object.hasOwn(rpcNames,operation))throw new TypeError('Unsupported preview RPC');
   const headers={'content-type':'application/json',apikey:serviceKey};
