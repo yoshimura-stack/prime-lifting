@@ -246,7 +246,7 @@
 /* V0.5.21: thumb stick and larger, separated landscape actions. */
 :root{--mobile-gutter:clamp(124px,19vw,180px)}
 .touch-landscape .touch-stick{
- position:fixed!important;left:max(9px,env(safe-area-inset-left))!important;
+ position:fixed!important;left:max(9px,env(safe-area-inset-left));
  bottom:max(12px,env(safe-area-inset-bottom))!important;
  width:clamp(110px,28dvh,128px);height:clamp(110px,28dvh,128px);
  box-sizing:border-box;border:2px solid #dcff6a9c;border-radius:50%;
