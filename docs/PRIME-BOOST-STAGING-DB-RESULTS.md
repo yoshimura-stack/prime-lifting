@@ -22,8 +22,11 @@ Environment: isolated Supabase project `prime-boost-staging` (Tokyo, Free). Prod
 
 - Reusable SQL regression file `docs/sql/prime-boost-staging-regression.sql` executed successfully: PASS for full-stock skip, same-run idempotency, cross-player and cross-type conflict rejection, post-spend same-day slot, slot retry. It rolls back all test data.
 
+- Two reservation SQL requests were issued in parallel using separate connector calls for the **same run ID**. Responses were `replayed:false` and `replayed:true`; inventory changed 2→1, one use record. Test rows subsequently deleted. Connector concurrency does not establish overlapping PostgreSQL transaction execution; stronger lock-contention testing is pending.
+- `npm test` now includes `tests/boost-preview-service.test.mjs`; execution outcome has not yet been verified.
+
 ## Important limitations
-- These are **sequential calls inside SQL transactions**, not two concurrent connections. Race-condition tests remain pending.
+- Sequential transactional checks and one parallel-request smoke test have run. Proven overlapping DB transactions and high-load race tests remain pending.
 - This is a standalone preview database, not the live game database. Its minimal `lifting_players` table is for DB testing only.
 - No Worker RPC wiring, production inventory, ranking acceptance, or main merge.
 - GitHub Actions and browser integration tests not yet confirmed.
