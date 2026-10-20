@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PRIME BOOST | DAILY SLOT staging</title>
+<link rel="stylesheet" href="./boost-slot-preview.css">
+</head><body style="background:#070e20;margin:0">
+<main id="slot" class="boost-slot-stage"></main>
+<script type="module">
+import {createSlotPreview} from './js/boost-slot-preview.mjs';
+// Deliberately visual-only. No token, API URL or inventory is embedded.
+createSlotPreview(document.getElementById('slot'),{enabled:false});
+</script></body></html>
