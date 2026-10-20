@@ -22,8 +22,19 @@ export function createBoostPreviewHandler({transport,resolvePlayer,enabled=false
   let body;
   try{
    if(Number(request.headers.get('content-length'))>2048)return json({error:'Payload too large'},413);
-   const raw=await request.text();
-   if(raw.length>2048) return json({error:'Payload too large'},413);
+   const stream=request.body;
+   if(!stream)return json({error:'Invalid payload'},400);
+   const reader=stream.getReader();
+   const parts=[];let bytes=0;
+   while(true){
+    const next=await reader.read();if(next.done)break;
+    bytes+=next.value.byteLength;
+    if(bytes>2048){await reader.cancel();return json({error:'Payload too large'},413);}
+    parts.push(next.value);
+   }
+   const buffer=new Uint8Array(bytes);let at=0;
+   for(const part of parts){buffer.set(part,at);at+=part.byteLength;}
+   const raw=new TextDecoder('utf-8',{fatal:true}).decode(buffer);
    body=JSON.parse(raw);
    if(!body||typeof body!=='object'||Array.isArray(body))throw Error();
   }catch{return json({error:'Invalid payload'},400);}
