@@ -26,6 +26,14 @@ jobs:
       - name: Validate isolated preview Worker without deploying
         id: preview
         run: npm run check:boost-preview
+      - name: Archive locked DAILY SLOT preview
+        if: steps.preview.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: prime-boost-locked-preview
+          path: boost-preview-public/
+          if-no-files-found: error
+          retention-days: 7
       - name: Record validation summary
         if: always()
         run: |
