@@ -13,6 +13,8 @@ declare
  v_eligible text[] := array[]::text[];
  v_type text;
  v_index integer;
+ v_ticket double precision;
+ v_weight_total integer;
 begin
  if payload is null or jsonb_typeof(payload)<>'object'
     or jsonb_typeof(payload->'playerId')<>'string'
@@ -38,15 +40,23 @@ begin
  if cardinality(v_eligible)=0 then
   return jsonb_build_object('day',v_day,'boost',null,'reels',null,'allFull',true,'replayed',false);
  end if;
- -- Uniform draw among eligible types. Reels always match.
- v_index:=1+floor(random()*cardinality(v_eligible))::integer;
- v_type:=v_eligible[v_index];
+ -- Weighted draw: miss=40, each available BOOST=20. Full types excluded.
+ -- A miss consumes the JST-day spin without granting inventory.
+ v_weight_total:=40+20*cardinality(v_eligible);
+ v_ticket:=random()*v_weight_total;
+ v_type:='miss';
+ if v_ticket>=40 then
+  v_index:=1+floor((v_ticket-40)/20)::integer;
+  v_type:=v_eligible[v_index];
+ end if;
+ if v_type<>'miss' then
  update public.lifting_boost_inventory
  set time_count=time_count+case when v_type='time' then 1 else 0 end,
      score_count=score_count+case when v_type='score' then 1 else 0 end,
      sc_count=sc_count+case when v_type='sc' then 1 else 0 end,
      updated_at=now()
  where player_id=v_player;
+ end if;
  insert into public.lifting_boost_slot_spins(player_id,jst_day,boost_type)
  values(v_player,v_day,v_type);
  return jsonb_build_object('day',v_day,'boost',v_type,'reels',jsonb_build_array(v_type,v_type,v_type),'replayed',false);
