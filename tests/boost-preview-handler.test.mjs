@@ -49,3 +49,11 @@ test('unrecognized endpoint cannot invoke preview RPC',async()=>{
  assert.equal((await handle(request('/api/boost-preview/unrecognized',{}))).status,404);
  assert.equal(calls,0);
 });
+
+test('oversized declared JSON payload is rejected without RPC',async()=>{
+ let calls=0;
+ const handle=createBoostPreviewHandler({enabled:true,resolvePlayer:async()=>player,transport:{call:async()=>{calls++;}}});
+ const res=await handle(request('/api/boost-preview/slot/spin',{}, {'content-length':'4096'}));
+ assert.equal(res.status,413);
+ assert.equal(calls,0);
+});
