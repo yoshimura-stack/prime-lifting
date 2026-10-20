@@ -18,7 +18,7 @@ The `reserve` endpoint is a low-level test hook accepting a run ID. It MUST NOT 
 
 ## Next implementation gates
 1. Dedicated preview Worker entrypoint has been authored, but it has **not** been deployed or tested in a browser. Use **only** the isolated Supabase project `tarnzjkxexlozqqmyqof` and a separately configured test account/session. Never copy production session secrets or production service keys.
-2. Dedicated token verification and origin checking are implemented. Before deployment, add request throttling, a secure test-token issuance workflow, staging-only test player enrollment and explicit preview-domain allowlisting. Never expose the HMAC secret or Supabase service key to the browser.
+2. Dedicated token verification, origin checking and fail-closed request throttling are implemented. Before deployment, configure the Cloudflare limiter binding, a secure test-token issuance workflow, staging-only test player enrollment and explicit preview-domain allowlisting. See `docs/PRIME-BOOST-STAGING-TEST-PLAYER.md`. Never expose the HMAC secret or Supabase service key to the browser.
 3. Run `npm test` and `npm run build`; inspect results. CI execution is not yet verified. Updated handler tests cover the separate reservation lock and unknown-route rejection.
 4. Exercise isolated preview endpoints from a browser, then conduct stronger overlapping-transaction concurrency tests.
 5. Complete official run-token binding, BOOST replay verification (+5 seconds, score multiplier, first-drop protection), ranking metadata and server-side inventory consumption before any production rollout.
