@@ -13,3 +13,9 @@ This configuration is **not deployed**. Source: `wrangler.boost-preview.jsonc`, 
 9. Disable the Worker and remove test data after validation.
 
 No live Worker, production Supabase, production rankings, or main branch may be modified as part of this checklist. A successful dry-run does not establish runtime security or browser functionality.
+
+## Static preview milestone
+
+The separate Wrangler config now points at `boost-preview-public` and the dedicated Worker returns `env.ASSETS.fetch(request)` for non-API paths. `npm run check:boost-preview` builds this folder first and then runs Wrangler dry-run. After an explicitly authorized preview deployment, open `/boost-slot-preview.html`: the page should render three neutral soccer-ball reels, the SPIN button disabled, and the token form disabled. All `/api/boost-preview/*` calls must return 503 while `BOOST_PREVIEW_ENABLED=false`.
+
+The browser client contains a **separate hard-coded OFF gate** (`SLOT_BROWSER_ENABLED=false`). Do not change this, enable the Worker, or expose credentials until the dedicated test-token workflow and runtime checks are approved. Neither this preview page nor the new staging Worker is deployed yet. The test runner's actual pass/fail status has not been confirmed.
