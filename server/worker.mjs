@@ -40,6 +40,9 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   if(!(await limiter.limit({key:ip})).success)throw new ApiError(429,'少し待ってから再試行してください。');
   const time=now(),post=request.method==='POST';
   if(path==='/api/daily'&&!post){const day=jstDay(time);return json({day,challenges:dailyChallenges(day),timezone:'Asia/Tokyo'});}
+  // PRIME BOOST kill switch: closed on every environment until a separate,
+  // explicitly approved release adds atomic inventory and replay verification.
+  if(path.startsWith('/api/boost/'))throw new ApiError(403,'BOOSTは現在準備中です。');
   const db=database(env);
   if(adminLogin||adminReset){
    if(!post)throw new ApiError(405,'この操作には対応していません。');
@@ -113,12 +116,15 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   if(path==='/api/game/start'){
    await db.call('me',{playerId:session.sub});
    const startBody=await readBody(request);
+   // No client may smuggle a BOOST into a normal ranked run.
+   if(Object.prototype.hasOwnProperty.call(startBody,'boost')||Object.prototype.hasOwnProperty.call(startBody,'boosts'))throw new ApiError(403,'BOOSTは現在準備中です。');
    const width=startBody.worldWidth??1000;
    if(!Number.isInteger(width)||width<1000||width>1800||width%100!==0)throw new ApiError(400,'フィールド幅が正しくありません。');
    const worldWidth=requestDevice(request)==='mobile'?1000:width;
    return json({ruleset:RULESET,worldWidth,token:await sign({kind:'run',sub:session.sub,id:crypto.randomUUID(),started:time,exp:time+86400000,ruleset:RULESET,device:requestDevice(request),worldWidth},env.SESSION_SECRET)});
   }
   const body=await readBody(request),run=await verify(body.token,env.SESSION_SECRET,'run',time);
+  if(Object.prototype.hasOwnProperty.call(body,'boost')||Object.prototype.hasOwnProperty.call(body,'boosts'))throw new ApiError(403,'BOOSTは現在準備中です。');
   if(run.sub!==session.sub||run.ruleset!==RULESET||body.ruleset!==RULESET)throw new ApiError(403,'このプレイは登録できません。');
   // 60s lower bound leaves the 3s countdown as network-latency allowance.
   if(time-run.started<60000)throw new ApiError(400,'プレイ終了後に再試行してください。');
