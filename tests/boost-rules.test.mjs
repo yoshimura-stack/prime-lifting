@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {eligibleBoosts,slotOutcome,scoreMultiplier,finalScore,ballColor,shouldProtectDrop} from '../js/boost-rules.mjs';
+import {eligibleBoosts,slotOutcome,scoreMultiplier,finalScore,ballColor,shouldProtectDrop,createBoostRun} from '../js/boost-rules.mjs';
 test('slot excludes full items and always returns triple match',()=>{
  assert.deepEqual(eligibleBoosts({time:2,score:0,sc:2}),['score']);
  assert.deepEqual(slotOutcome({time:2,score:0,sc:2},()=>0.9),{type:'score',reels:['score','score','score']});
@@ -27,4 +27,21 @@ test('SC is green until first drop and protects once',()=>{
  assert.equal(ballColor('sc',true),null);
  assert.equal(ballColor('time'), '#3B82F6');
  assert.equal(ballColor('score'), '#FACC15');
+});
+
+test('run duration and second chance preserve normal respawn and history icon',()=>{
+ const time=createBoostRun('time');
+ assert.equal(time.durationSeconds,65);
+ assert.equal(createBoostRun().durationSeconds,60);
+ const sc=createBoostRun('sc');
+ assert.equal(sc.activeBallColor,'#22C55E');
+ assert.deepEqual(sc.onDrop(),{protectedCombo:true,allowExistingRespawn:true});
+ assert.equal(sc.activeBallColor,null);
+ assert.equal(sc.historyBallColor,'#22C55E');
+ assert.deepEqual(sc.onDrop(),{protectedCombo:false,allowExistingRespawn:true});
+ assert.deepEqual(createBoostRun('score').onDrop(),{protectedCombo:false,allowExistingRespawn:true});
+});
+test('score follows current production Math.round convention',()=>{
+ assert.equal(finalScore(105,'pc','score'),116);
+ assert.equal(finalScore(105,'mobile','score'),126);
 });
