@@ -20,7 +20,7 @@ create index if not exists lifting_boost_run_uses_player_idx on public.lifting_b
 create table if not exists public.lifting_boost_slot_spins (
  player_id uuid not null references public.lifting_players(id) on delete cascade,
  jst_day date not null,
- boost_type text not null check (boost_type in ('time','score','sc')),
+ boost_type text not null check (boost_type in ('miss','time','score','sc')),
  created_at timestamptz not null default now(),
  primary key(player_id,jst_day)
 );
