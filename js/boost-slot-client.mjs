@@ -4,6 +4,7 @@ const root=document.getElementById('slot');
 const form=document.getElementById('preview-auth');
 const tokenInput=document.getElementById('preview-token');
 const connectButton=document.getElementById('preview-connect');
+const SLOT_BROWSER_ENABLED=false;
 let token='';
 const view=createSlotPreview(root,{
  enabled:false,
@@ -19,6 +20,7 @@ const view=createSlotPreview(root,{
 });
 form?.addEventListener('submit',event=>{
  event.preventDefault();
+ if(!SLOT_BROWSER_ENABLED)return;
  token=tokenInput.value.trim();
  tokenInput.value='';
  if(!token){view.setStatus('検証トークンを入力してください。');return;}
