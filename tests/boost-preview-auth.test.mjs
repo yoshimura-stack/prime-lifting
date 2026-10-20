@@ -66,3 +66,9 @@ test('preview Worker keeps reservation endpoint locked when enabled',async()=>{
  const res=await worker.fetch(req,env);
  assert.equal(res.status,403);
 });
+
+test('preview Worker root points only to isolated slot page',async()=>{
+ const res=await worker.fetch(new Request('https://preview.example/'),{});
+ assert.equal(res.status,302);
+ assert.equal(res.headers.get('location'),'https://preview.example/boost-slot-preview.html');
+});
