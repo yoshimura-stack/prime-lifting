@@ -23,3 +23,11 @@ The browser client contains a **separate hard-coded OFF gate** (`SLOT_BROWSER_EN
 ## Preview static response security
 
 The standalone Worker now wraps static assets with `Cache-Control: no-store`, `X-Content-Type-Options: nosniff`, and `X-Frame-Options: DENY`. A dedicated test checks these headers. Browser rendering and deployment are not yet verified. Do not relax the two independent feature locks for visual QA.
+
+## Pre-deployment acceptance (2026-10-21)
+
+- Preview build must verify BOTH disabled credential controls and `SLOT_BROWSER_ENABLED=false`.
+- Preview Worker asset routing must use `run_worker_first: true`, otherwise Worker security headers can be bypassed by static asset delivery.
+- Confirm `npm test` and `npm run check:boost-preview` actually pass in a Node 22 environment before any preview deployment. GitHub connector commit success is not a test result.
+- Slot success changes SPIN to `抽選済み`; full inventory keeps eligibility for a later retry after spending stock. This UI is currently hard-locked and untested in a browser.
+- Do not deploy or turn on API/slot controls without separate explicit approval. Never use production Supabase credentials.
