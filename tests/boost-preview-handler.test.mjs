@@ -57,3 +57,17 @@ test('oversized declared JSON payload is rejected without RPC',async()=>{
  assert.equal(res.status,413);
  assert.equal(calls,0);
 });
+
+test('oversized streamed JSON without content-length is rejected before RPC',async()=>{
+ let calls=0;
+ const handle=createBoostPreviewHandler({enabled:true,resolvePlayer:async()=>player,transport:{call:async()=>{calls++;}}});
+ const huge='x'.repeat(4096);
+ const req=new Request(origin+'/api/boost-preview/slot/spin',{
+  method:'POST',headers:{origin,'content-type':'application/json'},
+  body:new ReadableStream({start(controller){controller.enqueue(new TextEncoder().encode(huge));controller.close();}}),
+  duplex:'half'
+ });
+ const res=await handle(req);
+ assert.equal(res.status,413);
+ assert.equal(calls,0);
+});
