@@ -18,15 +18,20 @@ jobs:
       - name: Install pinned dependencies
         run: npm ci
       - name: Run complete regression suite
+        id: tests
         run: npm test
       - name: Build preview assets without deploying
+        id: build
         run: npm run build
       - name: Validate isolated preview Worker without deploying
+        id: preview
         run: npm run check:boost-preview
       - name: Record validation summary
         if: always()
         run: |
           echo '## PRIME BOOST isolated staging checks' >> "$GITHUB_STEP_SUMMARY"
           echo '- Workflow: test/build/dry-run only; no deployment.' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Review the preceding steps for pass/fail status.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Tests: ${{ steps.tests.outcome }}' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Main build: ${{ steps.build.outcome }}' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Preview dry-run: ${{ steps.preview.outcome }}' >> "$GITHUB_STEP_SUMMARY"
           echo '- Production Worker, DB, and ranking are not changed by this workflow.' >> "$GITHUB_STEP_SUMMARY"
