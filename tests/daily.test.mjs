@@ -54,7 +54,7 @@ test('thirty unique bank missions rotate for everyone without repeats across ten
   assert.ok(pool.every(c=>['combo','foot','knee','chest','shoulder','spin','jump','quad'].includes(c.metric)&&Number.isSafeInteger(c.target)&&c.target>0));
   const chosen=[];
   for(let offset=0;offset<11;offset++){
-   const day=new Date(Date.parse('2026-10-20T00:00:00Z')+offset*86400000).toISOString().slice(0,10);
+   const day=new Date(Date.parse('2026-10-21T00:00:00Z')+offset*86400000).toISOString().slice(0,10);
    const selected=dailyChallenges(day).find(c=>c.difficulty===difficulty);
    assert.deepEqual(selected,dailyChallenges(day).find(c=>c.difficulty===difficulty));
    chosen.push(selected.id);
@@ -63,4 +63,12 @@ test('thirty unique bank missions rotate for everyone without repeats across ten
   for(let i=1;i<chosen.length;i++)assert.notEqual(chosen[i],chosen[i-1]);
   assert.equal(chosen[0],chosen[10]);
  }
+});
+
+test('October 20 missions remain identical to the pre-bank production release',()=>{
+ const hash=value=>{let n=2166136261;for(const c of value)n=Math.imul(n^c.charCodeAt(0),16777619)>>>0;return n;};
+ const legacy={easy:['keep10','keep15','foot10'],normal:['spin3','jump5','knee8','chest6'],hard:['shoulder2','keep30','quad1']};
+ const day='2026-10-20';
+ assert.deepEqual(dailyChallenges(day).map(c=>c.id),Object.entries(legacy).map(([difficulty,ids])=>ids[hash(day+':'+difficulty)%ids.length]));
+ assert.equal(dailyChallenges('2026-10-21').length,3);
 });

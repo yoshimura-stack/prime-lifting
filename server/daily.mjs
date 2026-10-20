@@ -51,10 +51,17 @@ function missionIndex(day,difficulty,length){
  const stride=[1,3,7,9][seed%4]; // each is coprime to the 10-item pool
  return ((dayNumber*stride+Math.floor(seed/4))%length+length)%length;
 }
+// Preserve the missions already issued on October 20 (JST).
+// New 30-question rotation starts October 21, never midway through a reward day.
+const LEGACY_POOLS={
+ easy:[{id:'keep10',label:'10キープ達成',target:10,metric:'combo'},{id:'keep15',label:'15キープ達成',target:15,metric:'combo'},{id:'foot10',label:'足タッチ10回成功',target:10,metric:'foot'}],
+ normal:[{id:'spin3',label:'スピン付きタッチ3回',target:3,metric:'spin'},{id:'jump5',label:'ジャンプ付きタッチ5回',target:5,metric:'jump'},{id:'knee8',label:'膝タッチ8回成功',target:8,metric:'knee'},{id:'chest6',label:'胸タッチ6回成功',target:6,metric:'chest'}],
+ hard:[{id:'shoulder2',label:'肩タッチ2回成功',target:2,metric:'shoulder'},{id:'keep30',label:'30キープ達成',target:30,metric:'combo'},{id:'quad1',label:'4回転スピンを成功',target:1,metric:'quad'}]
+};
 export function dailyChallenges(day){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||new Date(day+'T00:00:00Z').toISOString().slice(0,10)!==day)throw new TypeError('Invalid day');
- return Object.entries(DAILY_POOLS).map(([difficulty,pool])=>({
-  ...pool[missionIndex(day,difficulty,pool.length)],difficulty,reward:100,day
+ return Object.entries(day<'2026-10-21'?LEGACY_POOLS:DAILY_POOLS).map(([difficulty,pool])=>({
+  ...(day<'2026-10-21'?pool[hash(day+':'+difficulty)%pool.length]:pool[missionIndex(day,difficulty,pool.length)]),difficulty,reward:100,day
  }));
 }
 export function dailyRunProgress(result){
