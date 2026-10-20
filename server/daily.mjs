@@ -45,10 +45,13 @@ export function jstDay(ms){
 function hash(value){let n=2166136261;for(const c of value){n=Math.imul(n^c.charCodeAt(0),16777619)>>>0;}return n;}
 // All players see the same mission. Avoid yesterday's mission without any DB writes.
 function missionIndex(day,difficulty,length){
- const index=hash(day+':'+difficulty)%length;
  const previous=new Date(Date.parse(day+'T00:00:00Z')-86400000).toISOString().slice(0,10);
- const previousIndex=hash(previous+':'+difficulty)%length;
- return index===previousIndex?(index+1)%length:index;
+ const beforePrevious=new Date(Date.parse(day+'T00:00:00Z')-172800000).toISOString().slice(0,10);
+ const priorRaw=hash(previous+':'+difficulty)%length;
+ const priorPriorRaw=hash(beforePrevious+':'+difficulty)%length;
+ const priorIndex=priorRaw===priorPriorRaw?(priorRaw+1)%length:priorRaw;
+ const index=hash(day+':'+difficulty)%length;
+ return index===priorIndex?(index+1)%length:index;
 }
 export function dailyChallenges(day){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||new Date(day+'T00:00:00Z').toISOString().slice(0,10)!==day)throw new TypeError('Invalid day');
