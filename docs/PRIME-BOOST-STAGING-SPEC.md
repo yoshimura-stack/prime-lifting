@@ -34,5 +34,5 @@ No auto-merge for this feature. Existing production users continue playing uncha
 - Exact score rounding stage in current code and server replay.
 - SC protection against real combo reset event, preserving current ball spawn logic.
 - Preview environment and isolated DB configuration.
-- Miss probability and whether it varies by inventory; decide before implementing the slot RNG and SQL migration.
+- Base probabilities fixed at white 40%, each BOOST 20%; full types are excluded and remaining outcomes renormalized.
 - DAILY EXTREME BOOST rewards are explicitly deferred; do not build them in phase one.
