@@ -36,6 +36,17 @@ $('stage-training').addEventListener('click',()=>selectStage(1));
 $('stage-arena').addEventListener('click',()=>selectStage(2));
 $('stage-preview').addEventListener('click',()=>{arenaPreview=!arenaPreview;if(renderer3d)renderer3d.setStage(arenaPreview?2:selectedStage);$('stage-preview').textContent=arenaPreview?'↩ 見学を終了':'👁 WORLD ARENAを見学';});
 let achievementStats={maxAirStreak:0,spinBonusHits:0,shoulderHits:0,spinKing:false,quadMaster:false,airQuad:false,doubleAir:false};let jumpsSinceHit=0;let shoulderFlash=null;let quadFlash=null;let shoulderMessage=false;let milestone=null;let pointPopups=[];let renderer3d=null;try{renderer3d=new PrimeRenderer($('scene'),c);}catch(error){console.warn('3D unavailable; using 2D fallback.',error);$('scene').hidden=true;}
+// Development-only color inspection. Does not equip, consume or apply BOOST effects.
+// Requires both flags so ordinary players retain the original match ball.
+try{
+ const previewParams=new URLSearchParams(location.search);
+ const previewColors={time:'#3B82F6',score:'#FACC15',sc:'#22C55E'};
+ const previewType=previewParams.get('boostColor');
+ if(previewParams.get('boostPreview')==='1'&&Object.hasOwn(previewColors,previewType)&&renderer3d){
+  renderer3d.setBoostBallColor(previewColors[previewType]);
+  console.info('BOOST visual preview only: no gameplay effects, inventory or score changes');
+ }
+}catch(error){console.warn('BOOST visual preview unavailable',error);}
 const kitStorageKey='prime-lifting-selected-kit';
 let selectedKit=PRIME_KITS.get((()=>{try{return localStorage.getItem(kitStorageKey)||PRIME_KITS.defaultId;}catch{return PRIME_KITS.defaultId;}})());
 let kitGroup=selectedKit.group;
