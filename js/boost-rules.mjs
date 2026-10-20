@@ -52,3 +52,10 @@ export function createBoostRun(boost=null){
   get historyBallColor(){return ballColor(boost,false);}
  });
 }
+
+/** Exactly zero or one BOOST may be equipped per run. */
+export function validateBoostSelection(selection){
+ if(selection===null)return null;
+ if(typeof selection!=='string'||!BOOST_TYPES.includes(selection))throw new TypeError('Exactly one valid BOOST or none is allowed');
+ return selection;
+}
