@@ -52,3 +52,10 @@ Current staging guard: all `/api/boost/*` paths return 403 and both game start a
 - `docs/sql/prime-boost-preview-reserve.sql`: row-locked atomic decrement, idempotent run id. Preview only.
 - `docs/sql/prime-boost-preview-slot.sql`: database-derived JST day, row-locked once/day matching-reel grant, full-stock skip. Preview only.
 - All SQL files are **unapplied drafts**, not migrations. Check `lifting_players.id` type and actual grants in isolated preview DB before any execution. No production execution authorized.
+
+## Security review: database boundary
+- Read-only inspection of a connected Supabase project confirmed `public.lifting_players.id` is UUID PRIMARY KEY. That project's production/preview role is not established; no schema changes were applied.
+- Preview SQL now revokes table privileges from `public`, `anon`, and `authenticated` in addition to enabling RLS. Only `service_role` receives table DML grants.
+- `SECURITY DEFINER` RPCs have explicit `search_path` and execute grants restricted to `service_role`. **Before use**, verify each function owner is a controlled privileged role, and check default grants, role inheritance, API exposure and actual SQL permissions in isolated preview.
+- Do not accept arbitrary `playerId` from a browser: Worker must derive it from a verified HttpOnly session and use only server-generated run IDs. Never expose a privileged RPC directly to players.
+- SQL drafts are not deployed and have not passed a transactional/concurrency integration test.
