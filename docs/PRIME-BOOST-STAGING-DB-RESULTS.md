@@ -20,6 +20,8 @@ Environment: isolated Supabase project `prime-boost-staging` (Tokyo, Free). Prod
 
 - Automated SQL assertions passed for full-stock skip -> two distinct time BOOST spends -> same-day spin awarded one time BOOST. The transaction was rolled back.
 
+- Reusable SQL regression file `docs/sql/prime-boost-staging-regression.sql` executed successfully: PASS for full-stock skip, same-run idempotency, cross-player and cross-type conflict rejection, post-spend same-day slot, slot retry. It rolls back all test data.
+
 ## Important limitations
 - These are **sequential calls inside SQL transactions**, not two concurrent connections. Race-condition tests remain pending.
 - This is a standalone preview database, not the live game database. Its minimal `lifting_players` table is for DB testing only.
