@@ -572,3 +572,14 @@ body.touch-landscape #result-next-rival{display:none!important}
 .touch-landscape #touch-controls .touch-actions{
  position:absolute;z-index:2;
 }
+
+/* The floating input zone must never inherit the generic pressed-button fill. */
+.touch-landscape #touch-controls .touch-stick-zone,
+.touch-landscape #touch-controls .touch-stick-zone.pressed{
+ background:transparent!important;
+ box-shadow:none!important;
+ transform:none!important;
+ border:0!important;
+ outline:0!important;
+ -webkit-tap-highlight-color:transparent;
+}
