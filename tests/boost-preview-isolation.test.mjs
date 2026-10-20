@@ -11,9 +11,8 @@ test('staging preview remains double locked',async()=>{
  assert.equal(config.main,'server/boost-preview-worker.mjs');
  assert.equal(config.vars.BOOST_PREVIEW_PROJECT_ID,'tarnzjkxexlozqqmyqof');
  const html=await read('../boost-slot-preview.html');
- assert.ok(html.includes('id="preview-connect"'));
- assert.ok(html.includes('id="preview-token"'));
- assert.ok(html.includes('disabled'));
+ assert.match(html,/id="preview-connect"[^>]*disabled/);
+ assert.match(html,/id="preview-token"[^>]*disabled/);
  const live=await read('../server/worker.mjs');
  assert.ok(!live.includes("from './boost-preview-worker.mjs'"));
  assert.ok(client.includes('SLOT_BROWSER_ENABLED=false'));
