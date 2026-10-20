@@ -38,3 +38,7 @@ Environment: isolated Supabase project `prime-boost-staging` (Tokyo, Free). Prod
 2. Test error rollback and cross-player run-ID conflicts.
 3. Confirm function EXECUTE privileges for `anon`, `authenticated`, `service_role`.
 4. Only then integrate preview Worker endpoints behind server feature OFF.
+
+## 2026-10-21: Eight BOOST uses in one JST day
+
+Executed `docs/sql/prime-boost-staging-eight-uses.sql` against **isolated staging project** `tarnzjkxexlozqqmyqof`. The transaction created a disposable player, reserved eight distinct `time` BOOST run IDs, and replenished stock to two between each reservation **inside the test only**. Every reservation returned `replayed:false` and `remaining:1`; eight usage records existed before rollback. Final result: `PASS: 8 same-day BOOST reservations; all changes rolled back`. This verifies that the reservation RPC has no one-day usage ceiling, **not** that a real stock replenishment feature exists or that eight BOOSTs are automatically awarded in one day. Production untouched.
