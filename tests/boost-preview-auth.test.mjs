@@ -81,4 +81,7 @@ test('preview static response cannot be cached or framed',async()=>{
  assert.equal(res.headers.get('cache-control'),'no-store');
  assert.equal(res.headers.get('x-frame-options'),'DENY');
  assert.equal(res.headers.get('x-content-type-options'),'nosniff');
+ assert.match(res.headers.get('content-security-policy'),/default-src 'none'/);
+ assert.match(res.headers.get('content-security-policy'),/connect-src 'self'/);
+ assert.equal(res.headers.get('referrer-policy'),'no-referrer');
 });
