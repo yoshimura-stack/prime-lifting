@@ -1,0 +1,9 @@
+const {test}=require('node:test');const assert=require('node:assert/strict');const P=require('../js/pinball-engine');
+test('launch exits shooter lane and reaches scoring objects',()=>{const g=new P();g.launch();let min=600;for(let i=0;i<2400;i++){g.step();min=Math.min(min,g.ball.x);}assert.ok(min<300);assert.ok(g.score>0);});
+test('three drains end game and reset restores playable state',()=>{const g=new P();for(let n=2;n>=0;n--){g.launch();g.saver=0;g.ball={x:300,y:961,vx:0,vy:500};g.step();assert.equal(g.balls,n);}assert.equal(g.phase,'over');assert.equal(g.launch(),false);g.reset();assert.equal(g.balls,3);assert.equal(g.score,0);assert.equal(g.launch(),true);});
+test('early drain saves ball',()=>{const g=new P();g.launch();g.ball={x:300,y:961,vx:0,vy:100};g.step();assert.equal(g.balls,3);assert.equal(g.phase,'ready');});
+test('each target lights once and complete set awards bonus',()=>{const g=new P();g.launch();for(let i=0;i<3;i++){const t=P.targets[i];g.ball={x:t.x,y:t.y-t.r-8,vx:0,vy:50};g.step();}assert.equal(g.score,1600);assert.equal(g.lit,0);});
+test('moving left flipper imparts upward velocity',()=>{const g=new P();g.launch();const f=g.flippers[0];g.ball={x:f.x+65,y:f.y+8,vx:0,vy:90};g.step(true,false);assert.ok(g.ball.vy< -100);});
+test('resting flippers leave center drain open',()=>{const g=new P();g.launch();g.saver=0;g.ball={x:300,y:790,vx:0,vy:100};for(let i=0;i<240;i++)g.step();assert.equal(g.balls,2);});
+test('deterministic prolonged play stays finite with bounded speed',()=>{const a=new P(),b=new P();for(let i=0;i<30000;i++){for(const g of [a,b]){if(g.phase==='over')g.reset();if(g.phase==='ready')g.launch();g.step(i%73<30,i%91<40);assert.ok(Number.isFinite(g.ball.x+g.ball.y+g.score));assert.ok(Math.hypot(g.ball.vx,g.ball.vy)<=1801);} }assert.deepEqual(a,b);});
+
