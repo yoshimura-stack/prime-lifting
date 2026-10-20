@@ -27,7 +27,7 @@ jobs:
         id: preview
         run: npm run check:boost-preview
       - name: Archive locked DAILY SLOT preview
-        if: steps.preview.outcome == 'success'
+        if: steps.tests.outcome == 'success' && steps.build.outcome == 'success' && steps.preview.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: prime-boost-locked-preview
