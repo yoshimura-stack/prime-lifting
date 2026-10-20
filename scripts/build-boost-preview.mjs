@@ -1,0 +1,10 @@
+import {mkdir,copyFile,cp,rm,readFile,access} from 'node:fs/promises';
+const root=new URL('../',import.meta.url),target=new URL('../boost-preview-public/',import.meta.url);
+await rm(target,{recursive:true,force:true});
+await mkdir(new URL('js/',target),{recursive:true});
+for(const file of ['boost-slot-preview.html','boost-slot-preview.css'])await copyFile(new URL(file,root),new URL(file,target));
+await copyFile(new URL('js/boost-slot-preview.mjs',root),new URL('js/boost-slot-preview.mjs',target));
+const html=await readFile(new URL('boost-slot-preview.html',target),'utf8');
+if(!html.includes('enabled:false'))throw new Error('Preview UI must remain locked');
+for(const file of ['boost-slot-preview.css','js/boost-slot-preview.mjs'])await access(new URL(file,target));
+console.log('Isolated locked slot preview assets built.');
