@@ -18,6 +18,8 @@ Environment: isolated Supabase project `prime-boost-staging` (Tokyo, Free). Prod
 - Verified RPC EXECUTE privileges: anon=false, authenticated=false, service_role=true for both functions.
 - Verified cross-player reuse of an existing run ID is rejected, while the original use record and stock remain consistent.
 
+- Automated SQL assertions passed for full-stock skip -> two distinct time BOOST spends -> same-day spin awarded one time BOOST. The transaction was rolled back.
+
 ## Important limitations
 - These are **sequential calls inside SQL transactions**, not two concurrent connections. Race-condition tests remain pending.
 - This is a standalone preview database, not the live game database. Its minimal `lifting_players` table is for DB testing only.
