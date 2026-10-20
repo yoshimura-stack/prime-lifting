@@ -23,3 +23,10 @@ jobs:
         run: npm run build
       - name: Validate isolated preview Worker without deploying
         run: npm run check:boost-preview
+      - name: Record validation summary
+        if: always()
+        run: |
+          echo '## PRIME BOOST isolated staging checks' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Workflow: test/build/dry-run only; no deployment.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Review the preceding steps for pass/fail status.' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Production Worker, DB, and ranking are not changed by this workflow.' >> "$GITHUB_STEP_SUMMARY"
