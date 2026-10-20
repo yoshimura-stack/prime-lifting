@@ -17,6 +17,7 @@ export default {
    headers.set('cache-control','no-store');
    headers.set('x-content-type-options','nosniff');
    headers.set('x-frame-options','DENY');
+   headers.set('x-robots-tag','noindex, nofollow, noarchive');
    headers.set('referrer-policy','no-referrer');
    headers.set('content-security-policy',"default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
    return new Response(response.body,{status:response.status,headers});
