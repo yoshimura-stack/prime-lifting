@@ -4,7 +4,7 @@ const root=new URL('../',import.meta.url),target=new URL('public/',root);
 // Keep new root-level CSS in the deployed static bundle.
 await rm(target,{recursive:true,force:true});await mkdir(target,{recursive:true});
 for(const file of [
- 'index.html','style.css','mobile-ranking.css','mobile-result.css',
+ 'pinball.html','pinball.css','index.html','style.css','mobile-ranking.css','mobile-result.css',
  'pc-cockpit.css','mobile-icon-rails.css','mobile-kit-portrait.css',
  'mobile-king-marquee.css','update-news.css','ranking-daily-breakdown.css','ready-room.css','game.js'
 ])await copyFile(new URL(file,root),new URL(file,target));
