@@ -28,7 +28,7 @@ class PrimeTouchController {
   const size=stick.getBoundingClientRect().width;
   const x=Math.max(size/2,Math.min(rect.width-size/2,e.clientX-rect.left));
   const y=Math.max(size/2,Math.min(rect.height-size/2,e.clientY-rect.top));
-  stick.style.setProperty('left',(x-size/2)+'px','important');stick.style.setProperty('top',(y-size/2)+'px','important');
+  stick.style.left=(x-size/2)+'px';stick.style.top=(y-size/2)+'px';
   stick.classList.add('floating-visible');
  }
  updateStick(e,zone){
