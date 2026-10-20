@@ -1,6 +1,7 @@
 -- PRIME BOOST STAGING DRAFT ONLY — DO NOT APPLY TO PRODUCTION
 -- Requires isolated preview DB and explicit approval.
--- Assumes lifting_players(id) is UUID; verify schema before executing.
+-- Read-only inspection of the connected project confirmed lifting_players(id) is a UUID primary key.
+-- This does NOT establish that the connected project is an isolated preview database.
 begin;
 create table if not exists public.lifting_boost_inventory (
  player_id uuid primary key references public.lifting_players(id) on delete cascade,
@@ -26,5 +27,13 @@ create table if not exists public.lifting_boost_slot_spins (
 alter table public.lifting_boost_inventory enable row level security;
 alter table public.lifting_boost_run_uses enable row level security;
 alter table public.lifting_boost_slot_spins enable row level security;
+-- RLS is enabled, but table-level grants must also be removed. RLS does not
+-- protect against access via an owner or privileged role.
+revoke all on table public.lifting_boost_inventory from public, anon, authenticated;
+revoke all on table public.lifting_boost_run_uses from public, anon, authenticated;
+revoke all on table public.lifting_boost_slot_spins from public, anon, authenticated;
+grant select, insert, update, delete on table public.lifting_boost_inventory to service_role;
+grant select, insert, update, delete on table public.lifting_boost_run_uses to service_role;
+grant select, insert, update, delete on table public.lifting_boost_slot_spins to service_role;
 -- No client policies. Privileged RPC only, after verification.
 commit;
