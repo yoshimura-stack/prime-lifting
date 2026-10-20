@@ -583,3 +583,10 @@ body.touch-landscape #result-next-rival{display:none!important}
  outline:0!important;
  -webkit-tap-highlight-color:transparent;
 }
+
+/* Keep the left quick-menu rail outside the floating joystick hit target.
+   The rail contains title, controls, coin, news and pause buttons. */
+.touch-landscape #touch-controls .touch-stick-zone{
+ left:clamp(48px,8dvh,60px)!important;
+ width:calc(50vw - clamp(48px,8dvh,60px))!important;
+}
