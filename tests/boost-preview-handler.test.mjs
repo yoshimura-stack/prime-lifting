@@ -30,8 +30,22 @@ test('preview handler uses resolved identity rather than client playerId',async(
 });
 test('preview handler denies cross-origin and invalid reserve',async()=>{
  let calls=0;
- const handle=createBoostPreviewHandler({enabled:true,resolvePlayer:async()=>player,transport:{call:async()=>{calls++;}}});
+ const handle=createBoostPreviewHandler({enabled:true,allowReserve:true,resolvePlayer:async()=>player,transport:{call:async()=>{calls++;}}});
  assert.equal((await handle(request('/api/boost-preview/slot/spin',{}, {origin:'https://other.example'}))).status,403);
  assert.equal((await handle(request('/api/boost-preview/reserve',{runId:'bad',boost:'time'}))).status,400);
+ assert.equal(calls,0);
+});
+
+test('reservation endpoint stays locked even when slot preview is enabled',async()=>{
+ let calls=0;
+ const handle=createBoostPreviewHandler({enabled:true,resolvePlayer:async()=>player,transport:{call:async()=>{calls++;}}});
+ const res=await handle(request('/api/boost-preview/reserve',{runId:run,boost:'time'}));
+ assert.equal(res.status,403);
+ assert.equal(calls,0);
+});
+test('unrecognized endpoint cannot invoke preview RPC',async()=>{
+ let calls=0;
+ const handle=createBoostPreviewHandler({enabled:true,resolvePlayer:async()=>player,transport:{call:async()=>{calls++;}}});
+ assert.equal((await handle(request('/api/boost-preview/unrecognized',{}))).status,404);
  assert.equal(calls,0);
 });
