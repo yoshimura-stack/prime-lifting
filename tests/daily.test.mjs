@@ -54,7 +54,7 @@ test('thirty unique bank missions rotate for everyone without repeats across ten
   assert.ok(pool.every(c=>['combo','foot','knee','chest','shoulder','spin','jump','quad'].includes(c.metric)&&Number.isSafeInteger(c.target)&&c.target>0));
   const chosen=[];
   for(let offset=0;offset<11;offset++){
-   const day=new Date(Date.parse('2026-10-20T00:00:00Z')+offset*86400000).toISOString().slice(0,10);
+   const day=new Date(Date.parse('2026-10-21T00:00:00Z')+offset*86400000).toISOString().slice(0,10);
    const selected=dailyChallenges(day).find(c=>c.difficulty===difficulty);
    assert.deepEqual(selected,dailyChallenges(day).find(c=>c.difficulty===difficulty));
    chosen.push(selected.id);
