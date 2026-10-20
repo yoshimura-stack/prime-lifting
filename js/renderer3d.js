@@ -48,8 +48,20 @@ class PrimeRenderer{
     x.fillStyle='rgba(70,82,78,.10)';x.fillRect(px,py,1,1);
    }
   });
-  this.ball=new T.Mesh(new T.SphereGeometry(c.BALL_RADIUS,32,24),new T.MeshStandardMaterial({map:ballTex,roughness:0.38,metalness:0.02}));this.ball.castShadow=true;this.scene.add(this.ball);this.ballShadow=this.shadow(25,.23);this.scene.add(this.ballShadow);this.playerShadow=this.shadow(58,.28);this.scene.add(this.playerShadow);
+  this.ball=new T.Mesh(new T.SphereGeometry(c.BALL_RADIUS,32,24),new T.MeshStandardMaterial({map:ballTex,roughness:0.38,metalness:0.02}));this.normalBallTexture=ballTex;this.boostBallColor=null;this.ball.castShadow=true;this.scene.add(this.ball);this.ballShadow=this.shadow(25,.23);this.scene.add(this.ballShadow);this.playerShadow=this.shadow(58,.28);this.scene.add(this.playerShadow);
 
+ }
+ // Visual-only tint for staging; never touches physics, score or collision.
+ setBoostBallColor(color=null){
+  const allowed=new Set([null,'#3B82F6','#FACC15','#22C55E']);
+  if(!allowed.has(color))throw new TypeError('Invalid BOOST ball color');
+  if(this.boostBallColor===color)return;
+  this.boostBallColor=color;
+  const material=this.ball.material;
+  material.color.set(color||'#ffffff');
+  // Neutralize the existing multicolor map only for a BOOST ball.
+  material.map=color?null:this.normalBallTexture;
+  material.needsUpdate=true;
  }
  mat(color,roughness=.78){return new this.T.MeshStandardMaterial({color,roughness});}
  texture(w,h,paint){const cv=document.createElement('canvas');cv.width=w;cv.height=h;paint(cv.getContext('2d'),w,h);const tex=new this.T.CanvasTexture(cv);tex.colorSpace=this.T.SRGBColorSpace;tex.anisotropy=Math.min(8,this.renderer.capabilities.getMaxAnisotropy());return tex;}
