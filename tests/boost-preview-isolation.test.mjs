@@ -7,6 +7,7 @@ test('staging preview remains double locked',async()=>{
  const client=await read('../js/boost-slot-client.mjs');
  assert.equal(config.vars.BOOST_PREVIEW_ENABLED,'false');
  assert.equal(config.assets.directory,'./boost-preview-public');
+ assert.equal(config.assets.run_worker_first,true,'all static requests must pass security header middleware');
  assert.equal(config.main,'server/boost-preview-worker.mjs');
  assert.equal(config.vars.BOOST_PREVIEW_PROJECT_ID,'tarnzjkxexlozqqmyqof');
  const html=await read('../boost-slot-preview.html');
