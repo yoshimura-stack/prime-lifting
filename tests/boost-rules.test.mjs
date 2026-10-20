@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {eligibleBoosts,slotOutcome,scoreMultiplier,finalScore,ballColor,shouldProtectDrop,createBoostRun} from '../js/boost-rules.mjs';
+import {eligibleBoosts,slotOutcome,scoreMultiplier,finalScore,ballColor,shouldProtectDrop,createBoostRun,validateBoostSelection} from '../js/boost-rules.mjs';
 test('slot excludes full items and always returns triple match',()=>{
  assert.deepEqual(eligibleBoosts({time:2,score:0,sc:2}),['score']);
  assert.deepEqual(slotOutcome({time:2,score:0,sc:2},()=>0.9),{type:'score',reels:['score','score','score']});
@@ -44,4 +44,10 @@ test('run duration and second chance preserve normal respawn and history icon',(
 test('score follows current production Math.round convention',()=>{
  assert.equal(finalScore(105,'pc','score'),116);
  assert.equal(finalScore(105,'mobile','score'),126);
+});
+
+test('one BOOST maximum: duplicates and combinations are invalid',()=>{
+ assert.equal(validateBoostSelection(null),null);
+ for(const type of ['time','score','sc'])assert.equal(validateBoostSelection(type),type);
+ for(const invalid of [['time','time'],['time','score'],['time','score','sc'],[],{},'unknown'])assert.throws(()=>validateBoostSelection(invalid),TypeError);
 });
