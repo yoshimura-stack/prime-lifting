@@ -4,19 +4,21 @@
 import {createBoostPreviewService} from './boost-preview-service.mjs';
 
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
-export function createBoostPreviewHandler({transport,resolvePlayer,enabled=false}={}){
+export function createBoostPreviewHandler({transport,resolvePlayer,enabled=false,allowReserve=false}={}){
  if(typeof resolvePlayer!=='function')throw new TypeError('Session resolver required');
  const service=createBoostPreviewService(transport);
  return async function handle(request){
   if(!enabled)return json({error:'BOOST preview is disabled'},403);
   const url=new URL(request.url);
   if(!url.pathname.startsWith('/api/boost-preview/'))return json({error:'Not found'},404);
+  if(url.pathname!=='/api/boost-preview/slot/spin'&&url.pathname!=='/api/boost-preview/reserve')return json({error:'Not found'},404);
+  if(url.pathname==='/api/boost-preview/reserve'&&!allowReserve)return json({error:'Reservation preview is disabled'},403);
   if(request.method!=='POST')return json({error:'Method not allowed'},405);
   if(request.headers.get('origin')!==url.origin)return json({error:'Origin denied'},403);
   if(!(request.headers.get('content-type')||'').startsWith('application/json'))return json({error:'JSON required'},415);
   let playerId;
   try{playerId=await resolvePlayer(request);}catch{return json({error:'Unauthorized'},401);}
-  if(!playerId)return json({error:'Unauthorized'},401);
+  if(typeof playerId!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(playerId))return json({error:'Unauthorized'},401);
   let body;
   try{
    const raw=await request.text();
