@@ -4,7 +4,7 @@ window.addEventListener('DOMContentLoaded',()=>{
  function close(){if(!portal)return;portal.remove();portal=null;previous.forEach(([el,value])=>el.inert=value);previous=[];originButton?.focus();}
  function open(e){if(portal)return;originButton=e.currentTarget;
   portal=document.createElement('div');portal.className='pb-portal';portal.setAttribute('role','dialog');portal.setAttribute('aria-modal','true');portal.setAttribute('aria-label','PRIME PINBALL');
-  const frame=document.createElement('iframe');frame.title='PRIME PINBALL';frame.src='pinball.html?v=1';portal.append(frame);
+  const frame=document.createElement('iframe');frame.title='PRIME PINBALL';frame.src='pinball.html?v=stadium-4';portal.append(frame);
   previous=[...document.body.children].map(el=>[el,el.inert]);previous.forEach(([el])=>el.inert=true);document.body.append(portal);frame.onload=()=>frame.focus();
  }
  for(const host of [document.querySelector('.score-guide .pc-rail'),document.querySelector('#mobile-icon-rails .mobile-icon-column:last-child')]){
