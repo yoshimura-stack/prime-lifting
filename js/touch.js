@@ -23,7 +23,7 @@ class PrimeTouchController {
   document.addEventListener('visibilitychange',()=>{if(document.hidden)this.clear();});
  }
  placeStick(e,zone){
-  const stick=zone.querySelector('.touch-stick');if(!stick)return;
+  const stick=zone.querySelector?.('.touch-stick');if(!stick?.querySelector)return;
   const rect=zone.getBoundingClientRect();
   const size=stick.getBoundingClientRect().width;
   const x=Math.max(size/2,Math.min(rect.width-size/2,e.clientX-rect.left));
@@ -32,7 +32,7 @@ class PrimeTouchController {
   stick.classList?.add('floating-visible');
  }
  updateStick(e,zone){
-  const stick=zone.querySelector('.touch-stick');if(!stick)return;
+  const candidate=zone.querySelector?.('.touch-stick');const stick=candidate?.querySelector?candidate:zone;
   const rect=stick.getBoundingClientRect(),radius=Math.min(rect.width,rect.height)/2;
   const knob=stick.querySelector('.touch-stick-knob'),knobRadius=knob.getBoundingClientRect().width/2;
   const maxOffset=Math.max(1,radius-knobRadius-4),x=e.clientX-(rect.left+rect.width/2),y=e.clientY-(rect.top+rect.height/2);
@@ -59,7 +59,7 @@ class PrimeTouchController {
  }
  paint(){
   this.element.querySelectorAll('[data-action]').forEach(b=>b.classList.toggle('pressed',[...this.pointers.values()].includes(b)));
-  const zone=this.element.querySelector('[data-action="stick"]'),stick=zone?.querySelector('.touch-stick'),knob=stick?.querySelector('.touch-stick-knob');
+  const zone=this.element.querySelector('[data-action="stick"]'),candidate=zone?.querySelector?.('.touch-stick'),stick=candidate?.querySelector?candidate:zone,knob=stick?.querySelector?.('.touch-stick-knob');
   if(stick&&knob){
    const active=[...this.pointers.values()].includes(zone);
    if(!active){knob.style.transform='translate(-50%, -50%)';stick.classList?.remove('floating-visible');}
