@@ -4,18 +4,38 @@ export const DAILY_POOLS=Object.freeze({
  easy:Object.freeze([
   {id:'keep10',label:'10キープ達成',target:10,metric:'combo'},
   {id:'keep15',label:'15キープ達成',target:15,metric:'combo'},
-  {id:'foot10',label:'足タッチ10回成功',target:10,metric:'foot'}
+  {id:'foot10',label:'足タッチ10回成功',target:10,metric:'foot'},
+  {id:'foot15',label:'足タッチ15回成功',target:15,metric:'foot'},
+  {id:'knee3',label:'膝タッチ3回成功',target:3,metric:'knee'},
+  {id:'chest3',label:'胸タッチ3回成功',target:3,metric:'chest'},
+  {id:'spin1',label:'スピン付きタッチ1回',target:1,metric:'spin'},
+  {id:'jump2',label:'ジャンプ付きタッチ2回',target:2,metric:'jump'},
+  {id:'keep12',label:'12キープ達成',target:12,metric:'combo'},
+  {id:'foot20',label:'足タッチ20回成功',target:20,metric:'foot'}
  ]),
  normal:Object.freeze([
   {id:'spin3',label:'スピン付きタッチ3回',target:3,metric:'spin'},
   {id:'jump5',label:'ジャンプ付きタッチ5回',target:5,metric:'jump'},
   {id:'knee8',label:'膝タッチ8回成功',target:8,metric:'knee'},
-  {id:'chest6',label:'胸タッチ6回成功',target:6,metric:'chest'}
+  {id:'chest6',label:'胸タッチ6回成功',target:6,metric:'chest'},
+  {id:'keep20',label:'20キープ達成',target:20,metric:'combo'},
+  {id:'foot30',label:'足タッチ30回成功',target:30,metric:'foot'},
+  {id:'spin5',label:'スピン付きタッチ5回',target:5,metric:'spin'},
+  {id:'jump8',label:'ジャンプ付きタッチ8回',target:8,metric:'jump'},
+  {id:'knee12',label:'膝タッチ12回成功',target:12,metric:'knee'},
+  {id:'chest10',label:'胸タッチ10回成功',target:10,metric:'chest'}
  ]),
  hard:Object.freeze([
   {id:'shoulder2',label:'肩タッチ2回成功',target:2,metric:'shoulder'},
   {id:'keep30',label:'30キープ達成',target:30,metric:'combo'},
-  {id:'quad1',label:'4回転スピンを成功',target:1,metric:'quad'}
+  {id:'quad1',label:'4回転スピンを成功',target:1,metric:'quad'},
+  {id:'keep40',label:'40キープ達成',target:40,metric:'combo'},
+  {id:'shoulder3',label:'肩タッチ3回成功',target:3,metric:'shoulder'},
+  {id:'spin10',label:'スピン付きタッチ10回',target:10,metric:'spin'},
+  {id:'jump12',label:'ジャンプ付きタッチ12回',target:12,metric:'jump'},
+  {id:'knee20',label:'膝タッチ20回成功',target:20,metric:'knee'},
+  {id:'chest15',label:'胸タッチ15回成功',target:15,metric:'chest'},
+  {id:'keep50',label:'50キープ達成',target:50,metric:'combo'}
  ])
 });
 export function jstDay(ms){
@@ -23,10 +43,17 @@ export function jstDay(ms){
  return new Date(ms+9*3600000).toISOString().slice(0,10);
 }
 function hash(value){let n=2166136261;for(const c of value){n=Math.imul(n^c.charCodeAt(0),16777619)>>>0;}return n;}
+// All players see the same mission. Avoid yesterday's mission without any DB writes.
+function missionIndex(day,difficulty,length){
+ const index=hash(day+':'+difficulty)%length;
+ const previous=new Date(Date.parse(day+'T00:00:00Z')-86400000).toISOString().slice(0,10);
+ const previousIndex=hash(previous+':'+difficulty)%length;
+ return index===previousIndex?(index+1)%length:index;
+}
 export function dailyChallenges(day){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||new Date(day+'T00:00:00Z').toISOString().slice(0,10)!==day)throw new TypeError('Invalid day');
  return Object.entries(DAILY_POOLS).map(([difficulty,pool])=>({
-  ...pool[hash(day+':'+difficulty)%pool.length],difficulty,reward:100,day
+  ...pool[missionIndex(day,difficulty,pool.length)],difficulty,reward:100,day
  }));
 }
 export function dailyRunProgress(result){
