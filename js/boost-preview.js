@@ -34,6 +34,17 @@ for(const {type,label,detail,color} of [
  button.append(ball,copy,count);cards.append(button);
 }
 section.append(cards);
+// Color-only preview links are separate from the disabled equip buttons.
+// They reload the same staging page and never authorize item usage.
+const previews=document.createElement('nav');previews.className='prime-boost-color-preview';
+previews.setAttribute('aria-label','開発用ボール色プレビュー');
+for(const [type,label] of [['time','青'],['score','黄'],['sc','緑']]){
+ const link=document.createElement('a');const url=new URL(location.href);
+ url.searchParams.set('boostPreview','1');url.searchParams.set('boostColor',type);
+ link.href=url.toString();link.textContent=label+'のボールを見る';previews.append(link);
+}
+section.append(previews);
+
 const foot=document.createElement('small');foot.className='prime-boost-lock';foot.textContent='🔒 開発中：選択・付与・消費は無効です';
 section.append(foot);
 mount.after(section);
