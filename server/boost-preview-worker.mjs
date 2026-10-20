@@ -12,7 +12,12 @@ export default {
   if(!url.pathname.startsWith('/api/')){
    if(url.pathname==='/')return Response.redirect(url.origin+'/boost-slot-preview.html',302);
    if(!env.ASSETS||typeof env.ASSETS.fetch!=='function')return unavailable();
-   return env.ASSETS.fetch(request);
+   const response=await env.ASSETS.fetch(request);
+   const headers=new Headers(response.headers);
+   headers.set('cache-control','no-store');
+   headers.set('x-content-type-options','nosniff');
+   headers.set('x-frame-options','DENY');
+   return new Response(response.body,{status:response.status,headers});
   }
   // Both the project URL and a dedicated secret are mandatory. Fail closed.
   if(env.BOOST_PREVIEW_ENABLED!=='true'||env.BOOST_PREVIEW_PROJECT_ID!==STAGING_PROJECT||!env.BOOST_PREVIEW_SESSION_SECRET||!env.BOOST_PREVIEW_SERVICE_KEY)return unavailable();
