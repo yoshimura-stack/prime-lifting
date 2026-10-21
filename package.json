@@ -5,7 +5,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "dev": "npm run build && wrangler dev --port 8770",
-    "test": "node tests/engine-v42.test.cjs && node --test tests/touch.test.cjs tests/worker.test.mjs tests/daily.test.mjs tests/daily-rewards-worker.test.mjs tests/achievements.test.mjs tests/world-arena.test.cjs && node tests/mobile-layout.test.cjs && node --test tests/mobile-experience.test.cjs && node --test tests/pc-ticker.test.cjs && node --test tests/podium-contrast.test.cjs",
+    "test": "node tests/engine-v42.test.cjs && node --test tests/touch.test.cjs tests/worker.test.mjs tests/daily.test.mjs tests/daily-rewards-worker.test.mjs tests/achievements.test.mjs tests/world-arena.test.cjs && node tests/mobile-layout.test.cjs && node --test tests/mobile-experience.test.cjs && node --test tests/pc-ticker.test.cjs && node --test tests/podium-contrast.test.cjs && node --test tests/kit-notebook-fix.test.mjs",
     "check:deploy": "npm run build && wrangler deploy --dry-run",
     "deploy": "npm run build && wrangler deploy"
   },
