@@ -1,6 +1,6 @@
 // Isolated BOOST preview RPC transport; intentionally not used by the live game Worker.
 // Configure ONLY against the dedicated staging Supabase project.
-const rpcNames=Object.freeze({boost_slot_spin:'lifting_api_boost_slot_spin',boost_reserve:'lifting_api_boost_reserve'});
+const rpcNames=Object.freeze({boost_slot_spin:'lifting_api_boost_slot_spin',boost_reserve:'lifting_api_boost_reserve',boost_inventory_read:'lifting_api_boost_inventory_read'});
 export function createBoostPreviewTransport({url,serviceKey,expectedProjectHost,fetcher=fetch}={}){
  if(typeof url!=='string'||typeof serviceKey!=='string'||!serviceKey||typeof fetcher!=='function')throw new TypeError('Missing preview database configuration');
  const base=new URL(url);
