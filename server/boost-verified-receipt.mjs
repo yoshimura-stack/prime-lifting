@@ -8,6 +8,7 @@ export function createBoostVerifiedReceiptStore(transport){
   if(typeof playerId!=='string'||!uuid.test(playerId)||typeof runId!=='string'||!uuid.test(runId))throw new TypeError('Invalid run');
   const parsed=rankingBoostBreakdown({boost,baseScore,boostBonus,playScore});
   if(parsed.legacy)throw new TypeError('Complete breakdown required');
+  if(boost==='score'&&playScore!==Math.round(baseScore*1.1))throw new RangeError('Invalid SCORE BOOST multiplier');
   const result=await transport.call('boost_verified_receipt',{playerId,runId,boost,baseScore,boostBonus,playScore});
   if(!result||result.runId!==runId||result.playScore!==playScore||typeof result.replayed!=='boolean')throw new TypeError('Invalid receipt response');
   return Object.freeze({runId,playScore,replayed:result.replayed});
