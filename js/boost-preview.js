@@ -40,7 +40,37 @@ const none=document.createElement('button');none.type='button';none.className='p
 const selected=document.createElement('small');selected.textContent='選択プレビュー：BOOSTなし（消費なし）';
 selection.append(none,selected);section.append(selection);
 none.addEventListener('click',()=>{for(const card of cards.children)card.setAttribute('aria-pressed','false');none.setAttribute('aria-pressed','true');selected.textContent='選択プレビュー：BOOSTなし（消費なし）';});
-for(const card of cards.children){card.disabled=false;card.setAttribute('aria-pressed','false');card.addEventListener('click',()=>{for(const other of cards.children)other.setAttribute('aria-pressed',String(other===card));none.setAttribute('aria-pressed','false');selected.textContent='選択プレビュー：'+card.querySelector('strong').textContent+'（ゲームには未適用）';});}
+for(const card of cards.children){card.disabled=true;card.setAttribute('aria-pressed','false');card.addEventListener('click',()=>{for(const other of cards.children)other.setAttribute('aria-pressed',String(other===card));none.setAttribute('aria-pressed','false');selected.textContent='選択プレビュー：'+card.querySelector('strong').textContent+'（ゲームには未適用）';});}
+// Fail-closed: no real authenticated preview session is connected yet.
+// A future trusted preview client may supply a validated inventory snapshot.
+// Never read inventory from URL parameters, localStorage or game account DOM.
+
+function showInventory(counts){
+ if(!counts||typeof counts!=='object'||Array.isArray(counts))throw new TypeError('Invalid inventory');
+ for(const type of ['time','score','sc']){
+  if(!Number.isInteger(counts[type])||counts[type]<0||counts[type]>2)throw new RangeError('Invalid BOOST count');
+ }
+ for(const card of cards.children){
+  const count=counts[card.dataset.boost];
+  card.querySelector('.prime-boost-count').textContent=count+' / 2';
+  card.disabled=count===0;
+  if(count===0&&card.getAttribute('aria-pressed')==='true')none.click();
+ }
+}
+function lockInventory(){
+ for(const card of cards.children){
+  card.disabled=true;card.querySelector('.prime-boost-count').textContent='-- / 2';
+ }
+ none.click();
+}
+lockInventory();
+// The custom event must be dispatched by a trusted staging integration after
+// authenticating to the isolated preview API; untrusted page events are NOT authorization.
+// Therefore this event only updates visual UI and cannot equip or consume anything.
+section.addEventListener('boost-preview-inventory',event=>{
+ try{showInventory(event.detail);}catch{lockInventory();}
+});
+section.addEventListener('boost-preview-lock',lockInventory);
 // Color-only preview links are separate from the disabled equip buttons.
 // They reload the same staging page and never authorize item usage.
 const previews=document.createElement('nav');previews.className='prime-boost-color-preview';
@@ -54,6 +84,7 @@ section.append(previews);
 
 const foot=document.createElement('small');foot.className='prime-boost-lock';foot.textContent='🔒 表示選択のみ：ゲーム開始・付与・消費は無効です';
 section.append(foot);
+foot.textContent='🔒 在庫未確認：BOOST選択は無効（検証接続待ち）';
 mount.after(section);
 const sync=()=>{section.hidden=!!document.getElementById('overlay')?.hidden||document.getElementById('overlay-title')?.textContent==='一時停止';};
 new MutationObserver(sync).observe(document.getElementById('overlay'),{attributes:true,attributeFilter:['hidden']});
