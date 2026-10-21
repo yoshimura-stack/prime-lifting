@@ -11,7 +11,7 @@ export function createBoostPreviewHandler({transport,resolvePlayer,enabled=false
   if(!enabled)return json({error:'BOOST preview is disabled'},403);
   const url=new URL(request.url);
   if(!url.pathname.startsWith('/api/boost-preview/'))return json({error:'Not found'},404);
-  if(url.pathname!=='/api/boost-preview/slot/spin'&&url.pathname!=='/api/boost-preview/reserve')return json({error:'Not found'},404);
+  if(url.pathname!=='/api/boost-preview/slot/spin'&&url.pathname!=='/api/boost-preview/reserve'&&url.pathname!=='/api/boost-preview/inventory')return json({error:'Not found'},404);
   if(url.pathname==='/api/boost-preview/reserve'&&!allowReserve)return json({error:'Reservation preview is disabled'},403);
   if(request.method!=='POST')return json({error:'Method not allowed'},405);
   if(request.headers.get('origin')!==url.origin)return json({error:'Origin denied'},403);
@@ -39,6 +39,7 @@ export function createBoostPreviewHandler({transport,resolvePlayer,enabled=false
    if(!body||typeof body!=='object'||Array.isArray(body))throw Error();
   }catch{return json({error:'Invalid payload'},400);}
   try{
+   if(url.pathname==='/api/boost-preview/inventory')return json(await service.inventory(playerId));
    if(url.pathname==='/api/boost-preview/slot/spin')return json(await service.spin(playerId));
    if(url.pathname==='/api/boost-preview/reserve')return json(await service.reserve(playerId,body.runId,body.boost));
    return json({error:'Not found'},404);
