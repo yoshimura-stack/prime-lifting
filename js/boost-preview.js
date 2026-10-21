@@ -13,7 +13,7 @@ section.className='prime-boost-preview';
 section.setAttribute('aria-label','PRIME BOOST 開発中プレビュー');
 const heading=document.createElement('div');
 heading.className='prime-boost-heading';
-heading.innerHTML='<strong>⚽ PRIME BOOST</strong><small>DEVELOPMENT PREVIEW · 使用不可</small>';
+heading.innerHTML='<strong>⚽ PRIME BOOST</strong><small>PLAY READY PREVIEW · 未接続</small>';
 section.append(heading);
 const cards=document.createElement('div');cards.className='prime-boost-cards';
 for(const {type,label,detail,color} of [
@@ -38,7 +38,8 @@ section.append(cards);
 const selection=document.createElement('div');selection.className='prime-boost-selection';
 const none=document.createElement('button');none.type='button';none.className='prime-boost-none';none.textContent='BOOSTなし';none.setAttribute('aria-pressed','true');
 const selected=document.createElement('small');selected.textContent='選択プレビュー：BOOSTなし（消費なし）';
-selection.append(none,selected);section.append(selection);
+const readiness=document.createElement('div');readiness.className='prime-boost-readiness';readiness.setAttribute('role','status');readiness.textContent='プレイ準備：サーバー未接続 · BOOST使用不可';
+selection.append(none,selected);section.append(selection,readiness);
 none.addEventListener('click',()=>{for(const card of cards.children)card.setAttribute('aria-pressed','false');none.setAttribute('aria-pressed','true');selected.textContent='選択プレビュー：BOOSTなし（消費なし）';});
 for(const card of cards.children){card.disabled=true;card.setAttribute('aria-pressed','false');card.addEventListener('click',()=>{for(const other of cards.children)other.setAttribute('aria-pressed',String(other===card));none.setAttribute('aria-pressed','false');selected.textContent='選択プレビュー：'+card.querySelector('strong').textContent+'（ゲームには未適用）';});}
 // Fail-closed: no real authenticated preview session is connected yet.
@@ -84,10 +85,12 @@ section.append(previews);
 
 const foot=document.createElement('small');foot.className='prime-boost-lock';foot.textContent='🔒 表示選択のみ：ゲーム開始・付与・消費は無効です';
 section.append(foot);
-foot.textContent='🔒 在庫未確認：BOOST選択は無効（検証接続待ち）';
+foot.textContent='🔒 準備画面の表示確認専用：ゲーム開始・在庫消費・得点変更なし';
 mount.after(section);
 const sync=()=>{section.hidden=!!document.getElementById('overlay')?.hidden||document.getElementById('overlay-title')?.textContent==='一時停止';};
-new MutationObserver(sync).observe(document.getElementById('overlay'),{attributes:true,attributeFilter:['hidden']});
-new MutationObserver(sync).observe(document.getElementById('overlay-title'),{childList:true,characterData:true,subtree:true});
+const overlay=document.getElementById('overlay');
+const overlayTitle=document.getElementById('overlay-title');
+if(overlay)new MutationObserver(sync).observe(overlay,{attributes:true,attributeFilter:['hidden']});
+if(overlayTitle)new MutationObserver(sync).observe(overlayTitle,{childList:true,characterData:true,subtree:true});
 sync();
 })();
