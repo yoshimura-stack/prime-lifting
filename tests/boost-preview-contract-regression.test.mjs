@@ -1,0 +1,23 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {verifiedBoostBreakdown} from '../js/boost-score-breakdown.mjs';
+import {createBoostRun} from '../js/boost-rules.mjs';
+test('PC and mobile have identical SCORE BOOST x1.1',()=>{
+ for(const device of ['pc','mobile']){
+  assert.deepEqual(verifiedBoostBreakdown(50000,device,'score'),{baseScore:50000,boost:'score',boostBonus:5000,playScore:55000});
+  assert.deepEqual(verifiedBoostBreakdown(50000,device,null),{baseScore:50000,boost:null,boostBonus:0,playScore:50000});
+ }
+});
+test('preview correctly labels both devices and remains opt-in/disabled',()=>{
+ const source=readFileSync(new URL('../js/boost-preview.js',import.meta.url),'utf8');
+ assert.match(source,/PC \/ MOBILE 共通 ×1\.1/);
+ assert.match(source,/boostPreview/);
+ assert.match(source,/button\.disabled=true/);
+});
+test('time and second chance state remain isolated until replay support',()=>{
+ assert.equal(createBoostRun('time').durationSeconds,65);
+ const chance=createBoostRun('sc');
+ assert.equal(chance.onDrop().protectedCombo,true);
+ assert.equal(chance.onDrop().protectedCombo,false);
+});
