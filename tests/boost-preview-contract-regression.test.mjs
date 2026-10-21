@@ -36,3 +36,11 @@ test('preview is anchored before START but never hooks the real START action',()
  assert.match(source,/startButton\.before\(section\)/);
  assert.doesNotMatch(source,/startButton\.addEventListener/);
 });
+
+test('untrusted DOM inventory events cannot unlock BOOST controls',()=>{
+ const source=readFileSync(new URL('../js/boost-preview.js',import.meta.url),'utf8');
+ assert.doesNotMatch(source,/addEventListener\('boost-preview-inventory'/);
+ assert.doesNotMatch(source,/function showInventory\(/);
+ assert.match(source,/card\.disabled=true/);
+ assert.match(source,/any script can dispatch a custom event/);
+});
