@@ -1,7 +1,7 @@
 // Staging-only persistence adapter. Call ONLY after server replay and signed-run verification.
 // This is not a score validator; the service-role RPC is private and MUST NOT be public.
 import {rankingBoostBreakdown} from '../js/boost-score-breakdown.mjs';
-const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export function createBoostVerifiedReceiptStore(transport){
  if(!transport||typeof transport.call!=='function')throw new TypeError('Trusted transport required');
  return Object.freeze({async save({playerId,runId,boost,baseScore,boostBonus,playScore}){
