@@ -29,3 +29,10 @@ test('play-ready preview stays disconnected and tolerates missing overlay nodes'
  assert.match(source,/if\(overlayTitle\)new MutationObserver/);
  assert.match(source,/ゲーム開始・在庫消費・得点変更なし/);
 });
+
+test('preview is anchored before START but never hooks the real START action',()=>{
+ const source=readFileSync(new URL('../js/boost-preview.js',import.meta.url),'utf8');
+ assert.match(source,/getElementById\('start'\)/);
+ assert.match(source,/startButton\.before\(section\)/);
+ assert.doesNotMatch(source,/startButton\.addEventListener/);
+});
