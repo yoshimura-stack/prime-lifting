@@ -52,3 +52,6 @@ The `reserve` endpoint is a low-level test hook accepting a run ID. It MUST NOT 
 - Same player/run/score payload is idempotent; mismatched retries fail. BOOST runs require an existing matching reservation; unboosted runs reject reserved BOOST IDs. Only SCORE BOOST may have a positive score delta.
 - This is a **staging receipt**, NOT the live ranking table. The RPC cannot itself authenticate event replay; the trusted server must call it only after signed-token verification and replay. Never expose the RPC to a client or call it directly with untrusted score values.
 - A live rollout requires server-issued run registration for NONE, verified replay for TIME/SC, atomic durable start issuance/recovery, and a single transaction binding run consumption to ranking writes. No production merge or deployment is authorized.
+
+## Finish integration progress
+The isolated finish validator now accepts a trusted saveReceipt dependency, checks its confirmation, and returns the replayed status. An older claimRun adapter remains solely for compatibility with existing unit tests; do not wire it into any deployed endpoint. The dedicated staging receipt table is not the live ranking. Browser integration, TIME/SC replay, production-grade session binding, and test execution remain pending.
