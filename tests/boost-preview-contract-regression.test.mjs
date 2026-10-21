@@ -21,3 +21,11 @@ test('time and second chance state remain isolated until replay support',()=>{
  assert.equal(chance.onDrop().protectedCombo,true);
  assert.equal(chance.onDrop().protectedCombo,false);
 });
+
+test('play-ready preview stays disconnected and tolerates missing overlay nodes',()=>{
+ const source=readFileSync(new URL('../js/boost-preview.js',import.meta.url),'utf8');
+ assert.match(source,/サーバー未接続 · BOOST使用不可/);
+ assert.match(source,/if\(overlay\)new MutationObserver/);
+ assert.match(source,/if\(overlayTitle\)new MutationObserver/);
+ assert.match(source,/ゲーム開始・在庫消費・得点変更なし/);
+});
