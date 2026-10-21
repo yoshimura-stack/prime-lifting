@@ -22,7 +22,7 @@ export function parseSlotResult(value){
   if(value.boost!==null||value.reels!==null||value.replayed)throw new TypeError('Invalid full slot');
   return {day:value.day,boost:null,reels:null,allFull:true,replayed:false};
  }
- const type=validateBoostSelection(value.boost);
+ const type=value.boost==='miss'?'miss':validateBoostSelection(value.boost);
  if(type===null||!Array.isArray(value.reels)||value.reels.length!==3||!value.reels.every(item=>item===type))throw new TypeError('Invalid slot reels');
  return {day:value.day,boost:type,reels:[...value.reels],replayed:value.replayed};
 }
