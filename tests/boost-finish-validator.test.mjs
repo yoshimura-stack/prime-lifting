@@ -9,20 +9,20 @@ const now=Date.UTC(2026,9,21);
 const token=boost=>issueBoostRunToken({playerId,runId,boost,secret,now});
 test('rejects forged score before claiming run',async()=>{
  let claims=0;
- const gate=createBoostFinishValidator({secret,clock:()=>now,claimRun:async()=>{claims++;return true}});
+ const gate=createBoostFinishValidator({secret,clock:()=>now,saveReceipt:async()=>{claims++;return {runId,playScore:0,replayed:false}}});
  const signed=await token('score');
  await assert.rejects(gate.validate({playerId,runId,token:signed,events:[],worldWidth:1000,device:'pc',claimedScore:123456}),{status:400});
  assert.equal(claims,0);
 });
 test('blocks unsupported time and second chance replay without consumption',async()=>{
  let claims=0;
- const gate=createBoostFinishValidator({secret,clock:()=>now,claimRun:async()=>{claims++;return true}});
+ const gate=createBoostFinishValidator({secret,clock:()=>now,saveReceipt:async()=>{claims++;return {runId,playScore:0,replayed:false}}});
  for(const boost of ['time','sc'])await assert.rejects(gate.validate({playerId,runId,token:await token(boost),events:[],worldWidth:1000,device:'mobile'}),{status:409});
  assert.equal(claims,0);
 });
 test('rejects wrong signed run without touching replay or run store',async()=>{
  let claims=0;
- const gate=createBoostFinishValidator({secret,clock:()=>now,claimRun:async()=>{claims++;return true}});
+ const gate=createBoostFinishValidator({secret,clock:()=>now,saveReceipt:async()=>{claims++;return {runId,playScore:0,replayed:false}}});
  await assert.rejects(gate.validate({playerId,runId:'123e4567-e89b-42d3-a456-426614174003',token:await token(null),events:[],device:'pc'}),{status:401});
  assert.equal(claims,0);
 });
