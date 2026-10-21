@@ -46,32 +46,18 @@ for(const card of cards.children){card.disabled=true;card.setAttribute('aria-pre
 // A future trusted preview client may supply a validated inventory snapshot.
 // Never read inventory from URL parameters, localStorage or game account DOM.
 
-function showInventory(counts){
- if(!counts||typeof counts!=='object'||Array.isArray(counts))throw new TypeError('Invalid inventory');
- for(const type of ['time','score','sc']){
-  if(!Number.isInteger(counts[type])||counts[type]<0||counts[type]>2)throw new RangeError('Invalid BOOST count');
- }
- for(const card of cards.children){
-  const count=counts[card.dataset.boost];
-  card.querySelector('.prime-boost-count').textContent=count+' / 2';
-  card.disabled=count===0;
-  if(count===0&&card.getAttribute('aria-pressed')==='true')none.click();
- }
-}
+// Never unlock controls from DOM events: any script can dispatch a custom event.
+// A future authenticated staging client must own the trusted START flow.
 function lockInventory(){
  for(const card of cards.children){
-  card.disabled=true;card.querySelector('.prime-boost-count').textContent='-- / 2';
+  card.disabled=true;
+  card.setAttribute('aria-pressed','false');
+  card.querySelector('.prime-boost-count').textContent='-- / 2';
  }
- none.click();
+ none.setAttribute('aria-pressed','true');
+ selected.textContent='選択プレビュー：BOOSTなし（消費なし）';
 }
 lockInventory();
-// The custom event must be dispatched by a trusted staging integration after
-// authenticating to the isolated preview API; untrusted page events are NOT authorization.
-// Therefore this event only updates visual UI and cannot equip or consume anything.
-section.addEventListener('boost-preview-inventory',event=>{
- try{showInventory(event.detail);}catch{lockInventory();}
-});
-section.addEventListener('boost-preview-lock',lockInventory);
 // Color-only preview links are separate from the disabled equip buttons.
 // They reload the same staging page and never authorize item usage.
 const previews=document.createElement('nav');previews.className='prime-boost-color-preview';
