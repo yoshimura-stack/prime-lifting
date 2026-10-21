@@ -16,3 +16,13 @@ test('rejects forged breakdown before touching database',async()=>{
  await assert.rejects(store.save({playerId,runId,boost:'score',baseScore:50000,boostBonus:2000,playScore:52000}),RangeError);
  assert.equal(calls,0);
 });
+
+test('rejects malformed player or run UUID without database writes',async()=>{
+ let calls=0;
+ const store=createBoostVerifiedReceiptStore({call:async()=>{calls++;return {};}});
+ for(const invalid of ['123e4567-e89b-42d3-426614174001','not-a-uuid']){
+  await assert.rejects(store.save({playerId:invalid,runId,boost:'score',baseScore:50000,boostBonus:5000,playScore:55000}),TypeError);
+  await assert.rejects(store.save({playerId,runId:invalid,boost:'score',baseScore:50000,boostBonus:5000,playScore:55000}),TypeError);
+ }
+ assert.equal(calls,0);
+});
