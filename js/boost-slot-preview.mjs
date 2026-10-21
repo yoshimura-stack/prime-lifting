@@ -33,7 +33,7 @@ export function createSlotPreview(root,{spin,enabled=false}={}){
    if(result?.allFull===true){status.textContent='すべて2個所持中です。BOOST使用後に再挑戦できます。';return;}
    if(!result||!Object.hasOwn(TYPES,result.boost)||!Array.isArray(result.reels)||result.reels.length!==3||!result.reels.every(v=>v===result.boost))throw new Error('Invalid slot result');
    const item=apply(result.boost);
-   status.textContent=result.replayed?'本日は抽選済み：'+item.label:'当選！ '+item.label+' — '+item.detail;
+   status.textContent=result.replayed?'本日は抽選済み：'+item.label:result.boost==='miss'?'残念！ '+item.detail:'当選！ '+item.label+' — '+item.detail;
    button.disabled=true;
    button.dataset.completed='true';
    button.textContent='抽選済み';
