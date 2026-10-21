@@ -23,8 +23,8 @@ test('SCORE BOOST is x1.1 on both devices',()=>{
  assert.equal(scoreMultiplier('mobile','score'),11);
  assert.equal(finalScore(50000,'pc','score'),55000);
  assert.equal(finalScore(50000,'mobile','score'),55000);
- assert.equal(finalScore(101,'mobile','score'),121);
- assert.equal(finalScore(50000,'mobile'),55000);
+ assert.equal(finalScore(101,'mobile','score'),111);
+ assert.equal(finalScore(50000,'mobile'),50000);
 });
 test('SC is green until first drop and protects once',()=>{
  assert.equal(ballColor('sc'), '#22C55E');
