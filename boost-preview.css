@@ -14,3 +14,11 @@
 @media(max-width:700px){.prime-boost-preview{width:min(100%,480px);padding:6px;margin:4px auto}.prime-boost-card{padding:4px 2px}.prime-boost-ball{width:24px;height:24px;font-size:16px}.prime-boost-copy small{font-size:8px}}
 
 .prime-boost-color-preview{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:7px}.prime-boost-color-preview a{font-size:10px;color:#9fdcff;text-decoration:underline;text-underline-offset:3px}
+
+/* Selectable visual candidates; does not equip or consume inventory. */
+.prime-boost-card:not(:disabled){opacity:1;cursor:pointer}
+.prime-boost-card[aria-pressed="true"]{border-color:#ffe082;background:#294657;box-shadow:0 0 0 2px #facc1555}
+.prime-boost-selection{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:8px}
+.prime-boost-none{border:1px solid #9fb4c5;border-radius:8px;background:#203848;color:#fff;padding:5px 12px;font-size:11px;cursor:pointer}
+.prime-boost-none[aria-pressed="true"]{border-color:#facc15;background:#46542c}
+.prime-boost-selection small{font-size:10px;color:#d9e4ee}
