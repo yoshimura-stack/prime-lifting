@@ -55,3 +55,8 @@ The `reserve` endpoint is a low-level test hook accepting a run ID. It MUST NOT 
 
 ## Finish integration progress
 The isolated finish validator now accepts a trusted saveReceipt dependency, checks its confirmation, and returns the replayed status. An older claimRun adapter remains solely for compatibility with existing unit tests; do not wire it into any deployed endpoint. The dedicated staging receipt table is not the live ranking. Browser integration, TIME/SC replay, production-grade session binding, and test execution remain pending.
+
+## 2026-10-21 staging CI setup
+- Added `.github/workflows/boost-staging-tests.yml` for isolated branch push / manual execution. It runs `npm ci`, `npm test`, `npm run build`; it never deploys.
+- The GitHub connector's commit-run lookup returned no PR-triggered runs for the new workflow commit. This is **not evidence of a passing test**. Confirm Actions execution and logs before release.
+- Removed the old claim-only completion fallback from `server/boost-finish-validator.mjs`; tests now inject the receipt dependency. SCORE and NONE are the only replay-supported finish types.
