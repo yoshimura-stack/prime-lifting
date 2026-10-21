@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-// UI-only staging preview. No equip, inventory, slot grants or score changes.
+// UI-only staging preview. Visual selection only; no equip, inventory, slot grants or score changes.
 // Hidden unless explicitly opted into a branch preview using ?boostPreview=1.
 // Never interpret this flag as server authorization.
 const params=new URLSearchParams(location.search);
@@ -34,6 +34,13 @@ for(const {type,label,detail,color} of [
  button.append(ball,copy,count);cards.append(button);
 }
 section.append(cards);
+// The preview allows choosing a visual candidate only; no stock is spent.
+const selection=document.createElement('div');selection.className='prime-boost-selection';
+const none=document.createElement('button');none.type='button';none.className='prime-boost-none';none.textContent='BOOSTなし';none.setAttribute('aria-pressed','true');
+const selected=document.createElement('small');selected.textContent='選択プレビュー：BOOSTなし（消費なし）';
+selection.append(none,selected);section.append(selection);
+none.addEventListener('click',()=>{for(const card of cards.children)card.setAttribute('aria-pressed','false');none.setAttribute('aria-pressed','true');selected.textContent='選択プレビュー：BOOSTなし（消費なし）';});
+for(const card of cards.children){card.disabled=false;card.setAttribute('aria-pressed','false');card.addEventListener('click',()=>{for(const other of cards.children)other.setAttribute('aria-pressed',String(other===card));none.setAttribute('aria-pressed','false');selected.textContent='選択プレビュー：'+card.querySelector('strong').textContent+'（ゲームには未適用）';});}
 // Color-only preview links are separate from the disabled equip buttons.
 // They reload the same staging page and never authorize item usage.
 const previews=document.createElement('nav');previews.className='prime-boost-color-preview';
@@ -45,7 +52,7 @@ for(const [type,label] of [['time','青'],['score','黄'],['sc','緑']]){
 }
 section.append(previews);
 
-const foot=document.createElement('small');foot.className='prime-boost-lock';foot.textContent='🔒 開発中：選択・付与・消費は無効です';
+const foot=document.createElement('small');foot.className='prime-boost-lock';foot.textContent='🔒 表示選択のみ：ゲーム開始・付与・消費は無効です';
 section.append(foot);
 mount.after(section);
 const sync=()=>{section.hidden=!!document.getElementById('overlay')?.hidden||document.getElementById('overlay-title')?.textContent==='一時停止';};
