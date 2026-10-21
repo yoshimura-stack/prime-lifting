@@ -20,3 +20,14 @@ test('preview adapter rejects invalid identifiers',async()=>{
  await assert.rejects(service.spin('invalid'),TypeError);
  await assert.rejects(service.reserve(player,'invalid','time'),TypeError);
 });
+
+test('read-only inventory validates player and counts',async()=>{
+ const calls=[];
+ const service=createBoostPreviewService({call:async(op,payload)=>{
+  calls.push({op,payload});return {time:1,score:0,sc:2};
+ }});
+ assert.deepEqual(await service.inventory(player),{time:1,score:0,sc:2});
+ assert.equal(calls[0].op,'boost_inventory_read');
+ assert.equal(calls[0].payload.playerId,player);
+ await assert.rejects(service.inventory('invalid'),TypeError);
+});
