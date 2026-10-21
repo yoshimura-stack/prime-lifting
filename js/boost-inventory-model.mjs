@@ -31,7 +31,7 @@ export function createBoostInventoryModel(initial={time:0,score:0,sc:0}){
    if(spins.has(day))return Object.freeze({outcome:spins.get(day),inventory:snapshot(),replayed:true});
    const outcome=slotOutcome(counts,random);
    if(!outcome)return Object.freeze({outcome:null,inventory:snapshot(),replayed:false});
-   counts[outcome.type]++;
+   if(outcome.type!=='miss')counts[outcome.type]++;
    spins.set(day,outcome);
    return Object.freeze({outcome,inventory:snapshot(),replayed:false});
   }
