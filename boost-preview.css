@@ -22,3 +22,6 @@
 .prime-boost-none{border:1px solid #9fb4c5;border-radius:8px;background:#203848;color:#fff;padding:5px 12px;font-size:11px;cursor:pointer}
 .prime-boost-none[aria-pressed="true"]{border-color:#facc15;background:#46542c}
 .prime-boost-selection small{font-size:10px;color:#d9e4ee}
+
+/* Staging-only play-ready state; never suggests that server authorization succeeded. */
+.prime-boost-readiness{margin:8px 0 4px;padding:7px 9px;border:1px solid #856c3d;border-radius:8px;background:#2c2b22;color:#ffe0a1;text-align:center;font-size:11px;font-weight:700}
