@@ -60,3 +60,9 @@ The isolated finish validator now accepts a trusted saveReceipt dependency, chec
 - Added `.github/workflows/boost-staging-tests.yml` for isolated branch push / manual execution. It runs `npm ci`, `npm test`, `npm run build`; it never deploys.
 - The GitHub connector's commit-run lookup returned no PR-triggered runs for the new workflow commit. This is **not evidence of a passing test**. Confirm Actions execution and logs before release.
 - Removed the old claim-only completion fallback from `server/boost-finish-validator.mjs`; tests now inject the receipt dependency. SCORE and NONE are the only replay-supported finish types.
+
+## 2026-10-21 receipt adapter UUID fix
+- Corrected `server/boost-verified-receipt.mjs` UUID validation to require all five UUID segments (8-4-4-4-12). The earlier pattern omitted one segment and would reject legitimate run/player IDs.
+- Added regression checks for valid IDs (existing successful receipt test) and malformed player/run IDs (new test).
+- Tests have been committed but no verified CI pass is available via the current GitHub workflow-run connector (it only lists PR-triggered runs).
+- Critical remaining blocker: unboosted runs have no durable START ledger; the isolated receipt RPC does not itself verify that a NONE run was started. Never expose finish receipt directly to clients. TIME and SC still fail closed.
