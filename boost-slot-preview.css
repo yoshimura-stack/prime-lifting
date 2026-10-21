@@ -13,3 +13,15 @@
 .boost-slot-reels.is-spinning .boost-slot-reel:nth-child(3){animation-delay:.24s}
 @keyframes boost-slot-pulse{from{transform:translateY(-5px);filter:brightness(1.3)}to{transform:translateY(5px);filter:brightness(.8)}}
 @media(prefers-reduced-motion:reduce){.boost-slot-reels.is-spinning .boost-slot-reel{animation:none}}
+
+/* Phase-one landscape layout: seated player framing, not a full cabinet. */
+@media (orientation:landscape) and (max-height:620px){
+ body{overflow:hidden}
+ .boost-slot-stage{box-sizing:border-box;max-width:min(960px,96vw);height:calc(100dvh - 12px);margin:6px auto;padding:8px 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+ .boost-slot-stage h2{font-size:clamp(14px,3.4vh,24px);margin:3px}
+ .boost-slot-stage [role=status]{font-size:clamp(11px,2.6vh,16px);min-height:1.5em;margin:3px}
+ .boost-slot-reels{width:min(90%,700px);flex:1;min-height:0;max-height:42vh;gap:clamp(6px,2vw,16px);margin:4px 0 8px}
+ .boost-slot-reel{min-height:0;font-size:clamp(32px,12vh,78px);border-radius:12px}
+ .boost-slot-stage button{font-size:clamp(13px,3vh,19px);padding:clamp(6px,2vh,12px) 28px}
+ #preview-auth{height:auto;max-height:0;margin:0 auto;padding:0;border:0;overflow:hidden}
+}
