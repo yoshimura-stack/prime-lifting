@@ -1,6 +1,7 @@
 // PRIME BOOST staging slot visualization only. No DB or game integration.
 // Load on a dedicated preview page; it intentionally has no live RPC credentials.
 const TYPES=Object.freeze({
+ miss:{label:'ハズレ',color:'#F3F4F6',detail:'また明日チャレンジ！'},
  time:{label:'+5 SEC',color:'#3B82F6',detail:'プレイ時間 +5秒'},
  score:{label:'SCORE BOOST',color:'#FACC15',detail:'得点倍率 +0.1'},
  sc:{label:'SECOND CHANCE',color:'#22C55E',detail:'最初の落球を救済'}
