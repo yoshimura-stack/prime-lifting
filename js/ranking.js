@@ -224,12 +224,12 @@ async function updateRankDialog(){
      li.classList.add('rank-has-breakdown');
      const parts=document.createElement('span');parts.className='rank-bonus-parts';
      const part=(symbol,value,description)=>{const el=document.createElement('small');el.className='rank-bonus-part';const display=value===0?'—':value.toLocaleString();el.textContent=symbol+' '+display;el.title=description;el.setAttribute('aria-label',description+' '+(value===0?'加点なし':value.toLocaleString()+'ポイント'));parts.append(el);};
-     if(hasSplit){part('Ⓟ',e.baseScore,'通常プレイスコア');part('📱',e.mobileBonus,'スマホ補正');}
-     else {
-      part('Ⓟ',hasBasic?e.playScore:e.score,'保存済みプレイスコア（スマホ補正込みの場合あり）');
-      if(e.device==='pc')part('📱',0,'スマホ補正');
-      else if(e.device==='mobile'){const unknown=document.createElement('small');unknown.className='rank-bonus-part';unknown.textContent='📱 —';unknown.title='過去のスマホ補正額は保存されていないため不明';parts.append(unknown);}
-     }
+     // Preserve historical best totals, including any pre-change mobile correction.
+     // BOOST credit is not available until server-verified BOOST runs are launched.
+     part('Ⓟ',hasBasic?e.playScore:e.score,hasSplit&&e.mobileBonus>0?'保存済みプレイスコア（旧スマホ補正を含む）':'保存済みプレイスコア');
+     const boostPart=document.createElement('small');boostPart.className='rank-bonus-part';
+     boostPart.textContent='⚡ —';boostPart.title='BOOST加点：機能公開後に表示';
+     boostPart.setAttribute('aria-label','BOOST加点は未提供');parts.append(boostPart);
      if(hasBasic)part('Ⓓ',e.dailyBonus,'当月デイリー加点');
      else {const unknownDaily=document.createElement('small');unknownDaily.className='rank-bonus-part';unknownDaily.textContent='Ⓓ —';unknownDaily.title='デイリー加点は未確認';parts.append(unknownDaily);}
      li.append(parts);

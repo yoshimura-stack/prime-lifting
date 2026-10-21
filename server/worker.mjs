@@ -17,7 +17,8 @@ async function verify(token,secret,kind,now){
 const json=(body,status=200,headers={})=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...headers}});
 function publicPlayer(p){if(!p||typeof p.id!=='string'||typeof p.name!=='string'||!Number.isSafeInteger(p.best)||p.best<0||!(p.rank===null||Number.isSafeInteger(p.rank)&&p.rank>0))throw new ApiError(503,'ランキングの応答を確認中です。');return {id:p.id,name:p.name,best:p.best,rank:p.rank,kit:typeof p.kit==='string'?p.kit:null,lastPlayed:typeof p.lastPlayed==='string'?p.lastPlayed:null,bestDevice:p.bestDevice==='mobile'||p.bestDevice==='pc'?p.bestDevice:null,dailyBonus:Number.isSafeInteger(p.dailyBonus)&&p.dailyBonus>=0?p.dailyBonus:null};}
 function requestDevice(request){return /Android|iPhone|iPad|iPod|Mobile|Windows Phone/i.test(request.headers.get('user-agent')||'')?'mobile':'pc';}
-export function finalScore(score,device){return Math.round(score*(device==='mobile'?1.1:1));}
+// Both device types now score identically. Existing leaderboard bests remain untouched.
+export function finalScore(score,device){return Math.round(score);}
 async function readBody(request){
  if(!(request.headers.get('content-type')||'').startsWith('application/json'))throw new ApiError(415,'JSON形式で送信してください。');
  const reader=request.body?.getReader();if(!reader)throw new ApiError(400,'入力がありません。');let size=0,chunks=[];

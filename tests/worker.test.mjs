@@ -6,9 +6,9 @@ const limiter={limit:async()=>({success:true})};
 const env={SESSION_SECRET:'test-only-secret-012345678901234567890',AUTH_LIMITER:limiter,API_LIMITER:limiter,ASSETS:{fetch:()=>new Response('asset')}};
 const base='https://test.example';
 const request=(path,body,cookie,extraHeaders={})=>new Request(base+path,{method:body?'POST':'GET',headers:{...(body?{'Content-Type':'application/json',Origin:base}:{}),...(cookie?{Cookie:cookie}:{}),...extraHeaders},body:body?JSON.stringify(body):undefined});
-test('device score multiplier rounds verified scores and leaves PC unchanged',()=>{
+test('device score multiplier is neutral for PC and mobile',()=>{
  assert.equal(finalScore(30000,'pc'),30000);
- assert.equal(finalScore(30000,'mobile'),33000);
+ assert.equal(finalScore(30000,'mobile'),30000);
  assert.equal(finalScore(0,'pc'),0);
  assert.equal(finalScore(0,'mobile'),0);
 });
@@ -104,8 +104,8 @@ test('verified scores use signed server device, update mixed-device best, and re
  replayScore=30000;
  const mobile=await play('Mozilla/5.0 (Linux; Android 14; Pixel 8) Chrome/120.0 Mobile','pc');
  assert.equal(mobile.status,200);const mobileResult=await mobile.json();
- assert.equal(mobileResult.score,33000);assert.equal(mobileResult.player.best,33000);
- assert.deepEqual([...rows.values()][1],{score:33000,device:'mobile'});
+ assert.equal(mobileResult.score,30000);assert.equal(mobileResult.player.best,30000);
+ assert.deepEqual([...rows.values()][1],{score:30000,device:'mobile'});
  replayScore=35000;
  const pcAgain=await play('Mozilla/5.0 (X11; Linux x86_64) Chrome/120.0','pc');
  assert.equal((await pcAgain.json()).player.best,35000);
