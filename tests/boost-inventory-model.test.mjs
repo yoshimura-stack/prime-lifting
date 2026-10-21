@@ -43,3 +43,10 @@ test('none selection does not consume any item',()=>{
  assert.equal(m.reserve({runId:'plain',boost:null}).boost,null);
  assert.deepEqual(m.snapshot(),{time:1,score:0,sc:0});
 });
+
+test('miss uses daily spin without awarding stock',()=>{
+ const m=createBoostInventoryModel();
+ assert.equal(m.spin({day:'2026-10-21',random:()=>0.1}).outcome.type,'miss');
+ assert.equal(m.spin({day:'2026-10-21',random:()=>0.99}).replayed,true);
+ assert.deepEqual(m.snapshot(),{time:0,score:0,sc:0});
+});
