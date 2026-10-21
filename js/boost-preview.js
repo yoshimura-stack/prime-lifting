@@ -86,8 +86,13 @@ section.append(previews);
 const foot=document.createElement('small');foot.className='prime-boost-lock';foot.textContent='🔒 表示選択のみ：ゲーム開始・付与・消費は無効です';
 section.append(foot);
 foot.textContent='🔒 準備画面の表示確認専用：ゲーム開始・在庫消費・得点変更なし';
-mount.after(section);
-const sync=()=>{section.hidden=!!document.getElementById('overlay')?.hidden||document.getElementById('overlay-title')?.textContent==='一時停止';};
+const startButton=document.getElementById('start');
+// Anchor the staging preview immediately before the real START button, without
+// intercepting its event or changing the game start path.
+if(startButton)startButton.before(section);else mount.after(section);
+const sync=()=>{const title=document.getElementById('overlay-title')?.textContent||'';
+ section.hidden=!!document.getElementById('overlay')?.hidden||title==='一時停止'||!!document.getElementById('result-ranking')?.hidden===false;
+};
 const overlay=document.getElementById('overlay');
 const overlayTitle=document.getElementById('overlay-title');
 if(overlay)new MutationObserver(sync).observe(overlay,{attributes:true,attributeFilter:['hidden']});
