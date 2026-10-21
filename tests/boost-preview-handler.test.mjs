@@ -71,3 +71,15 @@ test('oversized streamed JSON without content-length is rejected before RPC',asy
  assert.equal(res.status,413);
  assert.equal(calls,0);
 });
+
+test('inventory endpoint uses authenticated player and read-only RPC',async()=>{
+ const calls=[];
+ const handle=createBoostPreviewHandler({enabled:true,resolvePlayer:async()=>player,transport:{call:async(op,payload)=>{
+  calls.push({op,payload});return {time:2,score:1,sc:0};
+ }}});
+ const response=await handle(request('/api/boost-preview/inventory',{playerId:'forged'}));
+ assert.equal(response.status,200);
+ assert.deepEqual(await response.json(),{time:2,score:1,sc:0});
+ assert.equal(calls[0].op,'boost_inventory_read');
+ assert.equal(calls[0].payload.playerId,player);
+});
