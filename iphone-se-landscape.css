@@ -1,0 +1,66 @@
+/* Small iPhone landscape hotfix. CSS-only: game physics and input unchanged.
+   iPhone SE (568x320 / 667x375 CSS px), Safari browser bars and zoom. */
+@media (orientation:landscape) and (pointer:coarse) and (max-height:390px){
+ html,body{width:100%;max-width:100%;height:100%;overflow:hidden!important}
+ body.touch-landscape main.game-app{
+  position:relative!important;width:100%!important;max-width:100%!important;
+  height:100dvh!important;min-height:0!important;overflow:hidden!important;
+  padding:0!important;margin:0!important;
+ }
+ body.touch-landscape main.game-app>.center-stage{
+  width:100%!important;max-width:100%!important;height:100dvh!important;
+  min-width:0!important;min-height:0!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  padding:0 38px!important;margin:0!important;overflow:hidden!important;
+  box-sizing:border-box!important;
+ }
+ body.touch-landscape main.game-app>.center-stage>.game-shell{
+  flex:0 1 auto!important;min-width:0!important;
+  width:min(100%,calc(100dvh * 1000 / 620))!important;
+  max-width:100%!important;max-height:100dvh!important;
+  height:auto!important;aspect-ratio:1000/620!important;
+  margin:auto!important;box-sizing:border-box!important;
+ }
+ /* Keep the whole playing field visible, not just its left portion. */
+ body.touch-landscape #mobile-icon-rails{
+  width:100%!important;max-width:100%!important;
+  left:0!important;right:0!important;
+ }
+ body.touch-landscape #mobile-icon-rails>.mobile-icon-column>button{
+  width:clamp(28px,9dvh,34px)!important;
+  height:clamp(28px,9dvh,34px)!important;
+  font-size:clamp(14px,4.5dvh,18px)!important;
+ }
+ body.touch-landscape #mobile-icon-rails>.mobile-icon-column{gap:2px!important}
+ body.touch-landscape #mobile-icon-rails>.mobile-icon-column>#mobile-pause,
+ body.touch-landscape #mobile-icon-rails>.mobile-icon-column>#restart-mobile{
+  top:43%!important;width:36px!important;height:36px!important;
+ }
+ /* Title checklist must not cover the central player and gameplay corridor. */
+ body.touch-landscape .game-shell .achievement-board{
+  top:clamp(57px,17dvh,69px)!important;
+  left:6px!important;max-width:27%!important;
+  font-size:clamp(7px,2dvh,9px)!important;
+  line-height:1.05!important;
+ }
+ body.touch-landscape .game-shell .achievement-board-heading{font-size:1em!important;margin-bottom:3px!important}
+ body.touch-landscape .game-shell #achievement-live-list{gap:2px!important}
+ body.touch-landscape .game-shell .achievement-live-row{gap:3px!important}
+ body.touch-landscape .game-shell .scorebar{
+  padding:5px 9px!important;min-height:48px!important;
+ }
+ body.touch-landscape .game-shell .scorebar strong{font-size:clamp(18px,7dvh,24px)!important}
+ body.touch-landscape .game-shell .scorebar .chain strong{font-size:clamp(16px,6dvh,21px)!important}
+ body.touch-landscape .game-shell .scorebar small{font-size:8px!important}
+ /* Preserve the floating left joystick and three right-hand action buttons. */
+ body.touch-landscape #touch-controls .touch-actions{right:4px!important;bottom:6px!important;gap:4px!important}
+ body.touch-landscape #touch-controls .touch-actions>div{gap:4px!important}
+ body.touch-landscape #touch-controls button{
+  width:clamp(38px,13dvh,48px)!important;
+  height:clamp(38px,13dvh,48px)!important;font-size:10px!important;
+ }
+ body.touch-landscape #touch-controls .touch-kick{
+  width:clamp(48px,17dvh,62px)!important;
+  height:clamp(48px,17dvh,62px)!important;font-size:12px!important;
+ }
+}
