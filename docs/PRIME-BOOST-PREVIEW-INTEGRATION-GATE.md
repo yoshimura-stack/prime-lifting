@@ -32,3 +32,10 @@ The `reserve` endpoint is a low-level test hook accepting a run ID. It MUST NOT 
 - Added authenticated preview-only `POST /api/boost-preview/inventory` with server-resolved player identity and count validation.
 - Source and unit tests committed to `feature/prime-boost-staging`. Not deployed, not browser-tested; the existing BOOST selection UI still uses placeholder counts until a secure preview session is connected.
 - Supabase October 30 default GRANT change: future tables must declare GRANT and RLS; do not alter existing production or staging grants without diagnosis and approval.
+
+## 2026-10-21 staging run-start coordinator
+- Added `server/boost-run-token.mjs` with HMAC-signed player/run/BOOST binding. Fixed URL-safe base64 encoding; dedicated staging secret only.
+- Added `server/boost-run-coordinator.mjs`: a trusted server-created run ID, atomic `boost_reserve` RPC on game start for one selected BOOST, NONE without inventory deduction, signed token issued after confirmed reservation. Tests cover failure and cross-account/run substitution.
+- `score()` produces **only a candidate** from a verified signed token and numeric base score; it **does not replay the event stream**, consume a one-time run, verify the persistent reservation record, or write ranking. Do not trust client-submitted base scores.
+- A failed token-signing step after successful reservation can leave an item reserved; implement transactionally durable run issuance and idempotent recovery before public use. The preview reservation HTTP endpoint remains disabled.
+- These components are NOT imported by the live Worker, and are NOT deployed. Never merge staging wholesale into main; it predates production UI fixes.
