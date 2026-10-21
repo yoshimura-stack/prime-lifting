@@ -37,15 +37,17 @@ $('stage-arena').addEventListener('click',()=>selectStage(2));
 $('stage-preview').addEventListener('click',()=>{arenaPreview=!arenaPreview;if(renderer3d)renderer3d.setStage(arenaPreview?2:selectedStage);$('stage-preview').textContent=arenaPreview?'↩ 見学を終了':'👁 WORLD ARENAを見学';});
 let achievementStats={maxAirStreak:0,spinBonusHits:0,shoulderHits:0,spinKing:false,quadMaster:false,airQuad:false,doubleAir:false};let jumpsSinceHit=0;let shoulderFlash=null;let quadFlash=null;let shoulderMessage=false;let milestone=null;let pointPopups=[];let renderer3d=null;try{renderer3d=new PrimeRenderer($('scene'),c);}catch(error){console.warn('3D unavailable; using 2D fallback.',error);$('scene').hidden=true;}
 const kitStorageKey='prime-lifting-selected-kit';
-let selectedKit=PRIME_KITS.get((()=>{try{return localStorage.getItem(kitStorageKey)||PRIME_KITS.defaultId;}catch{return PRIME_KITS.defaultId;}})());
+// Uniform ownership is not enabled yet: ignore previously saved free selections.
+let selectedKit=PRIME_KITS.starter;
 let kitGroup=selectedKit.group;
-function applyKit(kit){selectedKit=kit;try{localStorage.setItem(kitStorageKey,kit.id);}catch{}if(renderer3d)renderer3d.setKit(kit);$('kit-current').textContent=kit.name;document.querySelectorAll('.kit-card').forEach(el=>el.classList.toggle('active',el.dataset.kit===kit.id));}
+function applyKit(kit){selectedKit=kit;/* Do not persist free kit selection until the coin shop exists. */if(renderer3d)renderer3d.setKit(kit);$('kit-current').textContent=kit.name;document.querySelectorAll('.kit-card').forEach(el=>el.classList.toggle('active',el.dataset.kit===kit.id));}
 function renderKitTabs(){const tabs=$('kit-tabs');tabs.replaceChildren();for(const group of PRIME_KITS.groups){const b=document.createElement('button');b.type='button';b.textContent=group;b.classList.toggle('active',group===kitGroup);b.onclick=()=>{kitGroup=group;renderKitTabs();renderKitGrid();};tabs.append(b);}}
 function renderKitGrid(){const grid=$('kit-grid');grid.replaceChildren();for(const kit of PRIME_KITS.kits.filter(k=>k.group===kitGroup)){const b=document.createElement('button');b.type='button';b.className='kit-card'+(kit.id===selectedKit.id?' active':'');b.dataset.kit=kit.id;const shirt=document.createElement('div');shirt.className='kit-shirt '+kit.pattern;shirt.style.setProperty('--p',kit.primary);shirt.style.setProperty('--s',kit.secondary);shirt.style.setProperty('--a',kit.accent);shirt.style.setProperty('--pattern',kit.pattern==='stripe'?`repeating-linear-gradient(90deg,${kit.primary} 0 18%,${kit.secondary} 18% 36%)`:'none');const title=document.createElement('strong');title.textContent=kit.name;const sub=document.createElement('small');sub.textContent='ORIGINAL COLOR KIT';b.append(shirt,title,sub);b.onclick=()=>applyKit(kit);grid.append(b);}}
 function openKitSelect(){touch.clear();pause(true);kitGroup=selectedKit.group;renderKitTabs();renderKitGrid();$('kit-current').textContent=selectedKit.name;$('kit-select').hidden=false;}
 $('kit-confirm').onclick=()=>{$('kit-select').hidden=true;$('overlay').hidden=false;canvas.focus();};
-$('kit-change').onclick=openKitSelect;
-applyKit(selectedKit);renderKitTabs();renderKitGrid();$('overlay').classList.add('intro-overlay');
+$('kit-change').hidden=true;
+$('kit-change').onclick=()=>{};
+applyKit(PRIME_KITS.starter);$('kit-select').hidden=true;$('overlay').hidden=false;$('overlay').classList.add('intro-overlay');
 let rankTick=0,rankEvents=[],rankDirection=0,rankStandard=true;
 function standardRules(){return JSON.stringify({...c,WORLD_WIDTH:1000})===JSON.stringify(PRIME_DEFAULTS);}
 function restoreStandardTuning(){
