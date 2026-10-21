@@ -39,3 +39,10 @@ The `reserve` endpoint is a low-level test hook accepting a run ID. It MUST NOT 
 - `score()` produces **only a candidate** from a verified signed token and numeric base score; it **does not replay the event stream**, consume a one-time run, verify the persistent reservation record, or write ranking. Do not trust client-submitted base scores.
 - A failed token-signing step after successful reservation can leave an item reserved; implement transactionally durable run issuance and idempotent recovery before public use. The preview reservation HTTP endpoint remains disabled.
 - These components are NOT imported by the live Worker, and are NOT deployed. Never merge staging wholesale into main; it predates production UI fixes.
+
+## 2026-10-21 isolated finish validator
+- Added `server/boost-finish-validator.mjs` and tests. Validates signed player/run/BOOST, replays existing trusted engine, derives score bonus on the server, rejects client score mismatch before calling injected `claimRun`.
+- TIME and SECOND CHANCE are explicitly rejected until the server replay simulates their modified duration/drop behavior.
+- `claimRun` is an **unimplemented server-side atomic dependency**; tests use mocks only. No durable replay prevention, reservation verification or ranking persistence is currently connected.
+- A claimed run is not yet committed to a score transaction. Atomic consume+ranking persistence and idempotent retry behavior remain mandatory before release.
+- Do not merge this staging branch wholesale to main or deploy the preview Worker.
