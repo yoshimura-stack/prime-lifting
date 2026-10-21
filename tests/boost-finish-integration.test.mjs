@@ -38,3 +38,26 @@ test('receipt mismatch is not accepted as completed play',async()=>{
  const gate=createBoostFinishValidator({secret,clock:()=>now,saveReceipt:async()=>({runId,playScore:-1,replayed:false})});
  await assert.rejects(gate.validate({playerId,runId,token:await makeToken(null),events:[],worldWidth:1000,device:'pc'}),{status:502});
 });
+
+test('forged client score is rejected before any receipt write',async()=>{
+ let writes=0;
+ const gate=createBoostFinishValidator({secret,clock:()=>now,saveReceipt:async()=>{writes++;return null;}});
+ const verified=replay([],1000).score;
+ await assert.rejects(gate.validate({playerId,runId,token:await makeToken('score'),events:[],worldWidth:1000,device:'pc',claimedScore:verified+12345}),{status:400});
+ assert.equal(writes,0);
+});
+test('invalid signature never touches receipt store',async()=>{
+ let writes=0;
+ const gate=createBoostFinishValidator({secret,clock:()=>now,saveReceipt:async()=>{writes++;return null;}});
+ const signed=await makeToken(null);
+ await assert.rejects(gate.validate({playerId,runId,token:signed+'x',events:[],worldWidth:1000,device:'pc'}),{status:401});
+ assert.equal(writes,0);
+});
+test('TIME and SECOND CHANCE stay unavailable until server replay supports them',async()=>{
+ let writes=0;
+ const gate=createBoostFinishValidator({secret,clock:()=>now,saveReceipt:async()=>{writes++;return null;}});
+ for(const boost of ['time','sc']){
+  await assert.rejects(gate.validate({playerId,runId,token:await makeToken(boost),events:[],worldWidth:1000,device:'pc'}),{status:409});
+ }
+ assert.equal(writes,0);
+});
