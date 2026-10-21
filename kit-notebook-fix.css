@@ -21,3 +21,6 @@ body > #kit-select .kit-grid{scrollbar-gutter:stable;min-height:0}
  body > #kit-select .kit-grid{grid-auto-rows:minmax(72px,auto)}
  body > #kit-select .kit-actions .primary{padding:7px 12px}
 }
+
+/* Shop launch preparation: no free uniform selector. */
+#kit-select[hidden],#kit-change[hidden]{display:none!important}
