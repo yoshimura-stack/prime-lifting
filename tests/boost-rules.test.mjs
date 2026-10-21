@@ -18,11 +18,11 @@ test('slot weights use 40 percent miss and 20 percent each boost',()=>{
  assert.throws(()=>slotOutcome(empty,()=>1),RangeError);
  assert.throws(()=>slotOutcome(empty,()=>-0.1),RangeError);
 });
-test('mobile bonus is additive x1.2 not compounded x1.21',()=>{
+test('SCORE BOOST is x1.1 on both devices',()=>{
  assert.equal(scoreMultiplier('pc','score'),11);
- assert.equal(scoreMultiplier('mobile','score'),12);
+ assert.equal(scoreMultiplier('mobile','score'),11);
  assert.equal(finalScore(50000,'pc','score'),55000);
- assert.equal(finalScore(50000,'mobile','score'),60000);
+ assert.equal(finalScore(50000,'mobile','score'),55000);
  assert.equal(finalScore(101,'mobile','score'),121);
  assert.equal(finalScore(50000,'mobile'),55000);
 });
