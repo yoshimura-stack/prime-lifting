@@ -91,7 +91,7 @@ const startButton=document.getElementById('start');
 // intercepting its event or changing the game start path.
 if(startButton)startButton.before(section);else mount.after(section);
 const sync=()=>{const title=document.getElementById('overlay-title')?.textContent||'';
- section.hidden=!!document.getElementById('overlay')?.hidden||title==='一時停止'||!!document.getElementById('result-ranking')?.hidden===false;
+ section.hidden=!!document.getElementById('overlay')?.hidden||title==='一時停止'||document.getElementById('result-ranking')?.hidden===false;
 };
 const overlay=document.getElementById('overlay');
 const overlayTitle=document.getElementById('overlay-title');
