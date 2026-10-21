@@ -34,7 +34,7 @@ test('mock adapter: register, cross-device login, authenticated replay, retry an
  const mobile=await worker.fetch(request('/api/login',{name:'A',pin:'123456'}),env);assert.equal((await mobile.json()).player.id,player.id);
  assert.equal((await worker.fetch(request('/api/me',null,cookie),env)).status,200);
  const run=await (await worker.fetch(request('/api/game/start',{},cookie),env)).json();
- const input={...run,events:[],kit:'japan-01',device:'mobile',score:999999,playerId:'victim'};
+ const input={...run,events:[],kit:'starter-white',device:'mobile',score:999999,playerId:'victim'};
  assert.equal((await worker.fetch(request('/api/scores',input,cookie),env)).status,400);
  time+=64000;const saved=await worker.fetch(request('/api/scores',input,cookie),env);assert.equal(saved.status,200);assert.equal((await saved.json()).score,0);
  assert.equal((await worker.fetch(request('/api/scores',{...input,token:input.token+'x'},cookie),env)).status,401);
