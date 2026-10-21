@@ -13,5 +13,6 @@ test('rejects forged breakdown before touching database',async()=>{
  let calls=0;const store=createBoostVerifiedReceiptStore({call:async()=>{calls++;return {}}});
  await assert.rejects(store.save({playerId,runId,boost:'time',baseScore:50000,boostBonus:5000,playScore:55000}),RangeError);
  await assert.rejects(store.save({playerId,runId,boost:'score',baseScore:50000,boostBonus:1000,playScore:55000}),RangeError);
+ await assert.rejects(store.save({playerId,runId,boost:'score',baseScore:50000,boostBonus:2000,playScore:52000}),RangeError);
  assert.equal(calls,0);
 });
