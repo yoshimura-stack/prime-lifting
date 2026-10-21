@@ -10,5 +10,7 @@ const groups=[
  ['WORLD',[['01','#f2c94c','#1e5aa8','#ffffff','solid'],['02','#75c9ef','#ffffff','#202b3a','stripe'],['03','#1e5aa8','#ffffff','#d71920','solid'],['04','#d71920','#ffffff','#1d3557','band']]]
 ];
 const kits=[];for(const [group,items] of groups)items.forEach(([n,primary,secondary,accent,pattern])=>kits.push({id:group.toLowerCase()+'-'+n,group,name:group+' '+n,primary,secondary,accent,pattern}));
-root.PRIME_KITS={groups:groups.map(x=>x[0]),kits,defaultId:'japan-01',get(id){return kits.find(k=>k.id===id)||kits[0];}};
+// Reserved starter uniform; legacy purchasable designs remain in the catalog.
+const starter={id:'starter-white',group:'STARTER',name:'STANDARD WHITE',primary:'#ffffff',secondary:'#ffffff',accent:'#ffffff',pattern:'solid'};
+root.PRIME_KITS={starter,groups:groups.map(x=>x[0]),kits,defaultId:'japan-01',get(id){return kits.find(k=>k.id===id)||kits[0];}};
 })(globalThis);
