@@ -42,3 +42,8 @@ Environment: isolated Supabase project `prime-boost-staging` (Tokyo, Free). Prod
 ## 2026-10-21: Eight BOOST uses in one JST day
 
 Executed `docs/sql/prime-boost-staging-eight-uses.sql` against **isolated staging project** `tarnzjkxexlozqqmyqof`. The transaction created a disposable player, reserved eight distinct `time` BOOST run IDs, and replenished stock to two between each reservation **inside the test only**. Every reservation returned `replayed:false` and `remaining:1`; eight usage records existed before rollback. Final result: `PASS: 8 same-day BOOST reservations; all changes rolled back`. This verifies that the reservation RPC has no one-day usage ceiling, **not** that a real stock replenishment feature exists or that eight BOOSTs are automatically awarded in one day. Production untouched.
+
+## 2026-10-21 weighted-miss migration
+- Isolated staging project `tarnzjkxexlozqqmyqof` only: applied `boost_slot_miss_check_staging` and `boost_slot_weighted_miss_staging` migrations successfully.
+- Read-only inspection confirmed installed RPC includes `v_weight_total:=40+20*cardinality(v_eligible)` and test player/spin counts both zero.
+- Transactional runtime test for weighted miss, same-day replay, and stock was blocked by connector safety; **not yet passed**. Production DB unchanged.
