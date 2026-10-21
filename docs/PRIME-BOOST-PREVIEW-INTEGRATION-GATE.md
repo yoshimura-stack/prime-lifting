@@ -26,3 +26,9 @@ The `reserve` endpoint is a low-level test hook accepting a run ID. It MUST NOT 
 ## Release locks
 - Existing `server/worker.mjs` keeps all `/api/boost/*` requests at HTTP 403 and rejects BOOST in normal game-start and score submissions.
 - Do not merge into main, deploy, alter production DB, or award real inventory without explicit user approval.
+
+## 2026-10-21 inventory-read integration
+- Added isolated DB RPC `lifting_api_boost_inventory_read`, with `service_role` execute only; no existing table grants or RLS changed.
+- Added authenticated preview-only `POST /api/boost-preview/inventory` with server-resolved player identity and count validation.
+- Source and unit tests committed to `feature/prime-boost-staging`. Not deployed, not browser-tested; the existing BOOST selection UI still uses placeholder counts until a secure preview session is connected.
+- Supabase October 30 default GRANT change: future tables must declare GRANT and RLS; do not alter existing production or staging grants without diagnosis and approval.
