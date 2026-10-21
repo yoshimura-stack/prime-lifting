@@ -36,3 +36,10 @@ No auto-merge for this feature. Existing production users continue playing uncha
 - Preview environment and isolated DB configuration.
 - Base probabilities fixed at white 40%, each BOOST 20%; full types are excluded and remaining outcomes renormalized.
 - DAILY EXTREME BOOST rewards are explicitly deferred; do not build them in phase one.
+
+## Phase-one focus and visual direction (2026-10-21)
+- Immediate priority: DAILY SLOT and equipping/consuming BOOST in juggling. Defer EXTREME rewards and manual skill-stop mode.
+- Adopt V6 offline prototype visual behavior: 20 shuffled symbols (5 per color including white), single STOP, sequential left-to-right slowdown, three matching result symbols.
+- Production UI must use landscape PC and landscape mobile, with a seated player's first-person view of the upper pachislot cabinet: reels large, controls at bottom, no full-cabinet framing or scrolling.
+- Future separate phase: individual reel STOP with true skill-based stopping and mismatched reels as miss; NOT part of phase one. Do not add manual-stop mechanics now.
+- Slot animation never determines the award; the server's atomic result is authoritative. No real spin or inventory while preview UI/server locks remain enabled.
