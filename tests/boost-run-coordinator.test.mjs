@@ -15,8 +15,10 @@ test('start reserves exactly one SCORE BOOST then signs selected run',async()=>{
  await assert.rejects(api.score({playerId,runId,token:run.token,baseScore:50000,device:'tablet'}),TypeError);
 });
 test('NONE run never consumes inventory',async()=>{
- const api=setup(async()=>{throw Error('Must not call DB')});
+ const calls=[];
+ const api=setup(async(op,payload)=>{calls.push({op,payload});return {runId,replayed:false};});
  const run=await api.start({playerId});
+ assert.deepEqual(calls,[{op:'boost_start_none',payload:{playerId,runId}}]);
  assert.equal(run.boost,null);
  assert.equal((await api.score({playerId,runId,token:run.token,baseScore:50000,device:'pc'})).boostBonus,0);
 });
@@ -31,4 +33,9 @@ test('token cannot be applied to another account or run',async()=>{
  const run=await api.start({playerId,boost:'sc'});
  await assert.rejects(api.score({playerId:'123e4567-e89b-42d3-a456-426614174003',runId,token:run.token,baseScore:100,device:'pc'}),TypeError);
  await assert.rejects(api.score({playerId,runId:'123e4567-e89b-42d3-a456-426614174004',token:run.token,baseScore:100,device:'pc'}),TypeError);
+});
+
+test('NONE start failure never issues official token',async()=>{
+ const api=setup(async()=>{throw Error('Registration unavailable')});
+ await assert.rejects(api.start({playerId}),/Registration unavailable/);
 });
