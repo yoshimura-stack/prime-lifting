@@ -53,6 +53,8 @@ begin
  else
   if exists(select 1 from public.lifting_boost_run_uses where run_id=v_run)
   then raise exception 'Run reserved for BOOST'; end if;
+  if not exists(select 1 from public.lifting_boost_none_run_starts where run_id=v_run and player_id=v_player)
+  then raise exception 'Official NONE run start missing'; end if;
  end if;
  insert into public.lifting_boost_verified_receipts(run_id,player_id,boost_type,base_score,boost_bonus,play_score)
  values(v_run,v_player,v_boost,v_base,v_bonus,v_total);
