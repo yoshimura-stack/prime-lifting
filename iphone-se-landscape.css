@@ -60,7 +60,7 @@
   height:clamp(38px,13dvh,48px)!important;font-size:10px!important;
  }
  body.touch-landscape #touch-controls .touch-kick{
-  width:clamp(48px,17dvh,62px)!important;
-  height:clamp(48px,17dvh,62px)!important;font-size:12px!important;
+  width:clamp(58px,20dvh,78px)!important;
+  height:clamp(58px,20dvh,78px)!important;font-size:clamp(12px,3.8dvh,16px)!important;
  }
 }
