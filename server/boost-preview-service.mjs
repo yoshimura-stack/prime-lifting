@@ -14,6 +14,9 @@ function requireTransport(transport){
 export function createBoostPreviewService(transport){
  const db=requireTransport(transport);
  return Object.freeze({
+  async inventory(playerId){
+   return parseBoostCounts(await db.call('boost_inventory_read',{playerId:requirePlayer(playerId)}));
+  },
   async spin(playerId){
    const result=await db.call('boost_slot_spin',{playerId:requirePlayer(playerId)});
    return parseSlotResult(result);
