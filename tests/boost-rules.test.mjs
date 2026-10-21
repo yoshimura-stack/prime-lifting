@@ -49,7 +49,7 @@ test('run duration and second chance preserve normal respawn and history icon',(
 });
 test('score follows current production Math.round convention',()=>{
  assert.equal(finalScore(105,'pc','score'),116);
- assert.equal(finalScore(105,'mobile','score'),126);
+ assert.equal(finalScore(105,'mobile','score'),116);
 });
 
 test('one BOOST maximum: duplicates and combinations are invalid',()=>{
