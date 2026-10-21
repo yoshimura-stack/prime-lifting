@@ -13,7 +13,10 @@ export function createBoostRunCoordinator({transport,secret,clock=()=>Date.now()
    const runId=newRunId();if(typeof runId!=='string'||!uuid.test(runId))throw new TypeError('Server run ID required');
    // Only the trusted server calls this. Atomic DB reservation is the source of truth.
    // For NONE no BOOST inventory is consumed.
-   if(selection!==null){
+   if(selection===null){
+    const started=await transport.call('boost_start_none',{playerId,runId});
+    if(!started||started.runId!==runId||started.replayed!==false)throw new Error('NONE run start not confirmed');
+   }else{
     const result=await transport.call('boost_reserve',{playerId,runId,boost:selection});
     if(!result||result.boost!==selection||result.replayed!==false||!Number.isInteger(result.remaining)||result.remaining<0||result.remaining>2)
      throw new Error('BOOST reservation not confirmed');
