@@ -18,7 +18,7 @@ section.append(heading);
 const cards=document.createElement('div');cards.className='prime-boost-cards';
 for(const {type,label,detail,color} of [
  {type:'time',label:'+5 SEC',detail:'制限時間 +5秒',color:'#3B82F6'},
- {type:'score',label:'SCORE ×1.1',detail:'PC ×1.1 / MOBILE ×1.2',color:'#FACC15'},
+ {type:'score',label:'SCORE ×1.1',detail:'PC / MOBILE 共通 ×1.1',color:'#FACC15'},
  {type:'sc',label:'SECOND CHANCE',detail:'最初の落球でコンボを守る',color:'#22C55E'}
 ]){
  const button=document.createElement('button');
