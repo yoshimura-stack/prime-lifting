@@ -66,3 +66,37 @@ test('isolated staging START endpoint remains off unless enabled',async()=>{
  const response=await handler(new Request('https://staging.example/api/boost-staging/start',{method:'POST'}));
  assert.equal(response.status,403);
 });
+
+test('staging START endpoint issues TIME 65 seconds after authenticated reservation',async()=>{
+ const {createBoostStartHandler}=await import('../server/boost-start-handler.mjs');
+ await import('../js/config.js');
+ const playerId='123e4567-e89b-42d3-a456-426614174001';
+ const runId='123e4567-e89b-42d3-a456-426614174002';
+ const calls=[];
+ const handler=createBoostStartHandler({
+  enabled:true,
+  resolvePlayer:async()=>playerId,
+  readInventory:async()=>({time:1,score:0,sc:0}),
+  transport:{call:async(op,payload)=>{
+   calls.push({op,payload});
+   return {boost:'time',remaining:0,replayed:false};
+  }},
+  secret:'staging-test-secret-isolated-12345678901234567890',
+  clock:()=>Date.UTC(2026,9,21),
+  newRunId:()=>runId,
+  baseConfig:globalThis.PRIME_DEFAULTS
+ });
+ const origin='https://staging.example';
+ const request=new Request(origin+'/api/boost-staging/start',{
+  method:'POST',headers:{origin,'content-type':'application/json'},body:JSON.stringify({boost:'time'})
+ });
+ const response=await handler(request);
+ assert.equal(response.status,200);
+ const data=await response.json();
+ assert.equal(data.durationSeconds,65);
+ assert.equal(data.boost,'time');
+ assert.equal(data.runId,runId);
+ assert.equal(calls.length,1);
+ assert.equal(calls[0].op,'boost_reserve');
+ assert.ok(data.token);
+});
