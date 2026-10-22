@@ -129,7 +129,7 @@ window.addEventListener('prime:progress',event=>{
 });
 
 // Display the date of the latest server-confirmed play, not login or best-score update.
-export function formatLastPlayedJst(value){
+function formatLastPlayedJst(value){
  if(typeof value!=='string'||!value)return null;
  const date=new Date(value);
  if(!Number.isFinite(date.getTime()))return null;
