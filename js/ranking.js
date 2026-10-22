@@ -128,6 +128,15 @@ window.addEventListener('prime:progress',event=>{
  if(button.hidden)closeNextDialog();
 });
 
+// Display the date of the latest server-confirmed play, not login or best-score update.
+export function formatLastPlayedJst(value){
+ if(typeof value!=='string'||!value)return null;
+ const date=new Date(value);
+ if(!Number.isFinite(date.getTime()))return null;
+ const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric'}).formatToParts(date);
+ const month=parts.find(p=>p.type==='month')?.value,day=parts.find(p=>p.type==='day')?.value;
+ return month&&day?month+'/'+day:null;
+}
 function rankName(entry,prefix=''){
  const name=document.createElement('span');name.className='rank-player-name';
  const label=document.createElement('span');label.textContent=prefix+entry.name;name.append(label);
@@ -148,6 +157,14 @@ function rankName(entry,prefix=''){
   const openNext=e=>{e.stopPropagation();showTitleProfile(entry,'next',next);};
   next.addEventListener('click',openNext);
   next.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openNext(e);}});
+ }
+ const lastPlayed=formatLastPlayedJst(entry.lastPlayed);
+ if(lastPlayed){
+  const played=document.createElement('span');played.className='rank-last-played';
+  played.textContent='◷ '+lastPlayed;
+  played.title='最終プレイ日（日本時間）：'+lastPlayed;
+  played.setAttribute('aria-label',played.title);
+  name.append(played);
  }
  return name;
 }
