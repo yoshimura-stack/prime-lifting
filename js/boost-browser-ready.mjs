@@ -23,6 +23,8 @@ export function createBoostBrowserReady({inventory,startOfficialRun,beginGame,on
     // duration from an untrusted URL or inventory snapshot.
     if(!Number.isInteger(run.durationSeconds)||run.durationSeconds!==(run.boost==='time'?65:60))
      throw new Error('Server duration not confirmed');
+    // The reservation is already committed on the server; never allow a second
+    // START if rendering fails after the official run has been confirmed.
     started=true;
     beginGame(Object.freeze({runId:run.runId,token:run.token,boost:run.boost,durationSeconds:run.durationSeconds}));
     onStatus('プレイ開始');
