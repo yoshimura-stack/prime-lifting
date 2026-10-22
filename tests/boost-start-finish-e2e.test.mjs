@@ -82,7 +82,7 @@ test('TIME BOOST signs, verifies, and saves a 65-second replay without score mul
  assert.equal(saved.boost,'time');
 });
 test('normal replay rejects TIME-length input while TIME replay accepts its 65-second window',()=>{
- const tooLate=[{t:7500,n:'move',v:0}];
+ const tooLate=[{t:8100,n:'move',v:0}];
  assert.throws(()=>replay(tooLate,1000),{status:400});
  assert.doesNotThrow(()=>replay(tooLate,1000,'time'));
 });
