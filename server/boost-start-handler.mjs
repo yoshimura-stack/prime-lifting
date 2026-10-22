@@ -13,11 +13,17 @@ export function createBoostStartHandler({resolvePlayer,readInventory,transport,s
   if(!(request.headers.get('content-type')||'').startsWith('application/json'))return json({error:'JSON required'},415);
   let playerId;
   try{playerId=await resolvePlayer(request);}catch{return json({error:'Unauthorized'},401);}
-  if(typeof playerId!=='string')return json({error:'Unauthorized'},401);
+  if(typeof playerId!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(playerId))return json({error:'Unauthorized'},401);
   let body;
   try{
-   const raw=await request.text();
-   if(new TextEncoder().encode(raw).length>2048)throw Error('too large');
+   const reader=request.body?.getReader();
+   if(!reader)throw Error('missing body');
+   const chunks=[];let size=0;
+   while(true){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;
+    if(size>2048){await reader.cancel();throw Error('too large');}chunks.push(value);}
+   const bytes=new Uint8Array(size);let offset=0;
+   for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.byteLength;}
+   const raw=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
    body=JSON.parse(raw);
    if(!body||typeof body!=='object'||Array.isArray(body)||!Object.hasOwn(body,'boost')||Object.keys(body).some(key=>key!=='boost'))throw Error('invalid');
   }catch{return json({error:'Invalid request'},400);}
