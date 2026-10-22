@@ -25,7 +25,7 @@ export function createBoostReadyStart({inventory,transport,secret,clock,newRunId
     });
     if(verified.boost!==boost)throw new Error('BOOST mismatch');
     started=true;
-    return Object.freeze({...run,config:verified.config});
+    return Object.freeze({...run,durationSeconds:verified.config.GAME_DURATION,config:verified.config});
    });
   }
  });
