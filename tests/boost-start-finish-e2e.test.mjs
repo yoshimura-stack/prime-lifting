@@ -74,8 +74,7 @@ test('TIME BOOST signs, verifies, and saves a 65-second replay without score mul
  const coordinator=createBoostRunCoordinator({transport,secret,clock:()=>now,newRunId:()=>runId});
  const run=await coordinator.start({playerId,boost:'time'});
  const finish=createBoostFinishValidator({secret,clock:()=>now,saveReceipt:createBoostVerifiedReceiptStore(transport).save});
- const baseScore=replay([],1000,'time').score;
- const expected=Math.round(baseScore*1.1); // Mobile's existing multiplier still applies to TIME.
+ const expected=replay([],1000,'time').score; // Mobile and PC have equal base scoring; TIME adds seconds only.
  const actual=await finish.validate({playerId,runId,token:run.token,events:[],worldWidth:1000,device:'mobile',claimedScore:expected});
  assert.equal(actual.boost,'time');
  assert.equal(actual.playScore,expected);
