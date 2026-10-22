@@ -10,6 +10,20 @@ function set(o,path,value){const bits=path.split('.'),last=bits.pop();bits.reduc
 // Tuning is session-scoped: discard values left by previous versions or interrupted sessions.
 try{localStorage.removeItem(settingsKey);}catch{}
 const g=new LiftingGame(c),keys=new Set();
+// Staging-only trusted run handoff. No URL or client-side selection can grant time.
+// The official staging START endpoint must confirm a run before this is called.
+function applyConfirmedBoostRun(run){
+ if(!run||typeof run.runId!=='string'||typeof run.token!=='string'||
+    ![null,'time','score','sc'].includes(run.boost)||
+    !Number.isInteger(run.durationSeconds)||
+    run.durationSeconds!==(run.boost==='time'?65:60))throw new TypeError('Invalid confirmed BOOST run');
+ if(g.phase==='playing'||g.phase==='countdown')throw new Error('Cannot change BOOST during a run');
+ c.GAME_DURATION=run.durationSeconds;
+ return run.durationSeconds;
+}
+const stagingBoostStartEnabled=false; // Locked until dedicated authenticated staging wiring is verified.
+if(stagingBoostStartEnabled)throw new Error('Staging BOOST START is not configured');
+
 window.PRIME_FIELD_WIDTH=()=>{
  if(matchMedia('(pointer:coarse)').matches||innerWidth<951)return 1000;
  const stage=document.querySelector('.center-stage');
