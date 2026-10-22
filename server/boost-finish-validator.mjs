@@ -9,8 +9,8 @@ export function createBoostFinishValidator({secret,clock=()=>Date.now(),saveRece
   async validate({playerId,runId,token,events,worldWidth,device,claimedScore}){
    const signed=await verifyBoostRunToken(token,{playerId,runId,secret,now:clock()});
    if(!signed)throw new ApiError(401,'Invalid signed run');
-   if(signed.boost==='time'||signed.boost==='sc')throw new ApiError(409,'BOOST replay rules pending');
-   const verified=replay(events,worldWidth);
+   if(signed.boost==='sc')throw new ApiError(409,'BOOST replay rules pending');
+   const verified=replay(events,worldWidth,signed.boost==='time'?'time':null);
    const breakdown=verifiedBoostBreakdown(verified.score,device,signed.boost);
    if(claimedScore!==undefined&&claimedScore!==breakdown.playScore)throw new ApiError(400,'Score mismatch');
    // Only a trusted server injects this receipt store. The staging RPC atomically
