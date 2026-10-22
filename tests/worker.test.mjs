@@ -42,7 +42,9 @@ test('mock adapter: register, cross-device login, authenticated replay, retry an
  assert.equal((await worker.fetch(request('/api/scores',input,cookie),env)).status,200);
  const submissions=calls.filter(c=>c.op==='submit');assert.equal(submissions[0].input.runId,submissions[1].input.runId);
  const top=await (await worker.fetch(request('/api/leaderboard'),env)).json();assert.deepEqual(top.entries,[{name:'A',score:15000,rank:1,device:null,achievementCount:0,baseTitleMask:0,master:false,nextTitleMask:0,nextAchievementCount:0,liftingGod:false}]);
- const all=await (await worker.fetch(request('/api/leaderboard/all'),env)).json();assert.deepEqual(all.entries,top.entries);assert.ok(calls.some(c=>c.op==='leaderboard'&&c.input.limit===200));
+ player={...player,lastPlayed:'2026-10-21T23:30:00+00:00'};
+ const dated=await (await worker.fetch(request('/api/leaderboard'),env)).json();assert.equal(dated.entries[0].lastPlayed,'2026-10-21T23:30:00+00:00');
+ const all=await (await worker.fetch(request('/api/leaderboard/all'),env)).json();assert.deepEqual(all.entries,dated.entries);assert.ok(calls.some(c=>c.op==='leaderboard'&&c.input.limit===200));
  const champion=await (await worker.fetch(request('/api/champion'),env)).json();assert.equal(champion.champion.score,15000);assert.equal(champion.champion.device,null);
  time+=8*86400000;assert.equal((await worker.fetch(request('/api/me',null,cookie),env)).status,401);
 });

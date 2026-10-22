@@ -490,3 +490,13 @@ main.game-app{width:100vw;height:100dvh;max-width:none;margin:0;padding:12px 14p
   .score-guide .record-card .podium-first,
   .score-guide .record-card .podium-runner { padding:5px 7px; }
 }
+
+/* Leaderboard activity: unobtrusive, wrap-safe JST last play date. */
+.rank-player-name .rank-last-played {
+  display:inline-flex;align-items:center;flex:0 0 auto;
+  white-space:nowrap;font-size:10px;line-height:1.4;
+  color:#afc3b8;opacity:.9;
+}
+@media (max-width:760px) {
+  .rank-player-name .rank-last-played {font-size:10px;max-width:100%;}
+}
