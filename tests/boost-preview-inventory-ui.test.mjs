@@ -11,5 +11,5 @@ test('staging selection is locked until validated inventory',()=>{
 });
 test('preview cannot reserve or mutate live inventory',()=>{
  assert.doesNotMatch(source,/\/api\/boost-preview\/reserve/);
- assert.doesNotMatch(source,/localStorage\\.getItem\\(/);
+ assert.doesNotMatch(source,/localStorage\.getItem\(/);
 });
