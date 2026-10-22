@@ -13,7 +13,8 @@ export function normalizeName(value){
 }
 export function replay(events,worldWidth=1000,boost=null){
  if(boost!==null&&boost!=='time')throw new ApiError(400,'Unsupported replay BOOST');
- const maxTicks=boost==='time'?7800:7200;
+ // Countdown is simulated too (3 seconds = 360 ticks); allow the full 60/65 second run.
+ const maxTicks=boost==='time'?8400:7800;
  if(!Number.isInteger(worldWidth)||worldWidth<1000||worldWidth>1800||worldWidth%100!==0)throw new ApiError(400,'フィールド幅が正しくありません。');
  if(!Array.isArray(events)||events.length>10000)throw new ApiError(400,'プレイ記録が正しくありません。');
  let prev=-1;
