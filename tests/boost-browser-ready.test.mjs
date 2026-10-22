@@ -100,3 +100,21 @@ test('staging START endpoint issues TIME 65 seconds after authenticated reservat
  assert.equal(calls[0].op,'boost_reserve');
  assert.ok(data.token);
 });
+
+test('staging START rejects unauthenticated and oversized requests',async()=>{
+ const {createBoostStartHandler}=await import('../server/boost-start-handler.mjs');
+ const secret='staging-test-secret-isolated-12345678901234567890';
+ const dependencies={
+  enabled:true,
+  readInventory:async()=>({time:1,score:0,sc:0}),
+  transport:{call:async()=>{throw Error('DB must not be called');}},
+  secret
+ };
+ const origin='https://staging.example';
+ const endpoint=origin+'/api/boost-staging/start';
+ const makeRequest=body=>new Request(endpoint,{method:'POST',headers:{origin,'content-type':'application/json'},body});
+ const unauth=createBoostStartHandler({...dependencies,resolvePlayer:async()=>null});
+ assert.equal((await unauth(makeRequest('{"boost":"time"}'))).status,401);
+ const valid=createBoostStartHandler({...dependencies,resolvePlayer:async()=> '123e4567-e89b-42d3-a456-426614174001'});
+ assert.equal((await valid(makeRequest(' '.repeat(2050)))).status,400);
+});
