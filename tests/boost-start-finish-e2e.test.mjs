@@ -41,3 +41,25 @@ for(const boost of [null,'score'])test('trusted START to FINISH with '+(boost??'
  assert.equal(retry.replayed,true);
  assert.deepEqual(calls,[boost?'boost_reserve':'boost_start_none','boost_verified_receipt','boost_verified_receipt']);
 });
+
+for(const boost of ['time','sc'])test('unimplemented '+boost+' cannot silently save a score',async()=>{
+ const calls=[];
+ const transport={call:async(op,payload)=>{
+  calls.push(op);
+  if(op==='boost_reserve')return {boost,remaining:1,replayed:false};
+  throw Error('A pending effect must never produce a verified score receipt');
+ }};
+ const coordinator=createBoostRunCoordinator({transport,secret,clock:()=>now,newRunId:()=>runId});
+ const run=await coordinator.start({playerId,boost});
+ let receipts=0;
+ const finish=createBoostFinishValidator({secret,clock:()=>now,saveReceipt:async()=>{receipts++;throw Error('Unexpected receipt');}});
+ await assert.rejects(finish.validate({playerId,runId,token:run.token,events:[],worldWidth:1000,device:'pc',claimedScore:0}),/BOOST replay rules pending/);
+ assert.equal(receipts,0);
+ assert.deepEqual(calls,['boost_reserve']);
+});
+test('invalid signed run cannot write a verified receipt',async()=>{
+ let receipts=0;
+ const finish=createBoostFinishValidator({secret,clock:()=>now,saveReceipt:async()=>{receipts++;throw Error('Unexpected receipt');}});
+ await assert.rejects(finish.validate({playerId,runId,token:'forged',events:[],worldWidth:1000,device:'pc',claimedScore:0}),/Invalid signed run/);
+ assert.equal(receipts,0);
+});
