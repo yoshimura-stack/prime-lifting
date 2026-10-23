@@ -190,7 +190,7 @@ function processEvents(){for(const e of g.events){if(e.type==='hit'){achievement
   stagingFinishRun({score:g.score},rankEvents,c.WORLD_WIDTH,isMobile()?'mobile':'pc');
  }else{
   window.PRIME_RANKING.finish({score:g.score,kit:selectedKit.id,device:isMobile()?'mobile':'pc'},rankEvents,rankStandard&&standardRules());
- }window.PRIME_RANKING.achievements({score:g.score,bestCombo:g.bestCombo,...achievementStats});restoreStandardTuning();sound('end');showOverlay('TIME UP / SESSION COMPLETE',String(g.score).padStart(6,'0')+' POINTS','成功 '+g.hits+'回　 /　最長 '+g.bestCombo+'回　 /　落球 '+g.drops+'回','もう一度プレイ');}}g.events=[];}
+ }window.PRIME_RANKING.achievements({score:g.score,bestCombo:g.bestCombo,...achievementStats});restoreStandardTuning();sound('end');showOverlay('TIME UP / SESSION COMPLETE',String(stagingRunFlow?.activeRun?.boost==='score'?Math.round(g.score*1.1):g.score).padStart(6,'0')+' POINTS','成功 '+g.hits+'回　 /　最長 '+g.bestCombo+'回　 /　落球 '+g.drops+'回','もう一度プレイ');}}g.events=[];}
 function ellipse(x,y,rx,ry,fill){ctx.fillStyle=fill;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill();}
 function line(points,color,width){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();}
 function poly(points,fill){ctx.fillStyle=fill;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();}
