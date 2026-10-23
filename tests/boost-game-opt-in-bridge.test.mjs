@@ -18,3 +18,13 @@ test('staging cannot be enabled by URL alone',()=>{
  assert.doesNotMatch(game,/location\.search[^;\n]*GAME_DURATION/);
  assert.match(game,/const stagingRunFlow=window\.PRIME_STAGING_RUN_FLOW\?\?null/);
 });
+
+test('staging game locks START until reservation settles and preserves FINISH payload on failure',()=>{
+ assert.match(game,/stagingStartPending\|\|stagingFinishPending\|\|stagingRetryPayload/);
+ assert.match(game,/stagingStartPending=true/);
+ assert.match(game,/finally\{stagingStartPending=false;\}/);
+ assert.match(game,/stagingRetryPayload=payload/);
+ assert.match(game,/stagingRunFlow\.finish\(stagingRetryPayload\)/);
+ assert.match(game,/stagingRetryPayload=null/);
+ assert.match(game,/retry\.onclick=\(\)=>stagingRetryFinish\(\)/);
+});
