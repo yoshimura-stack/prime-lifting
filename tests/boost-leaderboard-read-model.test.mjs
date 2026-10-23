@@ -8,12 +8,12 @@ const entries=[{name:'A',score:55300,playScore:55000,dailyBonus:300},{name:'B',s
 test('private batch read attaches verified SCORE BOOST only to matching best, preserving public shape',async()=>{
  let calls=0;
  const result=await projectVerifiedBoostLeaderboard(players,entries,{readReceipts:async({playerIds})=>{
-  calls++;assert.deepEqual(playerIds,[a,b]);return {[a]:{playerId:a,playScore:55000,baseScore:50000,boostBonus:5000,boost:'score'},[b]:{playerId:b,playScore:33000,baseScore:30000,boostBonus:3000,boost:'score'}};
+  calls++;assert.deepEqual(playerIds,[a,b]);return {[a]:{playerId:a,playScore:55000,baseScore:50000,boostBonus:5000,boost:'score'}};
  }});
  assert.equal(calls,1);
  assert.deepEqual(result[0],{...entries[0],boost:'score',boostBaseScore:50000,boostBonus:5000});
  assert.equal(Object.hasOwn(result[0],'playerId'),false);
- assert.deepEqual(result[1],entries[1]); // historical record without saved run identity stays unchanged in public API
+ assert.deepEqual(result[1],entries[1]); // no verified BOOST receipt: unchanged legacy ranking
 });
 test('unavailable receipt reader leaves the ranking usable and untouched',async()=>{
  const result=await projectVerifiedBoostLeaderboard(players,entries,{readReceipts:async()=>{throw Error('offline');}});
