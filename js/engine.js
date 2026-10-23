@@ -21,6 +21,7 @@ class LiftingGame{
   this.combo=0;
   this.bestCombo=0;
   this.drops=0;
+  this.scProtectedDropUsed=false;
   this.hits=0;
   this.pendingSpins=0;
   this.eligibleSpin=false;
@@ -307,7 +308,12 @@ class LiftingGame{
      this.respawnSide=outLeft?-1:outRight?1:this.respawnSide;
     b.y=Math.min(b.y,c.GROUND_Y-c.BALL_RADIUS);
     b.active=false;
-    this.combo=0;
+    // SC preserves the first dropped combo only; respawn and drop count remain unchanged.
+    if(this.c.SC_PROTECT_FIRST_DROP===true&&!this.scProtectedDropUsed){
+     this.scProtectedDropUsed=true;
+    }else{
+     this.combo=0;
+    }
     this.pendingSpins=0;
     this.eligibleSpin=false;
     this.spinStreak=0;
