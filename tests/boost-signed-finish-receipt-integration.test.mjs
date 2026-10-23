@@ -24,7 +24,7 @@ function fixture(){
  return {rows,calls,gate:createBoostFinishValidator({secret,clock:()=>now,saveReceipt:x=>store.save(x)})};
 }
 async function signed(boost){return issueBoostRunToken({playerId,runId,boost,secret,now});}
-for(const boost of [null,'score','time']){
+for(const boost of [null,'score','time','sc']){
  test('signed '+String(boost)+' run is replay-verified and stored once',async()=>{
   const f=fixture(),token=await signed(boost);
   const args={playerId,runId,token,events:[],worldWidth:1000,device:'pc'};
@@ -43,10 +43,5 @@ test('wrong player and forged claimed score never call receipt store',async()=>{
  const f=fixture(),token=await signed('score');
  await assert.rejects(f.gate.validate({playerId:'123e4567-e89b-42d3-a456-426614174003',runId,token,events:[],worldWidth:1000,device:'pc'}),{status:401});
  await assert.rejects(f.gate.validate({playerId,runId,token,events:[],worldWidth:1000,device:'pc',claimedScore:999999}),{status:400});
- assert.equal(f.calls.length,0);
-});
-test('SC is blocked until server replay semantics are implemented',async()=>{
- const f=fixture();
- await assert.rejects(f.gate.validate({playerId,runId,token:await signed('sc'),events:[],worldWidth:1000,device:'pc'}),{status:409});
  assert.equal(f.calls.length,0);
 });
