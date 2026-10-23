@@ -18,13 +18,13 @@ test('slot weights use 40 percent miss and 20 percent each boost',()=>{
  assert.throws(()=>slotOutcome(empty,()=>1),RangeError);
  assert.throws(()=>slotOutcome(empty,()=>-0.1),RangeError);
 });
-test('SCORE BOOST is x1.1 on both devices',()=>{
+test('SCORE BOOST adds 0.1 to PC x1.0 and mobile x1.1',()=>{
  assert.equal(scoreMultiplier('pc','score'),11);
- assert.equal(scoreMultiplier('mobile','score'),11);
+ assert.equal(scoreMultiplier('mobile','score'),12);
  assert.equal(finalScore(50000,'pc','score'),55000);
- assert.equal(finalScore(50000,'mobile','score'),55000);
- assert.equal(finalScore(101,'mobile','score'),111);
- assert.equal(finalScore(50000,'mobile'),50000);
+ assert.equal(finalScore(50000,'mobile','score'),60000);
+ assert.equal(finalScore(101,'mobile','score'),121);
+ assert.equal(finalScore(50000,'mobile'),55000);
 });
 test('SC is green until first drop and protects once',()=>{
  assert.equal(ballColor('sc'), '#22C55E');
@@ -49,7 +49,7 @@ test('run duration and second chance preserve normal respawn and history icon',(
 });
 test('score follows current production Math.round convention',()=>{
  assert.equal(finalScore(105,'pc','score'),116);
- assert.equal(finalScore(105,'mobile','score'),116);
+ assert.equal(finalScore(105,'mobile','score'),126);
 });
 
 test('one BOOST maximum: duplicates and combinations are invalid',()=>{
