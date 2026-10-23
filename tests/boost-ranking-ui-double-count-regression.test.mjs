@@ -2,16 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const source=readFileSync(new URL('../js/ranking.js',import.meta.url),'utf8');
-test('verified SCORE BOOST breakdown displays base plus bonus, never full playScore plus bonus',()=>{
- const start=source.indexOf("if(hasVerifiedBoost){");
- const end=source.indexOf("}else if(hasSplit)",start);
- assert.ok(start>=0&&end>start,'verified BOOST branch must precede legacy split');
- const branch=source.slice(start,end);
- assert.match(branch,/part\('Ⓟ',boostBase/);
- assert.match(branch,/part\('⚡',boostBonus/);
- assert.doesNotMatch(branch,/part\('Ⓟ',e\.playScore/);
+test('ranking displays verified BOOST as an icon, never as separate bonus points',()=>{
+ assert.match(source,/function verifiedBoostIcon\(entry\)/);
+ assert.match(source,/rank-boost-icon rank-boost-/);
+ assert.match(source,/boostIcon=verifiedBoostIcon\(entry\)/);
+ assert.doesNotMatch(source,/part\('⚡',boostBonus/);
+ assert.match(source,/if\(verifiedBoostIcon\(e\)\)\{part\('Ⓟ',hasBasic\?e\.playScore:e\.score/);
 });
-test('daily bonus stays separate from verified play score',()=>{
+test('SCORE BOOST icon requires consistent verified bonus; TIME and SC require zero bonus',()=>{
+ assert.match(source,/Math\.round\(base\*1\.1\)!==play\|\|base\+bonus!==play/);
+ assert.match(source,/bonus!==0\|\|base!==play/);
+});
+test('daily bonus remains separate from play score',()=>{
  assert.match(source,/if\(hasBasic\)part\('Ⓓ',e\.dailyBonus/);
- assert.match(source,/boostBase\+boostBonus===\(hasBasic\?e\.playScore:e\.score\)/);
 });
