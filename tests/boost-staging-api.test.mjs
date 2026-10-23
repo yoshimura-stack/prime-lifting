@@ -22,6 +22,7 @@ function harness(){
 for(const boost of [null,'score','time','sc'])test('authenticated staging start and finish: '+(boost??'NONE'),async()=>{
  const {api,calls}=harness();
  const run=await api.start({authenticatedPlayerId:playerId,body:{boost}});
+ assert.equal(run.durationSeconds,boost==='time'?65:60);
  const input={runId,token:run.token,events:[],worldWidth:1000,device:'pc'};
  const first=await api.finish({authenticatedPlayerId:playerId,body:input});
  const second=await api.finish({authenticatedPlayerId:playerId,body:input});
