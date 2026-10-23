@@ -23,7 +23,7 @@ export function slotOutcome(inventory,random=Math.random){
 export function scoreMultiplier(device,boost=null){
  if(device!=='pc'&&device!=='mobile')throw new TypeError('Unknown device');
  if(boost!==null&&!BOOST_TYPES.includes(boost))throw new TypeError('Unknown boost');
- return 10+(boost==='score'?1:0); // integer tenths
+ return (device==='mobile'?11:10)+(boost==='score'?1:0); // mobile baseline x1.1; SCORE adds +0.1
 }
 export function finalScore(baseScore,device,boost=null){
  if(!Number.isSafeInteger(baseScore)||baseScore<0)throw new RangeError('Invalid base score');
