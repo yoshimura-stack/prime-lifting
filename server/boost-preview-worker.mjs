@@ -10,6 +10,10 @@ const unavailable=()=>new Response(JSON.stringify({error:'Preview unavailable'})
 export default {
  async fetch(request,env){
   const url=new URL(request.url);
+  // This Worker is a dedicated preview, never a fallback for the live game's
+  // account, leaderboard, achievement, or daily-challenge API.
+  if(url.pathname.startsWith('/api/')&&!url.pathname.startsWith('/api/boost-preview/')&&!url.pathname.startsWith('/api/boost-stage/'))
+   return new Response(JSON.stringify({error:'Legacy game API unavailable in isolated preview'}),{status:404,headers:{'content-type':'application/json','cache-control':'no-store'}});
   if(!url.pathname.startsWith('/api/')){
    if(url.pathname==='/')return Response.redirect(url.origin+'/boost-slot-preview.html',302);
    if(!env.ASSETS||typeof env.ASSETS.fetch!=='function')return unavailable();
