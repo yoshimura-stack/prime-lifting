@@ -4,6 +4,8 @@ const RPC=Object.freeze({
  boost_start_none:'lifting_api_boost_start_none',
  boost_reserve:'lifting_api_boost_reserve',
  boost_verified_receipt:'lifting_api_boost_verified_receipt',
+ // Intentionally unavailable in current staging DB: RPC fails closed until installed.
+ boost_atomic_ranked_submit:'lifting_api_submit_boost_atomic',
  boost_inventory_read:'lifting_api_boost_inventory_read',
  boost_slot_spin:'lifting_api_boost_slot_spin'
 });
