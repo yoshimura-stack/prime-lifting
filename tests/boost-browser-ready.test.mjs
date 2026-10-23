@@ -29,11 +29,12 @@ test('browser NONE keeps 60 seconds',async()=>{
  assert.equal(began.durationSeconds,60);
 });
 
-test('real game handoff stays disabled until staging authentication is configured',async()=>{
+test('real game handoff requires a preinstalled trusted staging flow',async()=>{
  const {readFileSync}=await import('node:fs');
  const source=readFileSync(new URL('../game.js',import.meta.url),'utf8');
  assert.match(source,/function applyConfirmedBoostRun\(run\)/);
- assert.match(source,/const stagingBoostStartEnabled=false/);
+ assert.match(source,/const stagingRunFlow=window\.PRIME_STAGING_RUN_FLOW\?\?null/);
+ assert.match(source,/if\(stagingRunFlow\)/);
  assert.match(source,/run\.durationSeconds!==\(run\.boost==='time'\?65:60\)/);
  assert.doesNotMatch(source,/URLSearchParams\(location\.search\).*GAME_DURATION/);
 });
