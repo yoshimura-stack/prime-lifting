@@ -224,17 +224,21 @@ async function updateRankDialog(){
      li.classList.add('rank-has-breakdown');
      const parts=document.createElement('span');parts.className='rank-bonus-parts';
      const part=(symbol,value,description)=>{const el=document.createElement('small');el.className='rank-bonus-part';const display=value===0?'—':value.toLocaleString();el.textContent=symbol+' '+display;el.title=description;el.setAttribute('aria-label',description+' '+(value===0?'加点なし':value.toLocaleString()+'ポイント'));parts.append(el);};
-     if(hasSplit){part('Ⓟ',e.baseScore,'通常プレイスコア');part('📱',e.mobileBonus,'スマホ補正');}
-     else {
+     // BOOST receipt fields must be server-supplied; never infer bonus from total.
+     // A verified BOOST play is already included in playScore: display its base
+     // instead of adding a second bonus to the full playScore visually.
+     const boostBase=e.boostBaseScore,boostBonus=e.boostBonus,boostType=e.boost;
+     const hasVerifiedBoost=boostType==='score'&&Number.isSafeInteger(boostBase)&&boostBase>=0&&Number.isSafeInteger(boostBonus)&&boostBonus>=0&&Math.round(boostBase*1.1)===boostBase+boostBonus&&boostBase+boostBonus===(hasBasic?e.playScore:e.score);
+     if(hasVerifiedBoost){
+      part('Ⓟ',boostBase,'BOOST適用前のプレイスコア');
+      part('⚡',boostBonus,'SCORE BOOSTによる加点');
+     }else if(hasSplit){
+      part('Ⓟ',e.baseScore,'通常プレイスコア');part('📱',e.mobileBonus,'スマホ補正');
+     }else {
       part('Ⓟ',hasBasic?e.playScore:e.score,'保存済みプレイスコア（スマホ補正込みの場合あり）');
       if(e.device==='pc')part('📱',0,'スマホ補正');
       else if(e.device==='mobile'){const unknown=document.createElement('small');unknown.className='rank-bonus-part';unknown.textContent='📱 —';unknown.title='過去のスマホ補正額は保存されていないため不明';parts.append(unknown);}
      }
-     // BOOST receipt fields must be server-supplied; never infer bonus from total.
-     // Keep daily credits and historical mobile data separate from BOOST credits.
-     const boostBase=e.boostBaseScore,boostBonus=e.boostBonus,boostType=e.boost;
-     const hasVerifiedBoost=boostType==='score'&&Number.isSafeInteger(boostBase)&&boostBase>=0&&Number.isSafeInteger(boostBonus)&&boostBonus>=0&&Math.round(boostBase*1.1)===boostBase+boostBonus&&boostBase+boostBonus===(hasBasic?e.playScore:e.score);
-     if(hasVerifiedBoost)part('⚡',boostBonus,'SCORE BOOSTによる加点');
      if(hasBasic)part('Ⓓ',e.dailyBonus,'当月デイリー加点');
      else {const unknownDaily=document.createElement('small');unknownDaily.className='rank-bonus-part';unknownDaily.textContent='Ⓓ —';unknownDaily.title='デイリー加点は未確認';parts.append(unknownDaily);}
      li.append(parts);
