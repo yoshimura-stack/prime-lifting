@@ -3,6 +3,7 @@ import {createBoostPreviewHandler} from './boost-preview-handler.mjs';
 import {createBoostPreviewTransport} from './boost-preview-transport.mjs';
 import {createPreviewSessionResolver} from './boost-preview-auth.mjs';
 import {allowPreviewRequest} from './boost-preview-rate-limit.mjs';
+import {createBoostStagingRunHandler} from './boost-staging-run-handler.mjs';
 const STAGING_PROJECT='tarnzjkxexlozqqmyqof';
 const STAGING_HOST=STAGING_PROJECT+'.supabase.co';
 const unavailable=()=>new Response(JSON.stringify({error:'Preview unavailable'}),{status:503,headers:{'content-type':'application/json','cache-control':'no-store'}});
@@ -28,6 +29,10 @@ export default {
   try{
    const transport=createBoostPreviewTransport({url:'https://'+STAGING_HOST+'/',expectedProjectHost:STAGING_HOST,serviceKey:env.BOOST_PREVIEW_SERVICE_KEY});
    const resolvePlayer=createPreviewSessionResolver({secret:env.BOOST_PREVIEW_SESSION_SECRET});
+   if(url.pathname.startsWith('/api/boost-stage/')){
+    if(env.BOOST_STAGING_RUNS_ENABLED!=='true'||typeof env.BOOST_RUN_SIGNING_SECRET!=='string'||env.BOOST_RUN_SIGNING_SECRET.length<32)return unavailable();
+    return createBoostStagingRunHandler({transport,resolvePlayer,secret:env.BOOST_RUN_SIGNING_SECRET,enabled:true})(request);
+   }
    return createBoostPreviewHandler({transport,resolvePlayer,enabled:true,allowReserve:false})(request);
   }catch{return unavailable();}
  }
