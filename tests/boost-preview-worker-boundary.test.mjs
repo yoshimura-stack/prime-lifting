@@ -35,3 +35,10 @@ test('production project ID cannot enable staging Worker',async()=>{
  const response=await worker.fetch(request('/api/boost-stage/start'),{...vars,BOOST_PREVIEW_ENABLED:'true',BOOST_PREVIEW_PROJECT_ID:'ctxhopadmvasxvjspwoi',BOOST_PREVIEW_SESSION_SECRET:'a'.repeat(40),BOOST_PREVIEW_SERVICE_KEY:'staging-test-key'});
  assert.equal(response.status,503);
 });
+
+test('only isolated playable game page permits legacy inline boot scripts',async()=>{
+ const game=await worker.fetch(new Request(origin+'/boost-game-preview.html'),{ASSETS:assets});
+ const slot=await worker.fetch(new Request(origin+'/boost-slot-preview.html'),{ASSETS:assets});
+ assert.match(game.headers.get('content-security-policy'),/script-src 'self' 'unsafe-inline'/);
+ assert.match(slot.headers.get('content-security-policy'),/script-src 'self';/);
+});
