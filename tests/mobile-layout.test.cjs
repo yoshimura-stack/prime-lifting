@@ -21,20 +21,13 @@ assert.match(css,/mobile-icon-rails>\.mobile-icon-column/,'mobile icon columns u
 
 assert.match(css,/body\.touch-landscape #mobile-icon-rails\s*\{\s*left:0!important;\s*right:0!important;\s*width:100%!important;/,'left and right rails remain at viewport edges');
 assert.match(css,/padding-left:3px!important;\s*padding-right:3px!important;/,'do not double apply landscape safe-area padding');
-assert.match(css,/body\.touch-landscape:has\(#kit-select:not\(\[hidden\]\)\) #mobile-icon-rails\s*\{\s*display:none!important;/,'no rail controls may overlap the full-screen uniform selector');
 const buildSource=fs.readFileSync(path.join(root,'scripts/build.mjs'),'utf8');
-for(const asset of ['pc-cockpit.css','mobile-icon-rails.css','mobile-kit-portrait.css']){
+for(const asset of ['pc-cockpit.css','mobile-icon-rails.css']){
  assert.ok(buildSource.includes("'"+asset+"'"),asset+' must be deployed with Worker assets');
 }
 assert.match(buildSource,/await access\(new URL\(asset,target\)\)/,'build must verify linked CSS exists in public');
-const kitCss=fs.readFileSync(path.join(root,'mobile-kit-portrait.css'),'utf8');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert.match(kitCss,/@media\s*\(max-width:760px\)\s*and\s*\(orientation:portrait\)/,'portrait-only selector');
-assert.match(kitCss,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)!important/,'two portrait columns');
-assert.match(kitCss,/grid-template-rows:none!important/,'do not collapse portrait kits into four fixed rows');
-assert.match(kitCss,/grid-auto-rows:minmax\(120px,auto\)!important/,'portrait cards have natural height');
-assert.match(kitCss,/overflow-y:auto!important/,'the portrait kit list remains scrollable');
-assert.match(kitCss,/\.kit-select \.kit-actions\s*\{/,'portrait confirmation button remains outside list scroll');
-assert.match(html,/mobile-kit-portrait\.css\?v=portrait-rows-1/,'portrait CSS loaded');
+assert.doesNotMatch(html,/id="kit-select"|id="kit-change"|mobile-kit-portrait\.css|kit-notebook-fix/,'retired kit selector must not load');
+assert.doesNotMatch(game,/renderKitTabs|renderKitGrid|openKitSelect|kitStorageKey/,'retired kit selection logic must not return');
 assert.match(html,/mobile-icon-rails\.css\?v=sidebar-controls-2/,'mobile edge-aligned rails stylesheet is fresh');
 console.log('Mobile orientation layout checks passed');
