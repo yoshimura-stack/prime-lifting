@@ -42,3 +42,11 @@ test('only isolated playable game page permits legacy inline boot scripts',async
  assert.match(game.headers.get('content-security-policy'),/script-src 'self' 'unsafe-inline'/);
  assert.match(slot.headers.get('content-security-policy'),/script-src 'self';/);
 });
+
+test('legacy production account, ranking, daily and achievements API fail closed on preview host',async()=>{
+ for(const path of ['/api/login','/api/ranking','/api/daily','/api/achievements','/api/submit']){
+  const response=await worker.fetch(request(path),{ASSETS:assets});
+  assert.equal(response.status,404,path);
+  assert.equal(response.headers.get('cache-control'),'no-store');
+ }
+});
