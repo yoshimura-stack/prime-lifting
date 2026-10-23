@@ -2,7 +2,7 @@
 // This must be backed by ONE database transaction for both normal and BOOST runs.
 // Never call the receipt-only RPC as a substitute for atomic ranked submission.
 import {rankingBoostBreakdown} from '../js/boost-score-breakdown.mjs';
-const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export function createBoostAtomicRankedSubmit({transport}={}){
  if(!transport||typeof transport.call!=='function')throw new TypeError('Trusted atomic submit transport required');
  return Object.freeze({async submit({playerId,runId,verified}={}){
