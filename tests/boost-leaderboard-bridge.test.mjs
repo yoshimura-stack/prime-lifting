@@ -18,3 +18,12 @@ test('non-SCORE boosts do not produce bonus display fields',()=>{
 test('inconsistent SCORE BOOST receipt is rejected rather than displayed',()=>{
  assert.throws(()=>attachVerifiedBoostToLeader(entry,{...receipt,boostBonus:2000}),RangeError);
 });
+
+test('internal player ID can be used without exposing identity in public ranking response',()=>{
+ const publicEntry={name:'PLAYER',rank:1,score:55300,playScore:55000,dailyBonus:300,device:'pc'};
+ const output=attachVerifiedBoostToLeader(publicEntry,receipt,playerId);
+ assert.equal(output.boostBonus,5000);
+ assert.equal(output.score,55300);
+ assert.equal(Object.hasOwn(output,'playerId'),false);
+ assert.deepEqual(attachVerifiedBoostToLeader(publicEntry,receipt,'123e4567-e89b-42d3-a456-426614174002'),publicEntry);
+});
