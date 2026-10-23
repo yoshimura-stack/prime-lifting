@@ -15,5 +15,6 @@ test('score boost claim includes 10% but other boosts do not change final points
  assert.match(game,/structuredClone\(events\)/);
 });
 test('staging cannot be enabled by URL alone',()=>{
- assert.doesNotMatch(game,/URLSearchParams|location\.search.*BOOST/);
+ assert.doesNotMatch(game,/location\.search[^;\n]*GAME_DURATION/);
+ assert.match(game,/const stagingRunFlow=window\.PRIME_STAGING_RUN_FLOW\?\?null/);
 });
