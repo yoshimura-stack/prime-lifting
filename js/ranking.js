@@ -46,6 +46,20 @@ function deviceIcon(device){
  badge.innerHTML=device==='mobile'?'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.2"/><path d="M10 18.5h4"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="3.5" width="19" height="13" rx="1.6"/><path d="M8 20.5h8M12 16.5v4"/></svg>';
  return badge;
 }
+function verifiedBoostIcon(entry){
+ const kind=entry?.boost;
+ if(!['time','score','sc'].includes(kind))return null;
+ const base=entry.boostBaseScore,bonus=entry.boostBonus;
+ const play=Number.isSafeInteger(entry.playScore)?entry.playScore:entry.score;
+ if(!Number.isSafeInteger(base)||base<0||!Number.isSafeInteger(bonus)||bonus<0||!Number.isSafeInteger(play)||play<0)return null;
+ if(kind==='score'?Math.round(base*1.1)!==play||base+bonus!==play:bonus!==0||base!==play)return null;
+ const labels={time:'TIME BOOST 使用（+5 SEC）',score:'SCORE BOOST 使用（×1.1）',sc:'SECOND CHANCE 使用'};
+ const badge=document.createElement('span');
+ badge.className='rank-boost-icon rank-boost-'+kind;
+ badge.textContent={time:'🔵',score:'🟡',sc:'🟢'}[kind];
+ badge.title=labels[kind];badge.setAttribute('role','img');badge.setAttribute('aria-label',labels[kind]);
+ return badge;
+}
 const nextTitleNames=['FOOT MASTER','KNEE MASTER','TRAP MASTER','HEADING MASTER','SPIN MASTER','JUMP MASTER','SHOULDER MASTER','LIFTING LEGEND'];
 const baseTitleNames=['30 KEEPS CLUB','AIR MASTER','SPIN KING','SHOULDER ACE','SCORE HUNTER','QUAD MASTER','AIR QUAD','DOUBLE AIR'];
 const nextTitleDescriptions=['30キープまで足以外のタッチ禁止！達成後は自由','30キープまで膝以外のタッチ禁止！達成後は自由','30キープまで胸以外のタッチ禁止！達成後は自由','30キープまで頭以外のタッチ禁止！達成後は自由','30キープまで全タッチでスピン必須！達成後は自由','30キープまで全タッチでジャンプ必須！達成後は自由','肩タッチ10回成功','足・膝・胸・頭・肩・スピン・ジャンプを各4回以上'];
@@ -132,6 +146,7 @@ function rankName(entry,prefix=''){
  const name=document.createElement('span');name.className='rank-player-name';
  const label=document.createElement('span');label.textContent=prefix+entry.name;name.append(label);
  const badge=deviceIcon(entry.device);if(badge)name.append(badge);
+ const boostIcon=verifiedBoostIcon(entry);if(boostIcon)name.append(boostIcon);
  if(Number.isInteger(entry.achievementCount)){
   const progress=document.createElement('span');
   progress.className='rank-title-count'+(entry.master?' platinum':'');
@@ -224,17 +239,10 @@ async function updateRankDialog(){
      li.classList.add('rank-has-breakdown');
      const parts=document.createElement('span');parts.className='rank-bonus-parts';
      const part=(symbol,value,description)=>{const el=document.createElement('small');el.className='rank-bonus-part';const display=value===0?'—':value.toLocaleString();el.textContent=symbol+' '+display;el.title=description;el.setAttribute('aria-label',description+' '+(value===0?'加点なし':value.toLocaleString()+'ポイント'));parts.append(el);};
-     // BOOST receipt fields must be server-supplied; never infer bonus from total.
-     // A verified BOOST play is already included in playScore: display its base
-     // instead of adding a second bonus to the full playScore visually.
-     const boostBase=e.boostBaseScore,boostBonus=e.boostBonus,boostType=e.boost;
-     const hasVerifiedBoost=boostType==='score'&&Number.isSafeInteger(boostBase)&&boostBase>=0&&Number.isSafeInteger(boostBonus)&&boostBonus>=0&&Math.round(boostBase*1.1)===boostBase+boostBonus&&boostBase+boostBonus===(hasBasic?e.playScore:e.score);
-     if(hasVerifiedBoost){
-      part('Ⓟ',boostBase,'BOOST適用前のプレイスコア');
-      part('⚡',boostBonus,'SCORE BOOSTによる加点');
-     }else if(hasSplit){
-      part('Ⓟ',e.baseScore,'通常プレイスコア');part('📱',e.mobileBonus,'スマホ補正');
-     }else {
+     // BOOST attribution is shown only as a verified icon beside the player name.
+     // Keep existing legacy/mobile score breakdown without introducing BOOST bonus rows.
+     if(hasSplit){part('Ⓟ',e.baseScore,'通常プレイスコア');part('📱',e.mobileBonus,'スマホ補正');}
+     else {
       part('Ⓟ',hasBasic?e.playScore:e.score,'保存済みプレイスコア（スマホ補正込みの場合あり）');
       if(e.device==='pc')part('📱',0,'スマホ補正');
       else if(e.device==='mobile'){const unknown=document.createElement('small');unknown.className='rank-bonus-part';unknown.textContent='📱 —';unknown.title='過去のスマホ補正額は保存されていないため不明';parts.append(unknown);}
