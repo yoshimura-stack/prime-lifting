@@ -71,8 +71,8 @@ function stagingFinishRun(result,events,worldWidth,device){
  const payload={events:structuredClone(events),worldWidth,device,claimedScore};
  stagingRetryPayload=payload;
  Promise.resolve().then(()=>stagingRunFlow.finish(payload)).then(saved=>{
-  stagingRetryPayload=null;
   if(!saved||!Number.isSafeInteger(saved.playScore))throw new Error('Unconfirmed ranking score');
+  stagingRetryPayload=null;
   const feedback=$('save-feedback');
   if(feedback)feedback.textContent='STAGING 検証済み '+saved.playScore.toLocaleString()+' PTS';
  }).catch(error=>{
