@@ -230,6 +230,11 @@ async function updateRankDialog(){
       if(e.device==='pc')part('📱',0,'スマホ補正');
       else if(e.device==='mobile'){const unknown=document.createElement('small');unknown.className='rank-bonus-part';unknown.textContent='📱 —';unknown.title='過去のスマホ補正額は保存されていないため不明';parts.append(unknown);}
      }
+     // BOOST receipt fields must be server-supplied; never infer bonus from total.
+     // Keep daily credits and historical mobile data separate from BOOST credits.
+     const boostBase=e.boostBaseScore,boostBonus=e.boostBonus,boostType=e.boost;
+     const hasVerifiedBoost=boostType==='score'&&Number.isSafeInteger(boostBase)&&boostBase>=0&&Number.isSafeInteger(boostBonus)&&boostBonus>=0&&Math.round(boostBase*1.1)===boostBase+boostBonus&&boostBase+boostBonus===(hasBasic?e.playScore:e.score);
+     if(hasVerifiedBoost)part('⚡',boostBonus,'SCORE BOOSTによる加点');
      if(hasBasic)part('Ⓓ',e.dailyBonus,'当月デイリー加点');
      else {const unknownDaily=document.createElement('small');unknownDaily.className='rank-bonus-part';unknownDaily.textContent='Ⓓ —';unknownDaily.title='デイリー加点は未確認';parts.append(unknownDaily);}
      li.append(parts);
