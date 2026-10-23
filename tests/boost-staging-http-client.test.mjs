@@ -51,3 +51,32 @@ test('never send malformed replay to server',async()=>{
  await assert.rejects(client.finish({events:[],worldWidth:1234,device:'pc'}),/Invalid replay/);
  assert.equal(calls.length,1);
 });
+
+test('concurrent START is blocked before a second inventory reservation',async()=>{
+ let release;const gate=new Promise(resolve=>{release=resolve;});let calls=0;
+ const client=createBoostStagingHttpClient({origin,getBearer:()=> 'token',fetcher:async()=>{
+  calls++;await gate;
+  return {ok:true,json:async()=>({runId,token:'a'.repeat(24),boost:'time',durationSeconds:65})};
+ }});
+ const first=client.start('time');
+ await assert.rejects(client.start('time'),/already active/);
+ assert.equal(calls,1);
+ release();await first;
+ assert.equal(client.activeRun.runId,runId);
+});
+test('concurrent FINISH is blocked and a failed request remains retryable',async()=>{
+ let release;const gate=new Promise(resolve=>{release=resolve;});let finishCalls=0;
+ const client=createBoostStagingHttpClient({origin,getBearer:()=> 'token',fetcher:async(url,options)=>{
+  if(url.endsWith('/start'))return {ok:true,json:async()=>({runId,token:'a'.repeat(24),boost:'score',durationSeconds:60})};
+  finishCalls++;await gate;
+  return {ok:true,json:async()=>({runId,boost:'score',playScore:0,replayed:false})};
+ }});
+ await client.start('score');
+ const payload={events:[],worldWidth:1000,device:'pc'};
+ const first=client.finish(payload);
+ await assert.rejects(client.finish(payload),/pending/);
+ assert.throws(()=>client.clear(),/pending/);
+ assert.equal(finishCalls,1);
+ release();await first;
+ assert.equal(client.activeRun,null);
+});
