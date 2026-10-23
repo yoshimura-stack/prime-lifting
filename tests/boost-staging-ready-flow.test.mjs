@@ -21,5 +21,8 @@ test('ready inventory selection starts server-confirmed TIME game and submits re
  assert.equal((await flow.finish({events:[],worldWidth:1000,device:'pc'})).playScore,0);
  assert.equal(flow.activeRun,null);
  assert.equal(calls.length,2);
- assert.deepEqual(statuses,['BOOST開始を確認中','プレイ開始']);
+ flow.select('time');
+ await flow.start();
+ assert.equal(games.length,2);
+ assert.deepEqual(statuses,['BOOST開始を確認中','プレイ開始','BOOST開始を確認中','プレイ開始']);
 });
