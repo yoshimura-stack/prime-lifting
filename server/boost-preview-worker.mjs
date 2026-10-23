@@ -20,7 +20,10 @@ export default {
    headers.set('x-frame-options','DENY');
    headers.set('x-robots-tag','noindex, nofollow, noarchive');
    headers.set('referrer-policy','no-referrer');
-   headers.set('content-security-policy',"default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
+   // The existing game HTML contains inline initialization scripts. Permit them
+   // only on the isolated playable staging page; all other preview assets stay strict.
+   const gamePreview=url.pathname==='/boost-game-preview.html';
+   headers.set('content-security-policy',"default-src 'none'; script-src 'self'"+(gamePreview?" 'unsafe-inline'":'')+"; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
    return new Response(response.body,{status:response.status,headers});
   }
   // Both the project URL and a dedicated secret are mandatory. Fail closed.
