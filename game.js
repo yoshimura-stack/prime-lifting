@@ -19,6 +19,7 @@ function applyConfirmedBoostRun(run){
     run.durationSeconds!==(run.boost==='time'?65:60))throw new TypeError('Invalid confirmed BOOST run');
  if(g.phase==='playing'||g.phase==='countdown')throw new Error('Cannot change BOOST during a run');
  c.GAME_DURATION=run.durationSeconds;
+ c.SC_PROTECT_FIRST_DROP=run.boost==='sc';
  return run.durationSeconds;
 }
 const stagingBoostStartEnabled=false; // Locked until dedicated authenticated staging wiring is verified.
