@@ -26,5 +26,6 @@ test('staging game locks START until reservation settles and preserves FINISH pa
  assert.match(game,/stagingRetryPayload=payload/);
  assert.match(game,/stagingRunFlow\.finish\(stagingRetryPayload\)/);
  assert.match(game,/stagingRetryPayload=null/);
- assert.match(game,/retry\.onclick=\(\)=>stagingRetryFinish\(\)/);
+ assert.match(game,/stagingRetryButton\.onclick=\(\)=>stagingRetryFinish\(\)/);
+ assert.match(game,/\$\('start'\)\.before\(stagingResultStatus,stagingRetryButton\)/);
 });
