@@ -29,7 +29,22 @@ if(stagingRunFlow&&(
  typeof stagingRunFlow.start!=='function'||typeof stagingRunFlow.finish!=='function'||
  typeof stagingRunFlow.select!=='function'||typeof stagingRunFlow.activeRun==='undefined'
 ))throw new TypeError('Invalid staging flow');
-let stagingFinishPending=false;
+let stagingFinishPending=false,stagingRetryPayload=null,stagingStartPending=false;
+function stagingRetryFinish(){
+ if(!stagingRunFlow||!stagingRetryPayload||stagingFinishPending)return;
+ stagingFinishPending=true;
+ const retry=$('save-retry');if(retry)retry.disabled=true;
+ Promise.resolve().then(()=>stagingRunFlow.finish(stagingRetryPayload)).then(saved=>{
+  if(!saved||!Number.isSafeInteger(saved.playScore))throw new Error('Unconfirmed staging score');
+  stagingRetryPayload=null;
+  if(retry)retry.hidden=true;
+  const feedback=$('save-feedback');
+  if(feedback)feedback.textContent='STAGING 検証済み '+saved.playScore.toLocaleString()+' PTS';
+ }).catch(()=>{
+  const feedback=$('save-feedback');
+  if(feedback)feedback.textContent='STAGING 保存失敗：もう一度再試行してください。';
+ }).finally(()=>{stagingFinishPending=false;if(retry)retry.disabled=false;});
+}
 function stagingFinishRun(result,events,worldWidth,device){
  if(!stagingRunFlow)return;
  if(stagingFinishPending)return;
@@ -37,14 +52,18 @@ function stagingFinishRun(result,events,worldWidth,device){
  const boost=stagingRunFlow.activeRun?.boost;
  const claimedScore=boost==='score'?Math.round(result.score*1.1):result.score;
  const payload={events:structuredClone(events),worldWidth,device,claimedScore};
+ stagingRetryPayload=payload;
  Promise.resolve().then(()=>stagingRunFlow.finish(payload)).then(saved=>{
+  stagingRetryPayload=null;
   if(!saved||!Number.isSafeInteger(saved.playScore))throw new Error('Unconfirmed ranking score');
   const feedback=$('save-feedback');
   if(feedback)feedback.textContent='STAGING 検証済み '+saved.playScore.toLocaleString()+' PTS';
  }).catch(error=>{
   console.warn('STAGING verified score not saved; preserve run for retry',error);
   const feedback=$('save-feedback');
-  if(feedback)feedback.textContent='STAGING 保存失敗：同じ記録で再試行が必要です。';
+  if(feedback)feedback.textContent='STAGING 保存失敗：保存を再試行してください。';
+  const retry=$('save-retry');
+  if(retry){retry.hidden=false;retry.onclick=()=>stagingRetryFinish();}
  }).finally(()=>{stagingFinishPending=false;});
 }
 
@@ -134,7 +153,9 @@ $('mobile-pause').onclick=()=>pause(true);
 function sound(type){if(muted)return;try{audioContext??=new (window.AudioContext||window.webkitAudioContext)();if(audioContext.state==='suspended')audioContext.resume();const t=audioContext.currentTime,osc=audioContext.createOscillator(),gain=audioContext.createGain();const tone={hit:270,CHEST:120,HEADER:370,JUMP_HEADER:480,SHOULDER:610,spin:650,miss:110,drop:80,start:740,end:220}[type]||270;osc.type=type==='spin'?'sine':'triangle';osc.frequency.setValueAtTime(tone,t);osc.frequency.exponentialRampToValueAtTime(Math.max(40,tone*(type==='start'?1.5:0.45)),t+0.13);gain.gain.setValueAtTime(0.065,t);gain.gain.exponentialRampToValueAtTime(0.001,t+0.17);osc.connect(gain);gain.connect(audioContext.destination);osc.start(t);osc.stop(t+0.18);}catch{}}
 function showOverlay(label,title,copy,button){$('overlay').classList.remove('intro-overlay');$('overlay').hidden=false;$('overlay-label').textContent=label;$('overlay-title').textContent=title;$('overlay-copy').textContent=copy;$('start').innerHTML=button+' <span>↗</span>';}
 function pause(value){if(!['playing','countdown'].includes(g.phase))return;paused=value;keys.clear();touch.clear();accumulator=0;if(value)showOverlay('TAKE A BREATH','一時停止','続きは、あなたのタイミングで。','再開する');else $('overlay').hidden=true;$('pause').innerHTML=value?'再開 <em>ESC</em>':'一時停止 <em>ESC</em>';}
-$('start').onclick=async()=>{if(!paused||restartPending){
+$('start').onclick=async()=>{if(stagingRunFlow&&(stagingStartPending||stagingFinishPending||stagingRetryPayload))return;
+ if(stagingRunFlow)stagingStartPending=true;
+ try{if(!paused||restartPending){
   if(stagingRunFlow){
    if(stagingRunFlow.activeRun){console.warn('Unfinished staging run; cannot start another');return;}
    let confirmed;
@@ -144,7 +165,7 @@ $('start').onclick=async()=>{if(!paused||restartPending){
    const ready=await window.PRIME_RANKING.preflight();
    if(!ready){restartPending=false;return;}
   }
- }stopArenaPreview();if(paused&&!restartPending){$('tuning').hidden=true;$('tune').setAttribute('aria-expanded','false');pause(false);}else{restartPending=false;paused=false;$('pause').innerHTML='一時停止 <em>ESC</em>';c.WORLD_WIDTH=window.PRIME_RANKING.worldWidth();g.reset();achievementStats={maxAirStreak:0,spinBonusHits:0,shoulderHits:0,spinKing:false,quadMaster:false,airQuad:false,doubleAir:false};jumpsSinceHit=0;window.PRIME_DAILY?.begin();window.PRIME_RANKING.resetAchievements();keys.clear();touch.clear();rankTick=0;rankEvents=[];rankDirection=0;rankStandard=standardRules();window.PRIME_RANKING.begin(rankStandard);effects=[];shoulderFlash=null;quadFlash=null;shoulderMessage=false;milestone=null;pointPopups=[];message='';messageTime=0;$('overlay').hidden=true;sound('start');}canvas.focus();};
+ }stopArenaPreview();if(paused&&!restartPending){$('tuning').hidden=true;$('tune').setAttribute('aria-expanded','false');pause(false);}else{restartPending=false;paused=false;$('pause').innerHTML='一時停止 <em>ESC</em>';c.WORLD_WIDTH=window.PRIME_RANKING.worldWidth();g.reset();achievementStats={maxAirStreak:0,spinBonusHits:0,shoulderHits:0,spinKing:false,quadMaster:false,airQuad:false,doubleAir:false};jumpsSinceHit=0;window.PRIME_DAILY?.begin();window.PRIME_RANKING.resetAchievements();keys.clear();touch.clear();rankTick=0;rankEvents=[];rankDirection=0;rankStandard=standardRules();window.PRIME_RANKING.begin(rankStandard);effects=[];shoulderFlash=null;quadFlash=null;shoulderMessage=false;milestone=null;pointPopups=[];message='';messageTime=0;$('overlay').hidden=true;sound('start');}canvas.focus();}finally{stagingStartPending=false;}};
 $('pause').onclick=()=>{pause(!paused);if(!paused)canvas.focus();};
 let restartPending=false;
 function restartRound(){
