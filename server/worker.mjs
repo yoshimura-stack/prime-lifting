@@ -148,6 +148,6 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   catch{throw new ApiError(503,'デイリー報酬の保存確認ができませんでした。同じプレイを再送信してください。');}
   }
   return json({daily,dailyCheck:{enabled:rewardEnabled,qualifiedIds:qualifiedDailyIds},player:publicPlayer(saved.player),score,personalBest:saved.personalBest===true,newChampion:saved.newChampion===true,progress:{...progress,next}});
- }catch(error){return json({error:error instanceof ApiError?error.message:'ランキング処理に失敗しました。再試行してください。'},error instanceof ApiError?error.status:503);}
+ }catch(error){if(env.CI_DIAGNOSTICS==='true'&&!(error instanceof ApiError))console.error('[CI diagnostic] unexpected worker error:',error);return json({error:error instanceof ApiError?error.message:'ランキング処理に失敗しました。再試行してください。'},error instanceof ApiError?error.status:503);}
  }};}
 export default createWorker();
