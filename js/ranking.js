@@ -56,7 +56,7 @@ function verifiedBoostIcon(entry){
  const labels={time:'TIME BOOST 使用（+5 SEC）',score:'SCORE BOOST 使用（×1.1）',sc:'SECOND CHANCE 使用'};
  const badge=document.createElement('span');
  badge.className='rank-boost-icon rank-boost-'+kind;
- badge.textContent={time:'🔵',score:'🟡',sc:'🟢'}[kind];
+ badge.textContent='⚽ '+{time:'+5 SEC',score:'×1.1',sc:'SC'}[kind];
  badge.title=labels[kind];badge.setAttribute('role','img');badge.setAttribute('aria-label',labels[kind]);
  return badge;
 }
