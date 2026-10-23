@@ -9,6 +9,7 @@ export function attachVerifiedBoostToLeader(entry,receipt,internalPlayerId=entry
  const savedPlayScore=Number.isSafeInteger(entry.playScore)?entry.playScore:entry.score;
  if(!uuid.test(internalPlayerId??'')||!uuid.test(internalBestRunId??'')||receipt.playerId!==internalPlayerId||receipt.runId!==internalBestRunId||receipt.playScore!==savedPlayScore)return Object.freeze({...entry});
  const verified=rankingBoostDisplay(receipt);
- if(!verified.showBreakdown)return Object.freeze({...entry});
- return Object.freeze({...entry,boost:'score',boostBaseScore:verified.baseScore,boostBonus:verified.boostBonus});
+ if(!['time','score','sc'].includes(verified.boost))return Object.freeze({...entry});
+ // Every verified BOOST is eligible for its icon. Final play score is unchanged.
+ return Object.freeze({...entry,boost:verified.boost,boostBaseScore:verified.baseScore,boostBonus:verified.boostBonus});
 }
