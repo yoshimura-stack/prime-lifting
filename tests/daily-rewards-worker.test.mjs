@@ -5,7 +5,7 @@ import {dailyChallenges,jstDay} from '../server/daily.mjs';
 
 const origin='https://test.example';
 const limiter={limit:async()=>({success:true})};
-const env={SESSION_SECRET:'test-only-secret-012345678901234567890',AUTH_LIMITER:limiter,API_LIMITER:limiter,DAILY_REWARDS_ENABLED:'true',ASSETS:{fetch:()=>new Response('asset')}};
+const env={SESSION_SECRET:'test-only-secret-012345678901234567890',AUTH_LIMITER:limiter,API_LIMITER:limiter,CI_DIAGNOSTICS:'true',DAILY_REWARDS_ENABLED:'true',ASSETS:{fetch:()=>new Response('asset')}};
 const req=(path,body,cookie)=>new Request(origin+path,{method:body===undefined?'GET':'POST',headers:{...(body===undefined?{}:{'Content-Type':'application/json',Origin:origin}),...(cookie?{Cookie:cookie}:{})},body:body===undefined?undefined:JSON.stringify(body)});
 test('verified daily rewards are one credit per mission, account-wide, and tied to signed JST start day',async()=>{
  let now=Date.parse('2026-10-18T14:59:00Z'); // 23:59 JST
