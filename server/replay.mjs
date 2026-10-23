@@ -34,4 +34,4 @@ export function replay(events,worldWidth=1000,boost=null){
  if(at!==events.length||g.phase!=='ended')throw new ApiError(400,'プレイ記録の終了位置が正しくありません。');
  return {score:g.score,hits:g.hits,combo:g.bestCombo,drops:g.drops,achievementProof:{maxAirStreak,shoulderHits,spinKing,quadMaster,airQuad,doubleAir},nextProof};
 }
-export function validKit(id){return id===globalThis.PRIME_KITS.starter.id||globalThis.PRIME_KITS.kits.some(k=>k.id===id);}
+export function validKit(id){return typeof id==='string'&&Array.isArray(globalThis.PRIME_KITS?.kits)&&globalThis.PRIME_KITS.kits.some(k=>k.id===id);}
