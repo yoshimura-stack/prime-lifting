@@ -5,18 +5,23 @@ import {createBoostBrowserReady} from './boost-browser-ready.mjs';
 import {createBoostStagingHttpClient} from './boost-staging-http-client.mjs';
 export function createBoostStagingReadyFlow({inventory,getBearer,fetcher,origin,beginGame,onStatus}={}){
  const client=createBoostStagingHttpClient({getBearer,fetcher,origin});
- const ready=createBoostBrowserReady({
+ const makeReady=()=>createBoostBrowserReady({
   inventory,
   startOfficialRun:boost=>client.start(boost),
   beginGame,
   onStatus
  });
+ let ready=makeReady();
  return Object.freeze({
   get selected(){return ready.selected;},
   get pending(){return ready.pending;},
   get activeRun(){return client.activeRun;},
   select:boost=>ready.select(boost),
   start:()=>ready.start(),
-  finish:input=>client.finish(input)
+  async finish(input){
+   const result=await client.finish(input);
+   ready=makeReady();
+   return result;
+  }
  });
 }
