@@ -1,0 +1,28 @@
+-- STAGING DESIGN DRAFT ONLY. DO NOT EXECUTE ON ANY DATABASE.
+-- Atomic best-score + run-pointer update must be integrated with the verified
+-- score submission transaction, NOT called after the existing submit RPC.
+-- A separate follow-up RPC cannot guarantee atomicity with the current submit.
+-- This function is a proposed transaction-owned helper for the eventual
+-- replacement verified-submit RPC; it is not deployed or wired to the Worker.
+-- PREREQUISITES: review lifting_players schema, current submit RPC, rank/achievement
+-- side effects, and ensure caller already verified signed run and replay score.
+-- SQL below is a REFERENCE TRANSACTION BODY, not an executable migration.
+--
+-- Within the same database transaction as verified submission:
+-- 1. Lock the player row: SELECT best FROM public.lifting_players
+--    WHERE id = v_player_id FOR UPDATE;
+-- 2. Check idempotency: existing receipt for v_run_id must have exactly the
+--    same player, boost, base_score, bonus and play_score; otherwise reject.
+-- 3. Persist the verified receipt and all existing submit effects in this TX.
+-- 4. If v_play_score > locked best, update lifting_players.best and the
+--    lifting_boost_best_run_refs pointer in the SAME transaction.
+-- 5. If v_play_score = locked best, do not replace the winning run pointer.
+-- 6. If a non-BOOST play sets a new best, CLEAR the previous BOOST pointer
+--    in the SAME transaction, preventing stale BOOST attribution.
+-- 7. Any failure rolls back the score, receipt, and best-run pointer together.
+-- 8. Replayed run ID returns the original committed result without side effects.
+--
+-- SECURITY: private service_role-only verified submit; client cannot submit
+-- an arbitrary claimed score/boost or call a pointer-only mutation RPC.
+-- REQUIRE integration tests for concurrent scores, same-score runs, retries,
+-- non-BOOST best overtaking BOOST best, rollback, and legacy records.
