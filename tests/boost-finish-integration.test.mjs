@@ -53,11 +53,14 @@ test('invalid signature never touches receipt store',async()=>{
  await assert.rejects(gate.validate({playerId,runId,token:signed+'x',events:[],worldWidth:1000,device:'pc'}),{status:401});
  assert.equal(writes,0);
 });
-test('SECOND CHANCE stays unavailable until its server replay supports it',async()=>{
+test('SECOND CHANCE replay is accepted with no score multiplier',async()=>{
  let writes=0;
- const gate=createBoostFinishValidator({secret,clock:()=>now,saveReceipt:async()=>{writes++;return null;}});
- for(const boost of ['sc']){
-  await assert.rejects(gate.validate({playerId,runId,token:await makeToken(boost),events:[],worldWidth:1000,device:'pc'}),{status:409});
- }
- assert.equal(writes,0);
+ const gate=createBoostFinishValidator({secret,clock:()=>now,saveReceipt:async payload=>{
+  writes++;
+  return {runId,playScore:payload.playScore,replayed:false};
+ }});
+ const result=await gate.validate({playerId,runId,token:await makeToken('sc'),events:[],worldWidth:1000,device:'pc'});
+ assert.equal(result.boost,'sc');
+ assert.equal(result.boostBonus,0);
+ assert.equal(writes,1);
 });
