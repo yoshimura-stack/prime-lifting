@@ -6,9 +6,9 @@ const limiter={limit:async()=>({success:true})};
 const env={SESSION_SECRET:'test-only-secret-012345678901234567890',AUTH_LIMITER:limiter,API_LIMITER:limiter,CI_DIAGNOSTICS:'true',ASSETS:{fetch:()=>new Response('asset')}};
 const base='https://test.example';
 const request=(path,body,cookie,extraHeaders={})=>new Request(base+path,{method:body?'POST':'GET',headers:{...(body?{'Content-Type':'application/json',Origin:base}:{}),...(cookie?{Cookie:cookie}:{}),...extraHeaders},body:body?JSON.stringify(body):undefined});
-test('device score multiplier rounds verified scores and leaves PC unchanged',()=>{
+test('retired mobile multiplier stays disabled for both devices',()=>{
  assert.equal(finalScore(30000,'pc'),30000);
- assert.equal(finalScore(30000,'mobile'),33000);
+ assert.equal(finalScore(30000,'mobile'),30000);
  assert.equal(finalScore(0,'pc'),0);
  assert.equal(finalScore(0,'mobile'),0);
 });
