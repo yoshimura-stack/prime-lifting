@@ -12,3 +12,9 @@
 #ranking-dialog-list .rank-breakdown-expanded .rank-entry-head::after{content:'⌃';color:#b4cbb5;font-size:12px}
 #ranking-dialog-list .rank-entry-head[role=button]:focus-visible{outline:2px solid #dfff9d;outline-offset:2px;border-radius:3px}
 @media(max-width:850px){#ranking-dialog-list .rank-bonus-parts{gap:3px 8px}#ranking-dialog-list .rank-bonus-part{font-size:10px}#ranking-dialog-list .rank-entry-head .rank-total{font-size:12px}}
+
+/* Verified BOOST: visible soccer-ball badge, not an additional points row. */
+#ranking-dialog-list .rank-boost-icon{display:inline-flex;align-items:center;margin-inline:5px;padding:2px 6px;border-radius:999px;font-size:10px;font-weight:800;white-space:nowrap;vertical-align:middle;border:1px solid currentColor;line-height:1.3}
+#ranking-dialog-list .rank-boost-time{color:#8bc9ff;background:#0a3157}
+#ranking-dialog-list .rank-boost-score{color:#ffe36e;background:#56450a}
+#ranking-dialog-list .rank-boost-sc{color:#9ff1a7;background:#16452c}
