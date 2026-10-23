@@ -30,19 +30,36 @@ if(stagingRunFlow&&(
  typeof stagingRunFlow.select!=='function'||typeof stagingRunFlow.activeRun==='undefined'
 ))throw new TypeError('Invalid staging flow');
 let stagingFinishPending=false,stagingRetryPayload=null,stagingStartPending=false;
+const stagingResultStatus=stagingRunFlow?document.createElement('p'):null;
+const stagingRetryButton=stagingRunFlow?document.createElement('button'):null;
+if(stagingResultStatus&&stagingRetryButton){
+ stagingResultStatus.id='staging-save-status';
+ stagingResultStatus.setAttribute('role','status');
+ stagingRetryButton.type='button';
+ stagingRetryButton.textContent='STAGING 保存を再試行';
+ stagingRetryButton.hidden=true;
+ stagingRetryButton.onclick=()=>stagingRetryFinish();
+ $('start').before(stagingResultStatus,stagingRetryButton);
+}
+function stagingSaveMessage(message){
+ if(stagingResultStatus)stagingResultStatus.textContent=message;
+}
+
 function stagingRetryFinish(){
  if(!stagingRunFlow||!stagingRetryPayload||stagingFinishPending)return;
  stagingFinishPending=true;
- const retry=$('save-retry');if(retry)retry.disabled=true;
+ const retry=stagingRetryButton;if(retry)retry.disabled=true;
  Promise.resolve().then(()=>stagingRunFlow.finish(stagingRetryPayload)).then(saved=>{
   if(!saved||!Number.isSafeInteger(saved.playScore))throw new Error('Unconfirmed staging score');
   stagingRetryPayload=null;
   if(retry)retry.hidden=true;
+  stagingSaveMessage('検証済み '+saved.playScore.toLocaleString()+' PTS');
   const feedback=$('save-feedback');
   if(feedback)feedback.textContent='STAGING 検証済み '+saved.playScore.toLocaleString()+' PTS';
  }).catch(()=>{
   const feedback=$('save-feedback');
   if(feedback)feedback.textContent='STAGING 保存失敗：もう一度再試行してください。';
+  stagingSaveMessage('保存失敗：再試行できます');
  }).finally(()=>{stagingFinishPending=false;if(retry)retry.disabled=false;});
 }
 function stagingFinishRun(result,events,worldWidth,device){
@@ -62,8 +79,8 @@ function stagingFinishRun(result,events,worldWidth,device){
   console.warn('STAGING verified score not saved; preserve run for retry',error);
   const feedback=$('save-feedback');
   if(feedback)feedback.textContent='STAGING 保存失敗：保存を再試行してください。';
-  const retry=$('save-retry');
-  if(retry){retry.hidden=false;retry.onclick=()=>stagingRetryFinish();}
+  if(stagingRetryButton)stagingRetryButton.hidden=false;
+  stagingSaveMessage('保存失敗：同じプレイを再送できます');
  }).finally(()=>{stagingFinishPending=false;});
 }
 
