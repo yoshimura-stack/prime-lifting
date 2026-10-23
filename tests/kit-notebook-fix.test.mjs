@@ -1,16 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
-const css=readFileSync(new URL('../kit-notebook-fix.css',import.meta.url),'utf8');
-const script=readFileSync(new URL('../js/kit-notebook-fix.js',import.meta.url),'utf8');
-test('uniform picker escapes the clipped game shell without cloning elements',()=>{
- assert.match(script,/document\.body\.appendChild\(picker\)/);
- assert.doesNotMatch(script,/cloneNode/);
+import {readFileSync,existsSync} from 'node:fs';
+const root=new URL('../',import.meta.url);
+test('retired uniform picker assets are absent',()=>{
+ for(const file of ['kit-notebook-fix.css','js/kit-notebook-fix.js','mobile-kit-portrait.css'])
+  assert.equal(existsSync(new URL(file,root)),false,file+' must stay retired');
 });
-test('notebook picker keeps the confirm button and hides ranking marquee',()=>{
- assert.match(css,/\.kit-grid\{[^}]*overflow-y:auto/);
- assert.match(css,/\.kit-actions\{[^}]*flex:0 0 auto/);
- assert.match(css,/\.pc-king-ticker/);
- assert.match(css,/#mobile-king-marquee/);
- assert.match(css,/#daily-preview/);
+test('game and HTML do not reintroduce the retired picker',()=>{
+ const html=readFileSync(new URL('index.html',root),'utf8');
+ const game=readFileSync(new URL('game.js',root),'utf8');
+ assert.doesNotMatch(html,/id="kit-select"|id="kit-change"|kit-notebook-fix|mobile-kit-portrait/);
+ assert.doesNotMatch(game,/openKitSelect|renderKitTabs|renderKitGrid|kitStorageKey/);
 });
