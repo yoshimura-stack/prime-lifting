@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {rankingBoostDisplay} from '../js/boost-ranking-display.mjs';
-test('ranking retains total and separately displays verified SCORE BOOST bonus',()=>{
- assert.deepEqual(rankingBoostDisplay({playScore:55000,baseScore:50000,boostBonus:5000,boost:'score'}),{score:55000,baseScore:50000,boostBonus:5000,boost:'score',showBreakdown:true});
+test('ranking retains total without displaying separate SCORE BOOST bonus',()=>{
+ assert.deepEqual(rankingBoostDisplay({playScore:55000,baseScore:50000,boostBonus:5000,boost:'score'}),{score:55000,baseScore:50000,boostBonus:5000,boost:'score',showBreakdown:false});
 });
 test('old scores are unchanged and no imaginary bonus is shown',()=>{
  assert.deepEqual(rankingBoostDisplay({playScore:33000}),{score:33000,baseScore:null,boostBonus:null,boost:null,showBreakdown:false});
