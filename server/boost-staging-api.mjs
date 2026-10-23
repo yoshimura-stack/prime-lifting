@@ -14,7 +14,8 @@ export function createBoostStagingApi({transport,secret,clock,newRunId}={}){
    if(Object.hasOwn(body,'playerId')||Object.hasOwn(body,'runId')||Object.hasOwn(body,'token'))throw new ApiError(403,'Client cannot supply trusted identity or run ID');
    const allowed=new Set(['boost']);
    if(Object.keys(body).some(key=>!allowed.has(key)))throw new ApiError(400,'Unknown BOOST start field');
-   return coordinator.start({playerId:authenticatedPlayerId,boost:body.boost??null});
+   const run=await coordinator.start({playerId:authenticatedPlayerId,boost:body.boost??null});
+   return Object.freeze({...run,durationSeconds:run.boost==='time'?65:60});
   },
   async finish({authenticatedPlayerId,body={}}){
    if(!body||typeof body!=='object'||Array.isArray(body))throw new ApiError(400,'Invalid request');
