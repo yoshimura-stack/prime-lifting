@@ -34,7 +34,9 @@ function stagingFinishRun(result,events,worldWidth,device){
  if(!stagingRunFlow)return;
  if(stagingFinishPending)return;
  stagingFinishPending=true;
- const payload={events:structuredClone(events),worldWidth,device,claimedScore:result.score};
+ const boost=stagingRunFlow.activeRun?.boost;
+ const claimedScore=boost==='score'?Math.round(result.score*1.1):result.score;
+ const payload={events:structuredClone(events),worldWidth,device,claimedScore};
  Promise.resolve().then(()=>stagingRunFlow.finish(payload)).then(saved=>{
   if(!saved||!Number.isSafeInteger(saved.playScore))throw new Error('Unconfirmed ranking score');
   const feedback=$('save-feedback');
