@@ -14,11 +14,12 @@ test('rejects forged score before claiming run',async()=>{
  await assert.rejects(gate.validate({playerId,runId,token:signed,events:[],worldWidth:1000,device:'pc',claimedScore:123456}),{status:400});
  assert.equal(claims,0);
 });
-test('blocks unsupported second chance replay without consumption',async()=>{
+test('SC signed run is accepted through server replay',async()=>{
  let claims=0;
  const gate=createBoostFinishValidator({secret,clock:()=>now,saveReceipt:async()=>{claims++;return {runId,playScore:0,replayed:false}}});
- for(const boost of ['sc'])await assert.rejects(gate.validate({playerId,runId,token:await token(boost),events:[],worldWidth:1000,device:'mobile'}),{status:409});
- assert.equal(claims,0);
+ const result=await gate.validate({playerId,runId,token:await token('sc'),events:[],worldWidth:1000,device:'mobile'});
+ assert.equal(result.boost,'sc');
+ assert.equal(claims,1);
 });
 test('rejects wrong signed run without touching replay or run store',async()=>{
  let claims=0;
