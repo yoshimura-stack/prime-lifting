@@ -14,8 +14,11 @@
 4. First 60,000 point normal submit returned `{personalBest:true,replayed:false,playScore:60000}`.
 5. `anon` EXECUTE denied, `service_role` EXECUTE allowed.
 
+## Additional verified DB cases
+- TIME: reserved + verified 10,000 point run; SC: reserved + verified 20,000 point run; both in one rollback transaction. Two receipts, shadow best 20,000. No separate BOOST points added.
+
 ## Still required
-- Verify TIME and SC actual DB flows and replay conflict cases.
+- Verify replay conflicts and concurrency under independent connections.
 - Build production-compatible score/daily/achievement storage and leaderboard.
 - Wire Worker authenticated routes, browser inventory/slot/BOOST run UI, deploy **staging only**, test on PC/iPhone.
 - Keep main, production DB, and production Worker unchanged until release approval.
