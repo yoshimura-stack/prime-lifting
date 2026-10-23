@@ -12,14 +12,14 @@ export function normalizeName(value){
  return {name,key:name.toLocaleLowerCase('ja')};
 }
 export function replay(events,worldWidth=1000,boost=null){
- if(boost!==null&&boost!=='time')throw new ApiError(400,'Unsupported replay BOOST');
+ if(boost!==null&&!['time','sc'].includes(boost))throw new ApiError(400,'Unsupported replay BOOST');
  // Countdown is simulated too (3 seconds = 360 ticks); allow the full 60/65 second run.
  const maxTicks=boost==='time'?8400:7800;
  if(!Number.isInteger(worldWidth)||worldWidth<1000||worldWidth>1800||worldWidth%100!==0)throw new ApiError(400,'フィールド幅が正しくありません。');
  if(!Array.isArray(events)||events.length>10000)throw new ApiError(400,'プレイ記録が正しくありません。');
  let prev=-1;
  for(const e of events){if(!e||!Number.isInteger(e.t)||e.t<prev||e.t<0||e.t>maxTicks||!['move','jump','act','spin'].includes(e.n)||(e.n==='move'&&![-1,0,1].includes(e.v)))throw new ApiError(400,'プレイ記録が正しくありません。');prev=e.t;}
- const c=structuredClone(globalThis.PRIME_DEFAULTS);c.WORLD_WIDTH=worldWidth;c.GAME_DURATION=boost==='time'?65:60;const g=new globalThis.LiftingGame(c);g.reset();let at=0,dir=0,tick=0,jumpsSinceHit=0,maxAirStreak=0,shoulderHits=0,spinKing=false,quadMaster=false,airQuad=false,doubleAir=false;
+ const c=structuredClone(globalThis.PRIME_DEFAULTS);c.WORLD_WIDTH=worldWidth;c.GAME_DURATION=boost==='time'?65:60;c.SC_PROTECT_FIRST_DROP=boost==='sc';const g=new globalThis.LiftingGame(c);g.reset();let at=0,dir=0,tick=0,jumpsSinceHit=0,maxAirStreak=0,shoulderHits=0,spinKing=false,quadMaster=false,airQuad=false,doubleAir=false;
  const nextProof={totalHits:0,foot:0,knee:0,chest:0,heading:0,shoulder:0,spin:0,jump:0,allSpin:true,allJump:true,first30:null};
  const prefix={hits:0,foot:0,knee:0,chest:0,heading:0,spin:0,jump:0,unbroken:true};
  while(g.phase!=='ended'&&tick<maxTicks){while(at<events.length&&events[at].t===tick){const e=events[at++];if(e.n==='move')dir=e.v;else {const accepted=g[e.n]();if(e.n==='jump'&&accepted===true)jumpsSinceHit++;}}g.update(c.FIXED_STEP,dir);for(const event of g.events){if(event.type==='hit'){
