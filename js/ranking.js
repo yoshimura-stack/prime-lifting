@@ -241,7 +241,8 @@ async function updateRankDialog(){
      const part=(symbol,value,description)=>{const el=document.createElement('small');el.className='rank-bonus-part';const display=value===0?'—':value.toLocaleString();el.textContent=symbol+' '+display;el.title=description;el.setAttribute('aria-label',description+' '+(value===0?'加点なし':value.toLocaleString()+'ポイント'));parts.append(el);};
      // BOOST attribution is shown only as a verified icon beside the player name.
      // Keep existing legacy/mobile score breakdown without introducing BOOST bonus rows.
-     if(hasSplit){part('Ⓟ',e.baseScore,'通常プレイスコア');part('📱',e.mobileBonus,'スマホ補正');}
+     if(verifiedBoostIcon(e)){part('Ⓟ',hasBasic?e.playScore:e.score,'BOOST適用済みプレイスコア');}
+     else if(hasSplit){part('Ⓟ',e.baseScore,'通常プレイスコア');part('📱',e.mobileBonus,'スマホ補正');}
      else {
       part('Ⓟ',hasBasic?e.playScore:e.score,'保存済みプレイスコア（スマホ補正込みの場合あり）');
       if(e.device==='pc')part('📱',0,'スマホ補正');
