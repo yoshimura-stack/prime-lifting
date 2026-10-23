@@ -101,7 +101,7 @@ button.prime-coin-wallet:hover,button.prime-coin-wallet:focus-visible{border-col
 </style><style>
 /* Mobile landscape: never obstruct sign-in, and keep the ball lane clear. */
 .game-shell:has(.overlay:not([hidden])) #daily-preview,
-.game-shell:has(.kit-select:not([hidden])) #daily-preview{display:none!important}
+
 #daily-expand{display:none}
 @media(max-width:950px) and (orientation:landscape){
  #daily-preview{top:70px;right:6px;width:auto;max-width:190px;padding:4px 6px;border-radius:7px;background:rgba(8,25,21,.76);font-size:9px;line-height:1.15}
@@ -207,14 +207,6 @@ button.prime-coin-wallet:hover,button.prime-coin-wallet:focus-visible{border-col
 
  <section class="center-stage">
   <section class="game-shell" aria-label="リフティングゲーム">
-   <div id="kit-select" class="kit-select" aria-label="ユニフォーム選択">
-    <div class="kit-panel">
-     <p class="eyebrow">SELECT YOUR KIT</p><h2>ユニフォームを選ぶ。</h2>
-     <p class="kit-copy">世界のフットボールカルチャーをイメージした、オリジナルカラー。</p>
-     <div id="kit-tabs" class="kit-tabs"></div><div id="kit-grid" class="kit-grid"></div>
-     <div class="kit-actions"><span id="kit-current">JAPAN 01</span><button id="kit-confirm" class="primary">このユニフォームで決定 <span>↗</span></button></div>
-    </div>
-   </div>
    <div class="scorebar"><div><small>SCORE</small><strong id="score">000000</strong></div><div class="chain"><small>KEEP UPS</small><strong id="combo">0</strong></div><div><small>TIME LEFT</small><strong id="time">60<span>.0</span></strong></div></div>
    <section id="daily-preview" class="daily-preview" aria-label="今日のデイリーチャレンジ"><div class="daily-heading"><strong>DAILY CHALLENGE</strong><button type="button" id="daily-expand" aria-expanded="false" aria-controls="daily-preview-list" aria-label="今日の3つのミッションを表示">3問 ▾</button><button type="button" id="daily-help-open" aria-haspopup="dialog" aria-controls="daily-help-dialog" aria-expanded="false" aria-label="デイリーチャレンジのルールを表示">？</button></div><small id="daily-day">読み込み中</small><ol id="daily-preview-list"></ol><small>達成すると1項目100PTS！ 1日最大300PTS</small></section><div id="achievement-board" class="achievement-board"><div class="achievement-board-heading">称号リザルト <span id="achievement-count">0/8</span></div><div id="achievement-live-list"></div><div id="achievement-unlock" class="achievement-unlock" aria-live="polite"></div></div><canvas id="scene" width="1000" height="620" aria-hidden="true"></canvas>
    <canvas id="game" width="1000" height="620" tabindex="0" aria-label="AとDで移動、スペースでジャンプ、左クリックまたは左右矢印キーで打球、右クリックまたは上下矢印キーで回転"></canvas>
@@ -276,7 +268,7 @@ button.prime-coin-wallet:hover,button.prime-coin-wallet:focus-visible{border-col
   <p class="update-news-auto-footer">過去のアップデートは🔔お知らせアイコンから確認できます。</p>
  </div>
 </div>
-<div id="game-menu-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="game-menu-heading"><div class="ranking-dialog-card game-menu-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">GAME MENU</p><h2 id="game-menu-heading">ゲームメニュー</h2></div><button type="button" id="game-menu-close">✕ 閉じる</button></div><div class="game-menu-actions"><button id="pause">一時停止 <em>ESC</em></button><button type="button" id="restart-pc">↻ リスタート</button><button id="sound" aria-pressed="true">音 ON</button><button id="debug" aria-pressed="false">判定表示 <em>F2</em></button><button id="kit-change">ユニフォーム</button><button id="tune" aria-expanded="false">調整パネル</button><button type="button" id="admin-open">管理者</button></div></div></div>
+<div id="game-menu-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="game-menu-heading"><div class="ranking-dialog-card game-menu-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">GAME MENU</p><h2 id="game-menu-heading">ゲームメニュー</h2></div><button type="button" id="game-menu-close">✕ 閉じる</button></div><div class="game-menu-actions"><button id="pause">一時停止 <em>ESC</em></button><button type="button" id="restart-pc">↻ リスタート</button><button id="sound" aria-pressed="true">音 ON</button><button id="debug" aria-pressed="false">判定表示 <em>F2</em></button><button id="tune" aria-expanded="false">調整パネル</button><button type="button" id="admin-open">管理者</button></div></div></div>
  <div id="title-guide-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="title-guide-heading"><div class="ranking-dialog-card title-guide-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">TITLE COLLECTION</p><h2 id="title-guide-heading">称号リザルト・獲得条件</h2></div><button type="button" id="title-guide-close">✕ 閉じる</button></div><p class="title-guide-intro">1回のプレイで条件を達成すると称号を獲得！</p><div id="title-guide-list" class="title-guide-list"></div></div></div>
  <div id="admin-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="admin-title"><div class="ranking-dialog-card admin-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">HOST ONLY</p><h2 id="admin-title">管理者メニュー</h2></div><button type="button" id="admin-close">✕ 閉じる</button></div><form id="admin-login-form"><label>管理者ID<input id="admin-username" autocomplete="off" value="host" required></label><label>パスワード<input id="admin-password" type="password" autocomplete="off" required></label><button type="submit">管理者認証</button></form><div id="admin-actions" hidden><p>全プレイヤーのアカウント・PIN情報・最高スコアを完全に削除します。</p><button type="button" id="admin-reset" class="admin-danger">ランキングを全削除</button></div><p id="admin-status" role="status"></p></div></div>
  <div id="ranking-dialog" class="ranking-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="ranking-dialog-title"><div class="ranking-dialog-card"><div class="ranking-dialog-head"><div><p class="panel-kicker">ONLINE LEADERBOARD</p><h2 id="ranking-dialog-title">現在のランキング</h2></div><button type="button" id="close-ranking" aria-label="ランキングを閉じる">✕ 閉じる</button></div><p id="ranking-dialog-status" role="status"></p><section id="next-rival" class="next-rival" hidden aria-label="次のライバル"><span class="next-rival-label">🎯 NEXT RIVAL</span><span id="next-rival-name"></span><strong id="next-rival-gap"></strong></section><button type="button" id="ranking-jump-self" hidden>自分の順位へ ↓</button><ol id="ranking-dialog-list"></ol><button type="button" id="ranking-dialog-refresh">ランキングを更新 ↻</button></div></div>
@@ -310,7 +302,7 @@ button.prime-coin-wallet:hover,button.prime-coin-wallet:focus-visible{border-col
   else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
  },true);
  // Close when launching a separate panel; preserve the existing button IDs and handlers.
- for(const id of ['kit-change','tune','admin-open']){
+ for(const id of ['tune','admin-open']){
   document.getElementById(id)?.addEventListener('click',()=>hide());
  }
 })();
@@ -352,4 +344,4 @@ button.prime-coin-wallet:hover,button.prime-coin-wallet:focus-visible{border-col
   toggle.textContent=expanded?'閉じる ▴':'3問 ▾';
  });
 })();
-</script><script src="js/pc-cockpit.js?v=bottom-rail-actions-1" defer></script><script src="js/mobile-king-marquee.js?v=top10-mobile-1" defer></script><script src="js/update-news.js?v=3" defer></script><link rel="stylesheet" href="boost-preview.css?v=staging-1"><script src="js/boost-preview.js?v=staging-1" defer></script><link rel="stylesheet" href="ready-room.css?v=restart-modal-2"><link rel="stylesheet" href="kit-notebook-fix.css?v=1"><script src="js/kit-notebook-fix.js?v=1"></script></body></html>
+</script><script src="js/pc-cockpit.js?v=bottom-rail-actions-1" defer></script><script src="js/mobile-king-marquee.js?v=top10-mobile-1" defer></script><script src="js/update-news.js?v=3" defer></script><link rel="stylesheet" href="boost-preview.css?v=staging-1"><script src="js/boost-preview.js?v=staging-1" defer></script><link rel="stylesheet" href="ready-room.css?v=restart-modal-2"></body></html>
