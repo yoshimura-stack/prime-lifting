@@ -31,3 +31,4 @@ SECOND CHANCE first-touch regression CI passed; deploy staging only 2026-10-26
 2026-10-26 compact prize reveal inside slot cabinet
 2026-10-26 operator-only preview token login UI (API still locked)
 2026-10-26 deploy CI-green operator login UI with API disabled
+2026-10-26 staging signed BOOST API deployment after CI green; secrets required and fail closed
