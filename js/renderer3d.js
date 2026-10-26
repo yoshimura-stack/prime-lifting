@@ -56,22 +56,32 @@ class PrimeRenderer{
  makeBoostBallTexture(panelColor){
   return this.texture(1024,512,(x,w,h)=>{
    x.fillStyle=panelColor;x.fillRect(0,0,w,h);
-   const pentagon=(cx,cy,r)=>{
-    x.beginPath();for(let i=0;i<5;i++){
-     const a=-Math.PI/2+i*Math.PI*2/5;
-     const px=cx+Math.cos(a)*r,py=cy+Math.sin(a)*r;
+   // Large stitched panels: the former small repeating dots looked like a ladybug.
+   // A sparse set of black pentagons sits within a continuous hexagonal seam network.
+   const radius=108,stepX=Math.sqrt(3)*radius,stepY=1.5*radius;
+   const polygon=(cx,cy,sides,r,rotation)=>{
+    x.beginPath();
+    for(let i=0;i<sides;i++){
+     const angle=rotation+i*Math.PI*2/sides;
+     const px=cx+Math.cos(angle)*r,py=cy+Math.sin(angle)*r;
      if(i===0)x.moveTo(px,py);else x.lineTo(px,py);
-    }x.closePath();x.fillStyle='#18201f';x.fill();x.strokeStyle='#101818';x.lineWidth=4;x.stroke();
+    }
+    x.closePath();
    };
-   // Repeating panels wrap the sphere horizontally without leaving blank gaps.
-   for(let row=-1;row<=4;row++)for(let col=-1;col<=9;col++){
-    const cx=col*145+((row&1)?72:0),cy=row*142;
-    pentagon(cx,cy,42);
-    x.strokeStyle='rgba(10,22,22,.48)';x.lineWidth=5;
-    for(let i=0;i<5;i++){
-     const a=-Math.PI/2+i*Math.PI*2/5;
-     x.beginPath();x.moveTo(cx+Math.cos(a)*45,cy+Math.sin(a)*45);
-     x.lineTo(cx+Math.cos(a)*73,cy+Math.sin(a)*73);x.stroke();
+   for(let row=-2;row<=5;row++)for(let col=-2;col<=8;col++){
+    const cx=col*stepX+(row%2?stepX/2:0),cy=row*stepY+10;
+    // Every colored panel has a readable dark stitched outline.
+    polygon(cx,cy,6,radius,Math.PI/6);
+    x.strokeStyle='#20302d';x.lineWidth=9;x.lineJoin='round';x.stroke();
+    polygon(cx,cy,6,radius-7,Math.PI/6);
+    x.strokeStyle='rgba(255,255,255,.22)';x.lineWidth=2;x.stroke();
+    // Only occasional panels are black; large facets stay visible at game scale.
+    if(((col+2*row)%5+5)%5===0){
+     polygon(cx,cy,5,70,-Math.PI/2);
+     x.fillStyle='#141b1c';x.fill();
+     x.strokeStyle='#0b1011';x.lineWidth=8;x.stroke();
+     polygon(cx,cy,5,63,-Math.PI/2);
+     x.strokeStyle='rgba(255,255,255,.13)';x.lineWidth=2;x.stroke();
     }
    }
   });
