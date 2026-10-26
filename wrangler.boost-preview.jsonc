@@ -14,7 +14,8 @@
     }
   ],
   "vars": {
-    "BOOST_PREVIEW_ENABLED": "false",
+    "BOOST_PREVIEW_ENABLED": "true",
+    "BOOST_WELCOME_GRANT_ENABLED": "true",
     "BOOST_PREVIEW_PROJECT_ID": "tarnzjkxexlozqqmyqof"
   },
   "assets": {
