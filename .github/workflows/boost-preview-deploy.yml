@@ -1,0 +1,46 @@
+name: Deploy isolated PRIME BOOST preview
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: prime-boost-isolated-preview-deploy
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/feature/prime-boost-staging'
+    runs-on: ubuntu-latest
+    environment: boost-preview
+    timeout-minutes: 15
+    steps:
+      - name: Check isolated staging target
+        shell: bash
+        run: |
+          test "$GITHUB_REF" = "refs/heads/feature/prime-boost-staging"
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build:boost-preview
+      - name: Verify target Worker and disabled API flags
+        shell: bash
+        run: |
+          node --input-type=module -e '
+            import fs from "node:fs";
+            const c=JSON.parse(fs.readFileSync("wrangler.boost-preview.jsonc","utf8"));
+            if(c.name!=="prime-boost-isolated-preview" ||
+               c.main!=="server/boost-preview-worker.mjs" ||
+               c.vars?.BOOST_PREVIEW_ENABLED!=="false" ||
+               c.vars?.BOOST_PREVIEW_PROJECT_ID!=="tarnzjkxexlozqqmyqof" ||
+               c.assets?.directory!=="./boost-preview-public") process.exit(1);
+          '
+      - name: Deploy isolated preview only
+        run: npx wrangler deploy --config wrangler.boost-preview.jsonc
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.BOOST_PREVIEW_CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.BOOST_PREVIEW_CLOUDFLARE_ACCOUNT_ID }}
