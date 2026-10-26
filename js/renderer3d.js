@@ -54,6 +54,20 @@ class PrimeRenderer{
 
  }
  // BOOST reuses the NORMAL ball panel geometry with a white-on-color palette.
+ // Soft halo follows the ball and remains legible against sky and grass.
+ makeBoostGlow(){
+  const T=this.T,canvas=document.createElement('canvas');canvas.width=128;canvas.height=128;
+  const x=canvas.getContext('2d'),gradient=x.createRadialGradient(64,64,16,64,64,63);
+  gradient.addColorStop(0,'rgba(255,255,255,.38)');
+  gradient.addColorStop(.32,'rgba(255,255,255,.24)');
+  gradient.addColorStop(.7,'rgba(255,255,255,.09)');
+  gradient.addColorStop(1,'rgba(255,255,255,0)');
+  x.fillStyle=gradient;x.fillRect(0,0,128,128);
+  const texture=new T.CanvasTexture(canvas);
+  const sprite=new T.Sprite(new T.SpriteMaterial({map:texture,color:'#ffffff',transparent:true,opacity:.68,depthWrite:false,blending:T.AdditiveBlending}));
+  sprite.scale.setScalar(this.c.BALL_RADIUS*3.6);sprite.visible=false;
+  this.ball.add(sprite);return sprite;
+ }
  setBoostBallColor(color=null){
   const allowed=new Set([null,'#3B82F6','#FACC15','#22C55E']);
   if(!allowed.has(color))throw new TypeError('Invalid BOOST ball color');
@@ -65,7 +79,14 @@ class PrimeRenderer{
    if(!this.boostBallTextures)this.boostBallTextures=new Map();
    if(!this.boostBallTextures.has(color))this.boostBallTextures.set(color,this.texture(1024,512,(x,w,h)=>this.paintBall(x,w,h,color)));
    material.map=this.boostBallTextures.get(color);
-  }else material.map=this.normalBallTexture;
+   material.emissive.set(color);material.emissiveIntensity=.14;
+   if(!this.boostGlow)this.boostGlow=this.makeBoostGlow();
+   this.boostGlow.material.color.set(color);this.boostGlow.visible=true;
+  }else{
+   material.map=this.normalBallTexture;
+   material.emissive.set('#000000');material.emissiveIntensity=0;
+   if(this.boostGlow)this.boostGlow.visible=false;
+  }
   material.needsUpdate=true;
  }
  mat(color,roughness=.78){return new this.T.MeshStandardMaterial({color,roughness});}
