@@ -22,3 +22,4 @@ SECOND CHANCE first-touch regression CI passed; deploy staging only 2026-10-26
 2026-10-26 glowing BOOST ball halo staging only
 2026-10-26 internally emissive BOOST panel preview
 2026-10-26 approved vivid multi-accent BOOST balls staging preview
+2026-10-26 stronger outer BOOST glow staging
