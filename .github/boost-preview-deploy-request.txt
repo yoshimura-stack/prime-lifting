@@ -14,3 +14,4 @@ Practice selector sample stock badges
 Hide NORMAL unlimited badge in BOOST selector
 Second Chance preserve streaks across next ball pickup
 SECOND CHANCE first-touch regression CI passed; deploy staging only 2026-10-26
+2026-10-26 verify staging BOOST ball colors with SC restore
