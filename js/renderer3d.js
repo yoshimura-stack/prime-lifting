@@ -88,14 +88,14 @@ class PrimeRenderer{
  makeBoostGlow(){
   const T=this.T,canvas=document.createElement('canvas');canvas.width=128;canvas.height=128;
   const x=canvas.getContext('2d'),gradient=x.createRadialGradient(64,64,16,64,64,63);
-  gradient.addColorStop(0,'rgba(255,255,255,.38)');
-  gradient.addColorStop(.32,'rgba(255,255,255,.24)');
-  gradient.addColorStop(.7,'rgba(255,255,255,.09)');
+  gradient.addColorStop(0,'rgba(255,255,255,.65)');
+  gradient.addColorStop(.32,'rgba(255,255,255,.48)');
+  gradient.addColorStop(.7,'rgba(255,255,255,.19)');
   gradient.addColorStop(1,'rgba(255,255,255,0)');
   x.fillStyle=gradient;x.fillRect(0,0,128,128);
   const texture=new T.CanvasTexture(canvas);
   const sprite=new T.Sprite(new T.SpriteMaterial({map:texture,color:'#ffffff',transparent:true,opacity:.68,depthWrite:false,blending:T.AdditiveBlending}));
-  sprite.scale.setScalar(this.c.BALL_RADIUS*3.6);sprite.visible=false;
+  sprite.scale.setScalar(this.c.BALL_RADIUS*4.6);sprite.visible=false;
   this.ball.add(sprite);return sprite;
  }
  setBoostBallColor(color=null){
@@ -115,7 +115,7 @@ class PrimeRenderer{
    material.emissiveIntensity=.40;
    material.roughness=.28;
    if(!this.boostGlow)this.boostGlow=this.makeBoostGlow();
-   this.boostGlow.material.color.set(color);this.boostGlow.material.opacity=.58;this.boostGlow.visible=true;
+   this.boostGlow.material.color.set(color);this.boostGlow.material.opacity=.82;this.boostGlow.visible=true;
   }else{
    material.map=this.normalBallTexture;
    material.emissive.set('#000000');material.emissiveMap=null;material.emissiveIntensity=0;
