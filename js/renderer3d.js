@@ -51,40 +51,47 @@ class PrimeRenderer{
   this.ball=new T.Mesh(new T.SphereGeometry(c.BALL_RADIUS,32,24),new T.MeshStandardMaterial({map:ballTex,roughness:0.38,metalness:0.02}));this.normalBallTexture=ballTex;this.boostBallColor=null;this.ball.castShadow=true;this.scene.add(this.ball);this.ballShadow=this.shadow(25,.23);this.scene.add(this.ballShadow);this.playerShadow=this.shadow(58,.28);this.scene.add(this.playerShadow);
 
  }
- // BOOST ball uses a traditional black-pentagon / colored-panel football texture.
- // Only the visible material changes; physics, collisions and scoring are unchanged.
- makeBoostBallTexture(panelColor){
-  return this.texture(1024,512,(x,w,h)=>{
-   x.fillStyle=panelColor;x.fillRect(0,0,w,h);
-   // Large stitched panels: the former small repeating dots looked like a ladybug.
-   // A sparse set of black pentagons sits within a continuous hexagonal seam network.
-   const radius=108,stepX=Math.sqrt(3)*radius,stepY=1.5*radius;
-   const polygon=(cx,cy,sides,r,rotation)=>{
-    x.beginPath();
-    for(let i=0;i<sides;i++){
-     const angle=rotation+i*Math.PI*2/sides;
-     const px=cx+Math.cos(angle)*r,py=cy+Math.sin(angle)*r;
-     if(i===0)x.moveTo(px,py);else x.lineTo(px,py);
-    }
-    x.closePath();
-   };
-   for(let row=-2;row<=5;row++)for(let col=-2;col<=8;col++){
-    const cx=col*stepX+(row%2?stepX/2:0),cy=row*stepY+10;
-    // Every colored panel has a readable dark stitched outline.
-    polygon(cx,cy,6,radius,Math.PI/6);
-    x.strokeStyle='#20302d';x.lineWidth=9;x.lineJoin='round';x.stroke();
-    polygon(cx,cy,6,radius-7,Math.PI/6);
-    x.strokeStyle='rgba(255,255,255,.22)';x.lineWidth=2;x.stroke();
-    // Only occasional panels are black; large facets stay visible at game scale.
-    if(((col+2*row)%5+5)%5===0){
-     polygon(cx,cy,5,70,-Math.PI/2);
-     x.fillStyle='#141b1c';x.fill();
-     x.strokeStyle='#0b1011';x.lineWidth=8;x.stroke();
-     polygon(cx,cy,5,63,-Math.PI/2);
-     x.strokeStyle='rgba(255,255,255,.13)';x.lineWidth=2;x.stroke();
-    }
+ // True 3D black pentagon patches, not a repeating UV texture.
+ // A low-cost icosahedral layout provides 12 evenly spaced football panels.
+ makeBoostPanels(){
+  const T=this.T,r=this.c.BALL_RADIUS,group=new T.Group();
+  const ico=new T.IcosahedronGeometry(1,0),position=ico.getAttribute('position');
+  const centers=new Map();
+  for(let i=0;i<position.count;i++){
+   const v=new T.Vector3().fromBufferAttribute(position,i).normalize();
+   centers.set([v.x,v.y,v.z].map(n=>n.toFixed(4)).join(','),v);
+  }
+  ico.dispose();
+  const black=new T.MeshStandardMaterial({color:'#111b21',roughness:.82,side:T.DoubleSide});
+  const seam=new T.LineBasicMaterial({color:'#07131b'});
+  for(const n of centers.values()){
+   const u=new T.Vector3(0,1,0);
+   if(Math.abs(n.dot(u))>.94)u.set(1,0,0);
+   u.addScaledVector(n,-u.dot(n)).normalize();
+   const v=new T.Vector3().crossVectors(n,u).normalize();
+   const points=[],theta=.39;
+   for(let j=0;j<5;j++){
+    const phi=-Math.PI/2+j*2*Math.PI/5;
+    points.push(n.clone().multiplyScalar(Math.cos(theta))
+     .addScaledVector(u,Math.sin(theta)*Math.cos(phi))
+     .addScaledVector(v,Math.sin(theta)*Math.sin(phi))
+     .normalize().multiplyScalar(r*1.012));
    }
-  });
+   const verts=[];
+   for(let j=0;j<5;j++){
+    const center=n.clone().multiplyScalar(r*1.015);
+    verts.push(...center.toArray(),...points[j].toArray(),...points[(j+1)%5].toArray());
+   }
+   const geom=new T.BufferGeometry();
+   geom.setAttribute('position',new T.Float32BufferAttribute(verts,3));
+   geom.computeVertexNormals();
+   group.add(new T.Mesh(geom,black));
+   const line=new T.LineLoop(new T.BufferGeometry().setFromPoints(points),seam);
+   group.add(line);
+  }
+  group.visible=false;
+  this.ball.add(group);
+  return group;
  }
  setBoostBallColor(color=null){
   const allowed=new Set([null,'#3B82F6','#FACC15','#22C55E']);
@@ -92,12 +99,16 @@ class PrimeRenderer{
   if(this.boostBallColor===color)return;
   this.boostBallColor=color;
   const material=this.ball.material;
-  material.color.set('#ffffff');
   if(color){
-   if(!this.boostBallTextures)this.boostBallTextures=new Map();
-   if(!this.boostBallTextures.has(color))this.boostBallTextures.set(color,this.makeBoostBallTexture(color));
-   material.map=this.boostBallTextures.get(color);
-  }else material.map=this.normalBallTexture;
+   if(!this.boostPanels)this.boostPanels=this.makeBoostPanels();
+   this.boostPanels.visible=true;
+   material.map=null;
+   material.color.set(color);
+  }else{
+   if(this.boostPanels)this.boostPanels.visible=false;
+   material.map=this.normalBallTexture;
+   material.color.set('#ffffff');
+  }
   material.needsUpdate=true;
  }
  mat(color,roughness=.78){return new this.T.MeshStandardMaterial({color,roughness});}
