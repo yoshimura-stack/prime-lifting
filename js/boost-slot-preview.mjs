@@ -30,6 +30,32 @@ export function createSlotPreview(root,{spin,enabled=false}={}){
  const status=document.createElement('p');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  status.textContent=enabled?'STARTで回転、STOPで左から順に停止！':'🔒 開発プレビュー：抽選・付与は無効';
  const reels=document.createElement('div');reels.className='boost-slot-reels';
+ const celebration=document.createElement('div');celebration.className='boost-slot-celebration';celebration.hidden=true;
+ celebration.setAttribute('role','status');celebration.setAttribute('aria-live','polite');
+ const confetti=document.createElement('div');confetti.className='boost-slot-confetti';confetti.setAttribute('aria-hidden','true');
+ const announcement=document.createElement('div');announcement.className='boost-slot-announcement';
+ celebration.append(confetti,announcement);
+ const showWin=type=>{
+  if(type==='miss')return;
+  const item=TYPES[type];
+  celebration.hidden=false;celebration.style.setProperty('--win-color',item.color);
+  announcement.replaceChildren();
+  const headline=document.createElement('strong');headline.textContent='🎉 BOOST GET!';
+  const name=document.createElement('b');name.textContent=item.label;
+  const detail=document.createElement('span');detail.textContent=item.detail;
+  announcement.append(headline,name,detail);
+  confetti.replaceChildren();
+  const palette=[item.color,'#ffda55','#ffffff','#5fb8ff','#ff7eb6','#68e3a0'];
+  for(let i=0;i<64;i++){
+   const piece=document.createElement('i');
+   piece.style.setProperty('--x',(Math.random()*100).toFixed(1)+'%');
+   piece.style.setProperty('--drift',(Math.random()*240-120).toFixed(0)+'px');
+   piece.style.setProperty('--delay',(Math.random()*0.65).toFixed(2)+'s');
+   piece.style.setProperty('--duration',(2.1+Math.random()*1.6).toFixed(2)+'s');
+   piece.style.setProperty('--piece-color',palette[i%palette.length]);
+   confetti.append(piece);
+  }
+ };
  const cells=Array.from({length:3},()=>{
   const strip=shuffledStrip();
   const cell=document.createElement('div');cell.className='boost-slot-reel';
@@ -98,6 +124,7 @@ export function createSlotPreview(root,{spin,enabled=false}={}){
  let running=false,spinning=false;
  startButton.addEventListener('click',()=>{
   if(running||spinning||!enabled)return;
+  celebration.hidden=true;confetti.replaceChildren();
   spinning=true;startButton.disabled=true;button.disabled=false;
   status.textContent='20絵柄 × 3リール高速回転！ STOPで停止';
   cells.forEach(reel=>{reel.cell.classList.remove('is-stopped');animate(reel);});
@@ -120,6 +147,7 @@ export function createSlotPreview(root,{spin,enabled=false}={}){
    }
    const item=TYPES[result.boost];
    status.textContent=result.replayed?'本日は抽選済み：'+item.label:result.boost==='miss'?'残念！ '+item.detail:'当選！ '+item.label+' — '+item.detail;
+   if(result.boost!=='miss'&&!result.replayed)showWin(result.boost);
    button.dataset.completed='true';button.textContent='抽選済み';
   }catch{
    status.textContent='抽選を確認できませんでした。時間をおいて再試行してください。';
@@ -128,6 +156,6 @@ export function createSlotPreview(root,{spin,enabled=false}={}){
    running=false;if(button.dataset.completed!=='true'){startButton.disabled=false;button.disabled=true;}
   }
  });
- root.append(heading,reels,startButton,button,status);
+ root.append(heading,reels,startButton,button,status,celebration);
  return Object.freeze({apply,setStatus:value=>{status.textContent=String(value);}});
 }
