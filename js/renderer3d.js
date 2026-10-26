@@ -21,6 +21,36 @@ class PrimeRenderer{
   this.player=this.makePlayer();this.scene.add(this.player.group);this.player.group.scale.y=1/this.cos;this.setKit(root.PRIME_KITS?root.PRIME_KITS.get(root.PRIME_KITS.defaultId):null);
   // V0.5.18: bold red / blue / green match-ball graphics, visual only.
   // Original sphere geometry, physical radius, movement and collision remain untouched.
+  // Distinctive high-contrast BOOST artwork, inspired by the approved visual target.
+  // Large flowing accent panels are deliberately oversized for a ~25px ball.
+  const paintBoostBall=(x,w,h,color)=>{
+   const themes={
+    '#3B82F6':{base:'#06c7f4',accent:'#f43d49',dark:'#062b79',secondary:'#ffffff'},
+    '#FACC15':{base:'#eaff19',accent:'#ff287e',dark:'#14161d',secondary:'#ff8428'},
+    '#22C55E':{base:'#a3ff39',accent:'#ff7828',dark:'#103a35',secondary:'#e9ff73'}
+   };
+   const theme=themes[color];
+   x.fillStyle=theme.base;x.fillRect(0,0,w,h);
+   for(let row=-1;row<5;row++)for(let col=-1;col<9;col++){
+    const cx=col*152+((row&1)?76:0),cy=row*148;
+    x.save();x.translate(cx,cy);x.rotate(((row*3+col)%5-2)*.23);
+    // Bold dark sweep separates adjacent bright colors.
+    x.beginPath();x.moveTo(-77,-56);x.bezierCurveTo(-12,-90,71,-64,79,-4);
+    x.bezierCurveTo(92,40,31,81,-45,67);x.bezierCurveTo(-91,43,-91,-20,-77,-56);x.closePath();
+    x.fillStyle=theme.dark;x.fill();
+    x.beginPath();x.moveTo(-67,-48);x.bezierCurveTo(-7,-72,62,-47,68,-2);
+    x.bezierCurveTo(27,-15,12,8,-14,33);x.bezierCurveTo(-48,59,-77,25,-67,-48);x.closePath();
+    x.fillStyle=((row+col)&1)?theme.accent:theme.secondary;x.fill();
+    x.beginPath();x.moveTo(-54,-44);x.bezierCurveTo(-12,-59,33,-44,57,-26);
+    x.strokeStyle=theme.base;x.lineWidth=13;x.stroke();
+    x.beginPath();x.moveTo(-43,42);x.bezierCurveTo(-4,61,41,47,62,16);
+    x.strokeStyle=theme.accent;x.lineWidth=12;x.stroke();
+    x.beginPath();x.moveTo(-77,-56);x.bezierCurveTo(-12,-90,71,-64,79,-4);
+    x.strokeStyle='rgba(255,255,255,.52)';x.lineWidth=3;x.stroke();
+    x.restore();
+   }
+  };
+  this.paintBoostBall=paintBoostBall;
   const paintBall=(x,w,h,baseColor=null)=>{
    x.fillStyle=baseColor||'#fcfcf6';x.fillRect(0,0,w,h);
    // Broad curved color panels: legible even when the ball is only ~25px tall.
@@ -77,15 +107,15 @@ class PrimeRenderer{
   material.color.set('#ffffff');
   if(color){
    if(!this.boostBallTextures)this.boostBallTextures=new Map();
-   if(!this.boostBallTextures.has(color))this.boostBallTextures.set(color,this.texture(1024,512,(x,w,h)=>this.paintBall(x,w,h,color)));
+   if(!this.boostBallTextures.has(color))this.boostBallTextures.set(color,this.texture(1024,512,(x,w,h)=>this.paintBoostBall(x,w,h,color)));
    material.map=this.boostBallTextures.get(color);
    // Emissive texture keeps the white artwork crisp while illuminating colored panels.
    material.emissive.set('#ffffff');
    material.emissiveMap=material.map;
-   material.emissiveIntensity=.72;
+   material.emissiveIntensity=.40;
    material.roughness=.28;
    if(!this.boostGlow)this.boostGlow=this.makeBoostGlow();
-   this.boostGlow.material.color.set(color);this.boostGlow.material.opacity=.42;this.boostGlow.visible=true;
+   this.boostGlow.material.color.set(color);this.boostGlow.material.opacity=.58;this.boostGlow.visible=true;
   }else{
    material.map=this.normalBallTexture;
    material.emissive.set('#000000');material.emissiveMap=null;material.emissiveIntensity=0;
