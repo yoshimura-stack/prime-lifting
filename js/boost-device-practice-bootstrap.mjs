@@ -26,6 +26,7 @@ function render(){
 render();
 window.PRIME_STAGING_RUN_FLOW=Object.freeze({
  get activeRun(){return active;},
+ abandonForRestart(){active=null;message.textContent='前の練習プレイを終了しました。新しい練習を開始できます。';render();},
  select(type){if(!types.includes(type)||active)throw new Error('Invalid practice selection');selected=type;render();},
  async start(){
   if(active)throw new Error('Practice run already active');
