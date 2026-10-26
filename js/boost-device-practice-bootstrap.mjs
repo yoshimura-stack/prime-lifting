@@ -25,9 +25,10 @@ function render(){
   const name=document.createElement('span');name.textContent=names[index];
   name.style.cssText='display:block;font-size:10px;font-weight:900;margin-top:4px';
   const quantity=document.createElement('span');
-  quantity.textContent=type===null?'∞':String(sampleStock[type]);
+  quantity.textContent=type===null?'':String(sampleStock[type]);
   quantity.style.cssText='position:absolute;right:4px;top:3px;min-width:18px;padding:1px 4px;border-radius:12px;background:#dfff76;color:#112b34;font-size:11px;font-weight:900;text-align:center;line-height:16px';
-  button.append(ball,name,quantity);
+  button.append(ball,name);
+  if(type!==null)button.append(quantity);
   button.setAttribute('aria-label',names[index]+' のボールを選択（'+(type===null?'無制限':'サンプル所持数 '+sampleStock[type])+'）');
   button.style.cssText='position:relative;padding:7px 5px;min-width:72px;border-radius:9px;transition:transform .15s,box-shadow .15s;'+(type===selected?'border:2px solid #dfff76;box-shadow:0 0 14px #dfff7688;transform:scale(1.06);background:#20434d':'border:1px solid #456475');
   button.disabled=!!active;button.setAttribute('aria-pressed',String(type===selected));
