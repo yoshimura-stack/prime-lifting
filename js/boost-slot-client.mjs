@@ -83,3 +83,38 @@ form?.addEventListener('submit',async event=>{
  }});
 });
 window.addEventListener('pagehide',()=>{token='';});
+
+/**
+ * Isolated UI rehearsal only. No account, API, database, ranking or persistent
+ * inventory is touched. Use ?demo=1 to rehearse the real slot animation today.
+ */
+if(new URLSearchParams(location.search).get('demo')==='1'){
+ form?.remove();
+ const banner=document.createElement('p');
+ banner.id='boost-demo-notice';
+ banner.textContent='🎮 体験モード：初回各1個付与・ルーレット演出をお試しできます（保存・本番反映なし）';
+ root.before(banner);
+ const stock=document.createElement('p');
+ stock.id='boost-slot-stock';root.after(stock);
+ const inventory={time:1,score:1,sc:1};
+ stock.textContent='🎁 初回BOOST付与（体験） '+renderStock(inventory);
+ let completed=false;
+ const demoSpin=async()=>{
+  if(completed)throw new Error('Demo spin already completed');
+  completed=true;
+  const eligible=['time','score','sc'].filter(type=>inventory[type]<2);
+  if(!eligible.length)return {allFull:true};
+  // Weighted draw matches staging contract: miss 40, each eligible BOOST 20.
+  const total=40+eligible.length*20;
+  const ticket=Math.random()*total;
+  const boost=ticket<40?'miss':eligible[Math.min(eligible.length-1,Math.floor((ticket-40)/20))];
+  if(boost!=='miss')inventory[boost]++;
+  stock.textContent=renderStock(inventory)+'（体験データ）';
+  return {boost,reels:[boost,boost,boost],replayed:false};
+ };
+ createSlotPreview(root,{enabled:true,spin:demoSpin});
+ const replay=document.createElement('button');
+ replay.type='button';replay.textContent='体験を最初からやり直す';
+ replay.addEventListener('click',()=>location.reload());
+ stock.after(replay);
+}
