@@ -24,6 +24,6 @@ await writeFile(new URL('boost-device-practice.html',target),practice);
 
 const html=await readFile(new URL('boost-slot-preview.html',target),'utf8');
 const client=await readFile(new URL('js/boost-slot-client.mjs',target),'utf8');
-if(!/id="preview-token"[^>]*disabled/.test(html)||!/id="preview-connect"[^>]*disabled/.test(html)||!client.includes('SLOT_BROWSER_ENABLED=false'))throw new Error('Preview UI must remain locked');
+if(!/id="preview-token"[^>]*disabled/.test(html)||!/id="preview-connect"[^>]*disabled/.test(html)||!client.includes("get('operator')==='1'")||!client.includes("get('demo')!=='1'"))throw new Error('Preview UI must remain locked');
 for(const file of ['boost-slot-preview.css','js/boost-slot-preview.mjs','js/boost-slot-client.mjs','boost-run-preview.html','js/boost-staging-http-client.mjs','js/boost-run-preview-client.mjs','boost-game-preview.html','js/boost-playable-staging-bootstrap.mjs','boost-device-practice.html','js/boost-device-practice-bootstrap.mjs'])await access(new URL(file,target));
 console.log('Isolated locked slot preview assets built.');
