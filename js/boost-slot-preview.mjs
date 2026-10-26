@@ -1,4 +1,4 @@
-// Phase-one V6 visual reels. Locked staging preview; server result is authoritative.
+// Isolated three-reel slot. Twenty actual symbols per reel, physically scrolling.
 const TYPES=Object.freeze({
  miss:{label:'ハズレ',color:'#F3F4F6',detail:'また明日チャレンジ！'},
  time:{label:'+5 SEC',color:'#3B82F6',detail:'プレイ時間 +5秒'},
@@ -6,59 +6,105 @@ const TYPES=Object.freeze({
  sc:{label:'SECOND CHANCE',color:'#22C55E',detail:'最初の落球を救済'}
 });
 const SYMBOLS=Object.keys(TYPES);
-function shuffledStrip(){
+export function shuffledStrip(random=Math.random){
  const strip=SYMBOLS.flatMap(type=>Array(5).fill(type));
- for(let i=strip.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[strip[i],strip[j]]=[strip[j],strip[i]];}
+ for(let i=strip.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[strip[i],strip[j]]=[strip[j],strip[i]];}
  return strip;
 }
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+function makeSymbol(type){
+ const row=document.createElement('div');row.className='boost-slot-strip-symbol';
+ row.style.setProperty('--symbol-glow',TYPES[type].color);
+ row.textContent='⚽';row.setAttribute('aria-label',TYPES[type].label);
+ return row;
+}
 export function createSlotPreview(root,{spin,enabled=false}={}){
  if(!root||typeof root.append!=='function')throw new TypeError('Root element required');
  root.replaceChildren();
- const heading=document.createElement('h2');heading.textContent='⚽ DAILY SLOT';
+ const heading=document.createElement('h2');heading.textContent='⚽ PRIME DAILY SLOT';
  const status=document.createElement('p');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
- status.textContent=enabled?'STOPでリールを止めよう！':'🔒 開発プレビュー：抽選・付与は無効';
+ status.textContent=enabled?'STOPで3つのリールを止めよう！':'🔒 開発プレビュー：抽選・付与は無効';
  const reels=document.createElement('div');reels.className='boost-slot-reels';
- const strips=Array.from({length:3},()=>shuffledStrip());
- const cells=strips.map(strip=>{
+ const cells=Array.from({length:3},()=>{
+  const strip=shuffledStrip();
   const cell=document.createElement('div');cell.className='boost-slot-reel';
-  const symbol=document.createElement('span');symbol.className='boost-slot-symbol';cell.append(symbol);
-  reels.append(cell);return {cell,symbol,strip,index:0};
+  const track=document.createElement('div');track.className='boost-slot-track';
+  // Repeat full 20-symbol strips so a reel wraps without changing its order.
+  for(let repeat=0;repeat<3;repeat++)for(const type of strip)track.append(makeSymbol(type));
+  cell.append(track);reels.append(cell);
+  return {cell,track,strip,position:20,velocity:0,raf:0,last:0,active:false};
  });
+ const render=reel=>{
+  const step=reel.cell.clientHeight||128;
+  reel.track.style.setProperty('--reel-step',step+'px');
+  reel.track.style.transform='translate3d(0,'+(-reel.position*step)+'px,0)';
+ };
  const paint=(reel,type)=>{
-  reel.symbol.textContent='⚽';
   reel.cell.style.setProperty('--boost-color',TYPES[type].color);
   reel.cell.setAttribute('aria-label',TYPES[type].label);
  };
- cells.forEach(reel=>paint(reel,reel.strip[0]));
+ const animate=reel=>{
+  reel.active=true;reel.velocity=18;reel.last=0;
+  const frame=timestamp=>{
+   if(!reel.active)return;
+   if(reel.last){reel.position+=(timestamp-reel.last)*reel.velocity/1000;}
+   reel.last=timestamp;
+   if(reel.position>=40)reel.position-=20;
+   render(reel);
+   reel.raf=requestAnimationFrame(frame);
+  };
+  reel.raf=requestAnimationFrame(frame);
+ };
+ const stop=async(reel,type)=>{
+  reel.active=false;cancelAnimationFrame(reel.raf);
+  // Finish at the next matching symbol, after several visible turns.
+  const index=reel.strip.indexOf(type);
+  const current=reel.position;
+  const base=20+index;
+  const extra=((base-current)%20+20)%20;
+  const start=current;
+  const target=current+40+extra;
+  const duration=1150;
+  const begin=performance.now();
+  await new Promise(resolve=>{
+   const frame=now=>{
+    const t=Math.min(1,(now-begin)/duration);
+    const eased=1-Math.pow(1-t,3);
+    reel.position=start+(target-start)*eased;
+    render(reel);
+    if(t<1)requestAnimationFrame(frame);
+    else resolve();
+   };
+   requestAnimationFrame(frame);
+  });
+  reel.position=20+index;
+  render(reel);paint(reel,type);reel.cell.classList.add('is-stopped');
+ };
+ cells.forEach(reel=>{render(reel);paint(reel,reel.strip[0]);});
  const button=document.createElement('button');button.type='button';
  button.textContent=enabled?'STOP':'STOP（開発中）';button.disabled=!enabled;
  const apply=type=>{
   if(!Object.hasOwn(TYPES,type))throw new TypeError('Unknown BOOST type');
-  cells.forEach(reel=>paint(reel,type));
+  cells.forEach(reel=>{reel.active=false;cancelAnimationFrame(reel.raf);reel.position=20+reel.strip.indexOf(type);render(reel);paint(reel,type);});
   return TYPES[type];
  };
  let running=false;
  button.addEventListener('click',async()=>{
   if(running||!enabled||typeof spin!=='function')return;
   running=true;button.disabled=true;status.textContent='抽選中…';
-  const timers=cells.map((reel,i)=>setInterval(()=>{
-   reel.index=(reel.index+1)%reel.strip.length;
-   paint(reel,reel.strip[reel.index]);
-  },55+i*8));
+  cells.forEach(reel=>{reel.cell.classList.remove('is-stopped');animate(reel);});
   try{
-   const result=await spin();
+   const [result]=await Promise.all([spin(),wait(750)]);
    if(result?.allFull===true){
-    timers.forEach(clearInterval);
-    status.textContent='すべて2個所持中です。BOOST使用後に再挑戦できます。';
+    cells.forEach(reel=>{reel.active=false;cancelAnimationFrame(reel.raf);});
+    status.textContent='すべて2個所持中です。BOOSTを使ってから再挑戦してください。';
+    button.dataset.completed='true';button.textContent='所持数上限';
     return;
    }
    if(!result||!Object.hasOwn(TYPES,result.boost)||!Array.isArray(result.reels)||result.reels.length!==3||!result.reels.every(v=>v===result.boost))throw new Error('Invalid slot result');
    for(let i=0;i<cells.length;i++){
-    await wait(520+i*180);
-    clearInterval(timers[i]);
-    paint(cells[i],result.boost);
-    cells[i].cell.classList.add('is-stopped');
+    await stop(cells[i],result.boost);
+    if(i<2)await wait(180);
    }
    const item=TYPES[result.boost];
    status.textContent=result.replayed?'本日は抽選済み：'+item.label:result.boost==='miss'?'残念！ '+item.detail:'当選！ '+item.label+' — '+item.detail;
@@ -66,8 +112,8 @@ export function createSlotPreview(root,{spin,enabled=false}={}){
   }catch{
    status.textContent='抽選を確認できませんでした。時間をおいて再試行してください。';
   }finally{
-   timers.forEach(clearInterval);running=false;
-   if(button.dataset.completed!=='true')button.disabled=false;
+   cells.forEach(reel=>{reel.active=false;cancelAnimationFrame(reel.raf);});
+   running=false;if(button.dataset.completed!=='true')button.disabled=false;
   }
  });
  root.append(heading,reels,button,status);
