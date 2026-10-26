@@ -20,6 +20,26 @@ async function readInventory(){
  return Object.freeze({time:value.time,score:value.score,sc:value.sc});
 }
 
+async function requestWelcomeGrant(){
+ if(!token)throw new Error('Not authenticated');
+ const response=await fetch('/api/boost-preview/welcome-grant',{
+  method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+token},
+  body:'{}',cache:'no-store',credentials:'omit'
+ });
+ if(!response.ok)throw new Error('Welcome grant unavailable: '+response.status);
+ const value=await response.json();
+ if(typeof value?.alreadyGranted!=='boolean')throw new Error('Invalid welcome grant');
+ for(const type of ['time','score','sc']){
+  if(!Number.isInteger(value[type])||value[type]<0||value[type]>2)throw new Error('Invalid welcome inventory');
+  if(!value.alreadyGranted&&(!Number.isInteger(value.granted?.[type])||value.granted[type]<0||value.granted[type]>1))throw new Error('Invalid welcome receipt');
+ }
+ return value;
+}
+function renderStock(inventory,grant){
+ const stock='🔵 '+inventory.time+'/2 · 🟡 '+inventory.score+'/2 · 🟢 '+inventory.sc+'/2';
+ const welcome=grant?.alreadyGranted===false?'🎁 初回BOOSTプレゼント付与！ ':'';
+ return welcome+'所持数 '+stock;
+}
 const view=createSlotPreview(root,{
  enabled:false,
  spin:async()=>{
@@ -39,8 +59,10 @@ form?.addEventListener('submit',async event=>{
  tokenInput.value='';
  if(!token){view.setStatus('検証トークンを入力してください。');return;}
  try{
+  // The welcome grant is server-atomic and only runs after verified staging login.
+  const welcome=await requestWelcomeGrant();
   const inventory=await readInventory();
-  view.setStatus('検証接続：青 '+inventory.time+'/2 · 黄 '+inventory.score+'/2 · 緑 '+inventory.sc+'/2');
+  view.setStatus(renderStock(inventory,welcome));
  }catch{
   token='';view.setStatus('認証または在庫確認に失敗しました。抽選は無効です。');return;
  }
@@ -51,7 +73,13 @@ form?.addEventListener('submit',async event=>{
    body:'{}',cache:'no-store',credentials:'omit'
   });
   if(!response.ok)throw new Error('Slot unavailable: '+response.status);
-  return response.json();
+  const result=await response.json();
+  const updated=await readInventory();
+  // Show authoritative post-spin stock without ever crediting a client-side guess.
+  const stock=document.getElementById('boost-slot-stock')||document.createElement('p');
+  stock.id='boost-slot-stock';stock.textContent=renderStock(updated);
+  root.after(stock);
+  return result;
  }});
 });
 window.addEventListener('pagehide',()=>{token='';});
