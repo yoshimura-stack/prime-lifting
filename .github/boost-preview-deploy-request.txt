@@ -10,3 +10,4 @@ Soccer ball BOOST selector UI deployment
 SECOND CHANCE ready used HUD staging deploy
 Remove BOOST practice intro explanatory text
 Shift achievement results below BOOST HUD
+Practice selector sample stock badges
