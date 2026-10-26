@@ -5,7 +5,13 @@ const form=document.getElementById('preview-auth');
 const tokenInput=document.getElementById('preview-token');
 const connectButton=document.getElementById('preview-connect');
 // Real API access stays locked until a verified staging login issues a short-lived token.
-const SLOT_BROWSER_ENABLED=false;
+const SLOT_BROWSER_ENABLED=new URLSearchParams(location.search).get('operator')==='1' && new URLSearchParams(location.search).get('demo')!=='1';
+if(SLOT_BROWSER_ENABLED){
+ tokenInput.disabled=false;
+ connectButton.disabled=false;
+ form.setAttribute('aria-label','検証専用トークン接続');
+ connectButton.textContent='検証アカウントに接続';
+}
 let token='';
 async function readInventory(){
  if(!token)throw new Error('Not authenticated');
