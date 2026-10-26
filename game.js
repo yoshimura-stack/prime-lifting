@@ -48,6 +48,12 @@ function updateStagingBoostHud(){
  const selected=labels[boost];
  stagingBoostLabel.textContent=selected?selected[0]:'BOOST 未使用';
  stagingBoostLabel.style.color=selected?selected[1]:'#b6cabc';
+ // Isolated staging only: match the physical 3D ball to the selected BOOST.
+ // SECOND CHANCE returns to the original ball after its first rescue.
+ if(renderer3d&&typeof renderer3d.setBoostBallColor==='function'){
+  const tint=boost==='time'?'#3B82F6':boost==='score'?'#FACC15':boost==='sc'&&!g.scProtectedDropUsed?'#22C55E':null;
+  renderer3d.setBoostBallColor(tint);
+ }
 }
 
 const stagingResultStatus=stagingRunFlow?document.createElement('p'):null;
