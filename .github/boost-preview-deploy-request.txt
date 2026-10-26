@@ -17,3 +17,4 @@ SECOND CHANCE first-touch regression CI passed; deploy staging only 2026-10-26
 2026-10-26 verify staging BOOST ball colors with SC restore
 2026-10-26 BOOST colored pentagon football texture staging only
 2026-10-26 stitched soccer-panel BOOST texture revision
+2026-10-26 real 3D soccer pentagons BOOST preview
