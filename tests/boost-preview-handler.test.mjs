@@ -83,3 +83,22 @@ test('inventory endpoint uses authenticated player and read-only RPC',async()=>{
  assert.equal(calls[0].op,'boost_inventory_read');
  assert.equal(calls[0].payload.playerId,player);
 });
+
+test('welcome gift stays locked without explicit enable flag',async()=>{
+ let calls=0;
+ const handle=createBoostPreviewHandler({enabled:true,resolvePlayer:async()=>player,transport:{call:async()=>{calls++;}}});
+ const res=await handle(request('/api/boost-preview/welcome-grant',{}));
+ assert.equal(res.status,403);
+ assert.equal(calls,0);
+});
+test('enabled welcome gift uses authenticated player identity',async()=>{
+ const calls=[];
+ const handle=createBoostPreviewHandler({enabled:true,allowWelcomeGrant:true,resolvePlayer:async()=>player,transport:{call:async(op,payload)=>{
+  calls.push({op,payload});
+  return {alreadyGranted:false,time:1,score:1,sc:1,granted:{time:1,score:1,sc:1}};
+ }}});
+ const res=await handle(request('/api/boost-preview/welcome-grant',{playerId:'forged'}));
+ assert.equal(res.status,200);
+ assert.equal((await res.json()).alreadyGranted,false);
+ assert.deepEqual(calls,[{op:'boost_welcome_grant',payload:{playerId:player}}]);
+});
