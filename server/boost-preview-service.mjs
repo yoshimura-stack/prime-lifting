@@ -17,6 +17,17 @@ export function createBoostPreviewService(transport){
   async inventory(playerId){
    return parseBoostCounts(await db.call('boost_inventory_read',{playerId:requirePlayer(playerId)}));
   },
+  async welcomeGrant(playerId){
+   const result=await db.call('boost_welcome_grant',{playerId:requirePlayer(playerId)});
+   if(!result||typeof result.alreadyGranted!=='boolean')throw new TypeError('Invalid welcome grant result');
+   const counts=parseBoostCounts(result);
+   if(!result.alreadyGranted){
+    const granted=result.granted;
+    if(!granted||['time','score','sc'].some(type=>!Number.isInteger(granted[type])||granted[type]<0||granted[type]>1))
+     throw new TypeError('Invalid welcome grant confirmation');
+   }
+   return Object.freeze({alreadyGranted:result.alreadyGranted,...counts,...(!result.alreadyGranted?{granted:Object.freeze({...result.granted})}:{})});
+  },
   async spin(playerId){
    const result=await db.call('boost_slot_spin',{playerId:requirePlayer(playerId)});
    return parseSlotResult(result);
