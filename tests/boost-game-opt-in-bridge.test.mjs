@@ -29,3 +29,12 @@ test('staging game locks START until reservation settles and preserves FINISH pa
  assert.match(game,/stagingRetryButton\.onclick=\(\)=>stagingRetryFinish\(\)/);
  assert.match(game,/\$\('start'\)\.before\(stagingResultStatus,stagingRetryButton\)/);
 });
+
+test('staging gameplay never calls production ranking or daily methods',()=>{
+ assert.match(game,/c\.WORLD_WIDTH=stagingRunFlow\?1000:window\.PRIME_RANKING\.worldWidth\(\)/);
+ assert.match(game,/if\(!stagingRunFlow\)window\.PRIME_RANKING\.begin\(rankStandard\)/);
+ assert.match(game,/if\(!stagingRunFlow\)window\.PRIME_RANKING\.updateAchievements\(/);
+ assert.match(game,/if\(!stagingRunFlow\)window\.PRIME_RANKING\.achievements\(/);
+ assert.match(game,/if\(!stagingRunFlow\)window\.PRIME_DAILY\?\.hit\(/);
+ assert.match(game,/if\(!stagingRunFlow\)\{window\.PRIME_DAILY\?\.begin\(\);window\.PRIME_RANKING\.resetAchievements\(\);\}/);
+});
