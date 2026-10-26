@@ -11,3 +11,4 @@ SECOND CHANCE ready used HUD staging deploy
 Remove BOOST practice intro explanatory text
 Shift achievement results below BOOST HUD
 Practice selector sample stock badges
+Hide NORMAL unlimited badge in BOOST selector
