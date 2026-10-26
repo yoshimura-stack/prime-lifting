@@ -5,7 +5,9 @@ const read=path=>readFile(new URL(path,import.meta.url),'utf8');
 test('staging preview remains double locked',async()=>{
  const config=JSON.parse(await read('../wrangler.boost-preview.jsonc'));
  const client=await read('../js/boost-slot-client.mjs');
- assert.equal(config.vars.BOOST_PREVIEW_ENABLED,'false');
+ assert.equal(config.vars.BOOST_PREVIEW_ENABLED,'true');
+ assert.equal(config.vars.BOOST_WELCOME_GRANT_ENABLED,'true');
+ assert.equal(config.vars.BOOST_PREVIEW_PROJECT_ID,'tarnzjkxexlozqqmyqof');
  assert.equal(config.assets.directory,'./boost-preview-public');
  assert.equal(config.assets.run_worker_first,true,'all static requests must pass security header middleware');
  assert.equal(config.main,'server/boost-preview-worker.mjs');
