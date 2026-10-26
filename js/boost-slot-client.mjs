@@ -4,6 +4,7 @@ const root=document.getElementById('slot');
 const form=document.getElementById('preview-auth');
 const tokenInput=document.getElementById('preview-token');
 const connectButton=document.getElementById('preview-connect');
+// Real API access stays locked until a verified staging login issues a short-lived token.
 const SLOT_BROWSER_ENABLED=false;
 let token='';
 async function readInventory(){
@@ -49,7 +50,8 @@ const view=createSlotPreview(root,{
    body:'{}',cache:'no-store',credentials:'omit'
   });
   if(!response.ok)throw new Error('Slot unavailable: '+response.status);
-  return response.json();
+  const result=await response.json();
+  return result;
  }
 });
 form?.addEventListener('submit',async event=>{
