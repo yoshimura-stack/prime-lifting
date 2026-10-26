@@ -21,3 +21,17 @@ test('reject invalid or unverified inventory and grant state',()=>{
  assert.throws(()=>planWelcomeBoostGrant({time:3,score:0,sc:0}),TypeError);
  assert.throws(()=>planWelcomeBoostGrant({time:0,score:0,sc:0},{alreadyGranted:'false'}),TypeError);
 });
+
+test('staging SQL contract enforces serialized one-time welcome grant and service-only access',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const sql=await readFile(new URL('../docs/sql/prime-boost-preview-welcome-grant.sql',import.meta.url),'utf8');
+ assert.match(sql,/from public\.lifting_players where id=v_player for update/i);
+ assert.match(sql,/where player_id=v_player for update/i);
+ assert.match(sql,/primary key \(player_id,campaign\)/i);
+ assert.match(sql,/campaign='welcome-boost-v1'/i);
+ assert.match(sql,/least\(1,2-v_inventory\.time_count\)/i);
+ assert.match(sql,/least\(1,2-v_inventory\.score_count\)/i);
+ assert.match(sql,/least\(1,2-v_inventory\.sc_count\)/i);
+ assert.match(sql,/revoke all on function public\.lifting_api_boost_welcome_grant\(jsonb\) from public,anon,authenticated/i);
+ assert.match(sql,/grant execute on function public\.lifting_api_boost_welcome_grant\(jsonb\) to service_role/i);
+});
