@@ -106,16 +106,15 @@ class PrimeRenderer{
   const material=this.ball.material;
   material.color.set('#ffffff');
   if(color){
-   if(!this.boostBallTextures)this.boostBallTextures=new Map();
-   if(!this.boostBallTextures.has(color))this.boostBallTextures.set(color,this.texture(1024,512,(x,w,h)=>this.paintBoostBall(x,w,h,color)));
-   material.map=this.boostBallTextures.get(color);
-   // Emissive texture keeps the white artwork crisp while illuminating colored panels.
-   material.emissive.set('#ffffff');
-   material.emissiveMap=material.map;
-   material.emissiveIntensity=.40;
-   material.roughness=.28;
+   // Preserve the proven spherical NORMAL football artwork; only the aura is colored.
+   material.map=this.normalBallTexture;
+   material.emissive.set('#000000');material.emissiveMap=null;material.emissiveIntensity=0;
+   material.roughness=.38;
    if(!this.boostGlow)this.boostGlow=this.makeBoostGlow();
-   this.boostGlow.material.color.set(color);this.boostGlow.material.opacity=.82;this.boostGlow.visible=true;
+   this.boostGlow.material.color.set(color);
+   this.boostGlow.material.opacity=.96;
+   this.boostGlow.scale.setScalar(this.c.BALL_RADIUS*5.0);
+   this.boostGlow.visible=true;
   }else{
    material.map=this.normalBallTexture;
    material.emissive.set('#000000');material.emissiveMap=null;material.emissiveIntensity=0;
