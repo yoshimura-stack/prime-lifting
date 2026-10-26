@@ -51,16 +51,43 @@ class PrimeRenderer{
   this.ball=new T.Mesh(new T.SphereGeometry(c.BALL_RADIUS,32,24),new T.MeshStandardMaterial({map:ballTex,roughness:0.38,metalness:0.02}));this.normalBallTexture=ballTex;this.boostBallColor=null;this.ball.castShadow=true;this.scene.add(this.ball);this.ballShadow=this.shadow(25,.23);this.scene.add(this.ballShadow);this.playerShadow=this.shadow(58,.28);this.scene.add(this.playerShadow);
 
  }
- // Visual-only tint for staging; never touches physics, score or collision.
+ // BOOST ball uses a traditional black-pentagon / colored-panel football texture.
+ // Only the visible material changes; physics, collisions and scoring are unchanged.
+ makeBoostBallTexture(panelColor){
+  return this.texture(1024,512,(x,w,h)=>{
+   x.fillStyle=panelColor;x.fillRect(0,0,w,h);
+   const pentagon=(cx,cy,r)=>{
+    x.beginPath();for(let i=0;i<5;i++){
+     const a=-Math.PI/2+i*Math.PI*2/5;
+     const px=cx+Math.cos(a)*r,py=cy+Math.sin(a)*r;
+     if(i===0)x.moveTo(px,py);else x.lineTo(px,py);
+    }x.closePath();x.fillStyle='#18201f';x.fill();x.strokeStyle='#101818';x.lineWidth=4;x.stroke();
+   };
+   // Repeating panels wrap the sphere horizontally without leaving blank gaps.
+   for(let row=-1;row<=4;row++)for(let col=-1;col<=9;col++){
+    const cx=col*145+((row&1)?72:0),cy=row*142;
+    pentagon(cx,cy,42);
+    x.strokeStyle='rgba(10,22,22,.48)';x.lineWidth=5;
+    for(let i=0;i<5;i++){
+     const a=-Math.PI/2+i*Math.PI*2/5;
+     x.beginPath();x.moveTo(cx+Math.cos(a)*45,cy+Math.sin(a)*45);
+     x.lineTo(cx+Math.cos(a)*73,cy+Math.sin(a)*73);x.stroke();
+    }
+   }
+  });
+ }
  setBoostBallColor(color=null){
   const allowed=new Set([null,'#3B82F6','#FACC15','#22C55E']);
   if(!allowed.has(color))throw new TypeError('Invalid BOOST ball color');
   if(this.boostBallColor===color)return;
   this.boostBallColor=color;
   const material=this.ball.material;
-  material.color.set(color||'#ffffff');
-  // Neutralize the existing multicolor map only for a BOOST ball.
-  material.map=color?null:this.normalBallTexture;
+  material.color.set('#ffffff');
+  if(color){
+   if(!this.boostBallTextures)this.boostBallTextures=new Map();
+   if(!this.boostBallTextures.has(color))this.boostBallTextures.set(color,this.makeBoostBallTexture(color));
+   material.map=this.boostBallTextures.get(color);
+  }else material.map=this.normalBallTexture;
   material.needsUpdate=true;
  }
  mat(color,roughness=.78){return new this.T.MeshStandardMaterial({color,roughness});}
