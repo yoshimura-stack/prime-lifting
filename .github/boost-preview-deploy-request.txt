@@ -12,3 +12,4 @@ Remove BOOST practice intro explanatory text
 Shift achievement results below BOOST HUD
 Practice selector sample stock badges
 Hide NORMAL unlimited badge in BOOST selector
+Second Chance preserve streaks across next ball pickup
