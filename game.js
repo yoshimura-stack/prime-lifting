@@ -33,6 +33,9 @@ let stagingFinishPending=false,stagingRetryPayload=null,stagingStartPending=fals
 // Staging-only HUD: the selected BOOST must remain visible throughout play.
 const stagingBoostLabel=stagingRunFlow?document.createElement('div'):null;
 if(stagingBoostLabel){
+ // Make room for the BOOST indicator without overlapping the title results.
+ const titleBoard=$('achievement-board');
+ if(titleBoard)titleBoard.style.top='112px';
  stagingBoostLabel.id='staging-boost-hud';
  stagingBoostLabel.setAttribute('role','status');
  stagingBoostLabel.style.cssText='margin-top:3px;font-size:clamp(10px,1vw,13px);font-weight:900;letter-spacing:.03em;white-space:nowrap;text-shadow:0 2px 3px #000b';
