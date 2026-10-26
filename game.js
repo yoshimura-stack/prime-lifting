@@ -176,7 +176,10 @@ $('start').onclick=async()=>{if(stagingRunFlow&&(stagingStartPending||stagingFin
  if(stagingRunFlow)stagingStartPending=true;
  try{if(!paused||restartPending){
   if(stagingRunFlow){
-   if(stagingRunFlow.activeRun){console.warn('Unfinished staging run; cannot start another');return;}
+   if(stagingRunFlow.activeRun){
+    if(restartPending&&typeof stagingRunFlow.abandonForRestart==='function')stagingRunFlow.abandonForRestart();
+    else{console.warn('Unfinished staging run; cannot start another');return;}
+   }
    let confirmed;
    try{confirmed=await stagingRunFlow.start();applyConfirmedBoostRun(confirmed);}
    catch(error){console.warn('STAGING START failed',error);return;}
