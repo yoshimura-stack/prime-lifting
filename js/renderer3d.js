@@ -79,12 +79,17 @@ class PrimeRenderer{
    if(!this.boostBallTextures)this.boostBallTextures=new Map();
    if(!this.boostBallTextures.has(color))this.boostBallTextures.set(color,this.texture(1024,512,(x,w,h)=>this.paintBall(x,w,h,color)));
    material.map=this.boostBallTextures.get(color);
-   material.emissive.set(color);material.emissiveIntensity=.14;
+   // Emissive texture keeps the white artwork crisp while illuminating colored panels.
+   material.emissive.set('#ffffff');
+   material.emissiveMap=material.map;
+   material.emissiveIntensity=.72;
+   material.roughness=.28;
    if(!this.boostGlow)this.boostGlow=this.makeBoostGlow();
-   this.boostGlow.material.color.set(color);this.boostGlow.visible=true;
+   this.boostGlow.material.color.set(color);this.boostGlow.material.opacity=.42;this.boostGlow.visible=true;
   }else{
    material.map=this.normalBallTexture;
-   material.emissive.set('#000000');material.emissiveIntensity=0;
+   material.emissive.set('#000000');material.emissiveMap=null;material.emissiveIntensity=0;
+   material.roughness=.38;
    if(this.boostGlow)this.boostGlow.visible=false;
   }
   material.needsUpdate=true;
