@@ -22,6 +22,7 @@ class LiftingGame{
   this.bestCombo=0;
   this.drops=0;
   this.scProtectedDropUsed=false;
+  this.scPreserveNextPickup=false;
   this.hits=0;
   this.pendingSpins=0;
   this.eligibleSpin=false;
@@ -127,8 +128,9 @@ class LiftingGame{
    b.pickup=false;
    this.pendingSpins=0;
    this.eligibleSpin=false;
-   this.spinStreak=0;
-   this.airStreak=0;
+   // The rescue also protects earned streaks through the NEXT BALL pickup.
+   if(!this.scPreserveNextPickup){this.spinStreak=0;this.airStreak=0;}
+   this.scPreserveNextPickup=false;
    p.spinEligible=false;
    b.vy=-this.c.ACTIONS.FOOT.verticalVelocity;
    b.vx=clamp((b.x-p.x)*1.8+p.vx*.08,-this.c.BALL_MAX_HORIZONTAL_SPEED,this.c.BALL_MAX_HORIZONTAL_SPEED);
@@ -313,7 +315,9 @@ class LiftingGame{
     const rescued=this.c.SC_PROTECT_FIRST_DROP===true&&!this.scProtectedDropUsed;
     if(rescued){
      this.scProtectedDropUsed=true;
+     this.scPreserveNextPickup=true;
     }else{
+     this.scPreserveNextPickup=false;
      this.combo=0;
      this.spinStreak=0;
      this.airStreak=0;
