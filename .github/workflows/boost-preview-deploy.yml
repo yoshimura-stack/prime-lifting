@@ -1,6 +1,11 @@
 name: Deploy isolated PRIME BOOST preview
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - feature/prime-boost-staging
+    paths:
+      - '.github/boost-preview-deploy-request.txt'
 permissions:
   contents: read
 concurrency:
