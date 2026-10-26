@@ -19,7 +19,7 @@ if(gameStart<0||gameEnd<0)throw new Error('Cannot locate game script in staging 
 const isolated=original.slice(0,gameStart)+'<script type="module" src="js/boost-playable-staging-bootstrap.mjs"></script>'+original.slice(gameEnd+'</script>'.length);
 if(isolated.includes('<script src="game.js?'))throw new Error('Unsafe double game boot');
 await writeFile(new URL('boost-game-preview.html',target),isolated);
-const practice=isolated.replace('js/boost-playable-staging-bootstrap.mjs','js/boost-device-practice-bootstrap.mjs');
+const practice=isolated.replace('js/boost-playable-staging-bootstrap.mjs','js/boost-device-practice-bootstrap.mjs').replace(/<p id="overlay-copy">[\s\S]*?<\/p>/,'<p id="overlay-copy" hidden></p>');
 await writeFile(new URL('boost-device-practice.html',target),practice);
 
 const html=await readFile(new URL('boost-slot-preview.html',target),'utf8');
