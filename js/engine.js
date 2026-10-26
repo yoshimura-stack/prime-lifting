@@ -23,6 +23,7 @@ class LiftingGame{
   this.drops=0;
   this.scProtectedDropUsed=false;
   this.scPreserveNextPickup=false;
+  this.scIgnoreNextContact=false;
   this.hits=0;
   this.pendingSpins=0;
   this.eligibleSpin=false;
@@ -130,6 +131,7 @@ class LiftingGame{
    this.eligibleSpin=false;
    // The rescue also protects earned streaks through the NEXT BALL pickup.
    if(!this.scPreserveNextPickup){this.spinStreak=0;this.airStreak=0;}
+   if(this.scPreserveNextPickup)this.scIgnoreNextContact=true;
    this.scPreserveNextPickup=false;
    p.spinEligible=false;
    b.vy=-this.c.ACTIONS.FOOT.verticalVelocity;
@@ -162,8 +164,14 @@ class LiftingGame{
   // Skill streaks reward players who keep adding a spin or an airborne touch
   // on every successful contact. Missing the condition on the next touch resets
   // that streak, while dropping the ball resets both.
-  if(spinCount>0)this.spinStreak++;else this.spinStreak=0;
-  if(airborne)this.airStreak++;else this.airStreak=0;
+  // The first scored touch after SECOND CHANCE pickup is neutral for streaks.
+  // The second touch resumes ordinary SPIN/AIR qualification.
+  if(this.scIgnoreNextContact){
+   this.scIgnoreNextContact=false;
+  }else{
+   if(spinCount>0)this.spinStreak++;else this.spinStreak=0;
+   if(airborne)this.airStreak++;else this.airStreak=0;
+  }
   const spinLevel=Math.min(this.spinStreak,this.c.MAX_STREAK_LEVEL);
   const airLevel=Math.min(this.airStreak,this.c.MAX_STREAK_LEVEL);
   // Rotation score: 100 per completed spin, plus a 600-point QUAD milestone.
@@ -316,8 +324,10 @@ class LiftingGame{
     if(rescued){
      this.scProtectedDropUsed=true;
      this.scPreserveNextPickup=true;
+     this.scIgnoreNextContact=false;
     }else{
      this.scPreserveNextPickup=false;
+     this.scIgnoreNextContact=false;
      this.combo=0;
      this.spinStreak=0;
      this.airStreak=0;
