@@ -2,11 +2,13 @@
 // These locally simulated runs are never valid server-authorized scores.
 const types=[null,'time','score','sc'];
 let selected=null,active=null;
+// Practice-only sample values. Actual inventory will come from authenticated staging API.
+const sampleStock={time:2,score:1,sc:0};
 const form=document.createElement('section');
 form.setAttribute('aria-label','BOOST実機操作テスト');
 form.style.cssText='position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:20;width:max-content;max-width:calc(100% - 20px);padding:7px 12px;background:#123049;color:#fff;border:2px solid #65c9ed;border-radius:12px;box-shadow:0 4px 20px #0007;font-size:12px';
 const heading=document.createElement('strong');heading.textContent='⚽ BOOST 操作テスト（保存なし・何度でも練習可）';
-const message=document.createElement('p');message.textContent='選択後、通常のゲーム開始ボタンを押してください。スコアは一切送信されません。';
+const message=document.createElement('p');message.textContent='所持数は表示サンプル（青2・黄1・緑0）。練習では全色選択可能・消費なし。';
 const choices=document.createElement('div');
 choices.style.cssText='display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:7px';
 message.style.cssText='font-size:11px;margin:3px 0';
@@ -22,9 +24,12 @@ function render(){
   ball.style.cssText='display:block;font-size:35px;line-height:1.1;color:'+colors[index]+';filter:drop-shadow(0 2px 5px '+colors[index]+'88)';
   const name=document.createElement('span');name.textContent=names[index];
   name.style.cssText='display:block;font-size:10px;font-weight:900;margin-top:4px';
-  button.append(ball,name);
-  button.setAttribute('aria-label',names[index]+' のボールを選択');
-  button.style.cssText='padding:7px 5px;min-width:72px;border-radius:9px;transition:transform .15s,box-shadow .15s;'+(type===selected?'border:2px solid #dfff76;box-shadow:0 0 14px #dfff7688;transform:scale(1.06);background:#20434d':'border:1px solid #456475');
+  const quantity=document.createElement('span');
+  quantity.textContent=type===null?'∞':String(sampleStock[type]);
+  quantity.style.cssText='position:absolute;right:4px;top:3px;min-width:18px;padding:1px 4px;border-radius:12px;background:#dfff76;color:#112b34;font-size:11px;font-weight:900;text-align:center;line-height:16px';
+  button.append(ball,name,quantity);
+  button.setAttribute('aria-label',names[index]+' のボールを選択（'+(type===null?'無制限':'サンプル所持数 '+sampleStock[type])+'）');
+  button.style.cssText='position:relative;padding:7px 5px;min-width:72px;border-radius:9px;transition:transform .15s,box-shadow .15s;'+(type===selected?'border:2px solid #dfff76;box-shadow:0 0 14px #dfff7688;transform:scale(1.06);background:#20434d':'border:1px solid #456475');
   button.disabled=!!active;button.setAttribute('aria-pressed',String(type===selected));
   button.onclick=()=>{selected=type;message.textContent=names[index]+' を選択しました';render();};
   choices.append(button);
