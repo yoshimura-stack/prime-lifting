@@ -10,7 +10,7 @@ test('ready inventory selection starts server-confirmed TIME game and submits re
    {runId,token:'signed-server-token-abcdef',boost:body.boost,durationSeconds:65}:
    {runId,boost:'time',playScore:0,replayed:false}};
  };
- const flow=createBoostStagingReadyFlow({inventory:{time:1,score:0,sc:2},getBearer:()=> 'preview-session',fetcher,origin,beginGame:run=>games.push(run),onStatus:s=>statuses.push(s)});
+ const flow=createBoostStagingReadyFlow({inventory:{time:2,score:0,sc:2},getBearer:()=> 'preview-session',fetcher,origin,beginGame:run=>games.push(run),onStatus:s=>statuses.push(s)});
  assert.throws(()=>flow.select('score'),/out of stock/);
  flow.select('time');
  const run=await flow.start();
@@ -24,5 +24,20 @@ test('ready inventory selection starts server-confirmed TIME game and submits re
  flow.select('time');
  await flow.start();
  assert.equal(games.length,2);
+ assert.throws(()=>flow.select('time'),/out of stock/);
  assert.deepEqual(statuses,['BOOST開始を確認中','プレイ開始','BOOST開始を確認中','プレイ開始']);
+});
+
+test('a confirmed reservation consumes local stock, but a failed START does not',async()=>{
+ let attempts=0;
+ const flow=createBoostStagingReadyFlow({inventory:{time:1,score:0,sc:0},getBearer:()=> 'preview-session',origin,beginGame:()=>{},fetcher:async()=>{
+  attempts++;
+  if(attempts===1)return {ok:false,status:503};
+  return {ok:true,json:async()=>({runId,token:'signed-server-token-abcdef',boost:'time',durationSeconds:65})};
+ }});
+ flow.select('time');
+ await assert.rejects(()=>flow.start(),/rejected/);
+ flow.select('time');
+ await flow.start();
+ assert.throws(()=>flow.select('time'),/Run already started/);
 });
