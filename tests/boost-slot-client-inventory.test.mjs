@@ -19,3 +19,12 @@ test('authenticated slot awards welcome pack before inventory and refreshes stoc
  assert.match(source,/root\.after\(stock\)/);
  assert.match(source,/SLOT_BROWSER_ENABLED=false/);
 });
+
+test('demo slot is explicitly nonpersistent and starts with one of each',()=>{
+ assert.match(source,/get\('demo'\)==='1'/);
+ assert.match(source,/const inventory=\{time:1,score:1,sc:1\}/);
+ assert.match(source,/const total=40\+eligible\.length\*20/);
+ assert.match(source,/completed=true/);
+ assert.match(source,/保存・本番反映なし/);
+ assert.doesNotMatch(source.slice(source.indexOf('if(new URLSearchParams(location.search)')),/fetch\(/);
+});
