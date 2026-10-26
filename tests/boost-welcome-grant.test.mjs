@@ -27,7 +27,7 @@ test('staging SQL contract enforces serialized one-time welcome grant and servic
  const sql=await readFile(new URL('../docs/sql/prime-boost-preview-welcome-grant.sql',import.meta.url),'utf8');
  assert.match(sql,/from public\.lifting_players where id=v_player for update/i);
  assert.match(sql,/where player_id=v_player for update/i);
- assert.match(sql,/primary key \(player_id,campaign\)/i);
+ assert.match(sql,/primary key \\(player_id\\)/i);
  assert.match(sql,/where player_id=v_player/i);
  assert.match(sql,/least\(1,2-v_inventory\.time_count\)/i);
  assert.match(sql,/least\(1,2-v_inventory\.score_count\)/i);
