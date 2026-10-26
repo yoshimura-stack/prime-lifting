@@ -1,0 +1,4 @@
+Request isolated PRIME BOOST preview deployment.
+Target: prime-boost-isolated-preview
+Branch: feature/prime-boost-staging
+Production deployment: forbidden
