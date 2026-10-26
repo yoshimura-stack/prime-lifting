@@ -9,3 +9,4 @@ Show active BOOST beneath score HUD
 Soccer ball BOOST selector UI deployment
 SECOND CHANCE ready used HUD staging deploy
 Remove BOOST practice intro explanatory text
+Shift achievement results below BOOST HUD
