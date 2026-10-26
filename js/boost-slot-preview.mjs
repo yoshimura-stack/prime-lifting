@@ -156,6 +156,7 @@ export function createSlotPreview(root,{spin,enabled=false}={}){
    running=false;if(button.dataset.completed!=='true'){startButton.disabled=false;button.disabled=true;}
   }
  });
- root.append(heading,reels,startButton,button,status,celebration);
+ reels.append(celebration);
+ root.append(heading,reels,startButton,button,status);
  return Object.freeze({apply,setStatus:value=>{status.textContent=String(value);}});
 }
