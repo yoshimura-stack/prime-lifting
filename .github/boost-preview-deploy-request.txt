@@ -6,3 +6,4 @@ Device practice preview deployment request 2026-10-26
 Small laptop practice layout fix request
 Practice restart repair deployment
 Show active BOOST beneath score HUD
+Soccer ball BOOST selector UI deployment
