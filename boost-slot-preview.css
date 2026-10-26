@@ -46,3 +46,12 @@
 .boost-slot-strip-symbol{box-sizing:border-box;height:var(--reel-step,128px);display:grid;place-items:center;font-size:clamp(45px,6vw,76px);line-height:1;background:radial-gradient(circle at center,var(--symbol-glow) -100%,#0b1732 76%);filter:drop-shadow(0 0 9px var(--symbol-glow));border-bottom:1px solid #314568}
 @media(max-width:440px){.boost-slot-reel{height:90px}}
 @media(orientation:landscape) and (max-height:620px){.boost-slot-reel{height:min(40vh,150px)}}
+
+/* V6 reference: visibly distinct football panels, START then STOP. */
+.boost-slot-ball{display:block;width:min(87%,126px);height:auto;filter:drop-shadow(0 7px 5px #0008)}
+.boost-slot-strip-symbol{background:transparent;filter:none}
+.boost-slot-stage>button{display:block;width:min(100%,460px);margin:10px auto;min-height:53px}
+.boost-slot-stage>button:nth-of-type(1){background:linear-gradient(100deg,#147bfa,#3b5ad7);color:#fff}
+.boost-slot-stage>button:nth-of-type(2){background:linear-gradient(100deg,#ffba27,#f07822);color:#172038}
+.boost-slot-reel{border:4px solid #6687c0;border-radius:20px;background:linear-gradient(#070e1f,#1a2d50 52%,#070e1f)}
+.boost-slot-reels{background:linear-gradient(145deg,#111e39,#080e1f);box-shadow:inset 0 0 25px #153c8060;border:2px solid #5c7fba}
