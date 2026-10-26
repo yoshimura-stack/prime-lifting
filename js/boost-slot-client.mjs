@@ -75,6 +75,10 @@ form?.addEventListener('submit',async event=>{
   token='';view.setStatus('認証または在庫確認に失敗しました。抽選は無効です。');return;
  }
  connectButton.textContent='接続済み（検証専用）';
+ connectButton.disabled=true;
+ const stock=document.getElementById('boost-slot-stock')||document.createElement('p');
+ stock.id='boost-slot-stock';stock.textContent=renderStock(inventory,welcome);
+ root.after(stock);
  createSlotPreview(root,{enabled:true,spin:async()=>{
   const response=await fetch('/api/boost-preview/slot/spin',{
    method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+token},
