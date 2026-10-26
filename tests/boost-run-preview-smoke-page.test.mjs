@@ -17,6 +17,8 @@ test('isolated preview API stays disabled unless both server kill switches are e
  const worker=file('server/boost-preview-worker.mjs'),config=file('wrangler.boost-preview.jsonc');
  assert.match(worker,/env\.BOOST_PREVIEW_ENABLED!=='true'/);
  assert.match(worker,/env\.BOOST_STAGING_RUNS_ENABLED!=='true'/);
- assert.match(config,/"BOOST_PREVIEW_ENABLED": "false"/);
+ assert.match(config,/"BOOST_PREVIEW_ENABLED": "true"/);
+ assert.match(config,/"BOOST_WELCOME_GRANT_ENABLED": "true"/);
+ assert.match(config,/"BOOST_PREVIEW_PROJECT_ID": "tarnzjkxexlozqqmyqof"/);
  assert.doesNotMatch(config,/"BOOST_STAGING_RUNS_ENABLED": "true"/);
 });
