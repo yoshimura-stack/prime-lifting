@@ -24,7 +24,7 @@ test('ready inventory selection starts server-confirmed TIME game and submits re
  flow.select('time');
  await flow.start();
  assert.equal(games.length,2);
- assert.throws(()=>flow.select('time'),/out of stock/);
+ assert.throws(()=>flow.select('time'),/Run already started/);
  assert.deepEqual(statuses,['BOOST開始を確認中','プレイ開始','BOOST開始を確認中','プレイ開始']);
 });
 
