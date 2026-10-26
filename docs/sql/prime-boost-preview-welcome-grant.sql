@@ -6,7 +6,7 @@
 begin;
 create table if not exists public.lifting_boost_welcome_grants (
  player_id uuid not null references public.lifting_players(id) on delete cascade,
- campaign text not null,
+ campaign text not null default 'welcome-boost-v1',
  time_granted integer not null check (time_granted between 0 and 1),
  score_granted integer not null check (score_granted between 0 and 1),
  sc_granted integer not null check (sc_granted between 0 and 1),
