@@ -308,16 +308,18 @@ class LiftingGame{
      this.respawnSide=outLeft?-1:outRight?1:this.respawnSide;
     b.y=Math.min(b.y,c.GROUND_Y-c.BALL_RADIUS);
     b.active=false;
-    // SC preserves the first dropped combo only; respawn and drop count remain unchanged.
-    if(this.c.SC_PROTECT_FIRST_DROP===true&&!this.scProtectedDropUsed){
+    // SECOND CHANCE protects KEEP UPS, SPIN COMBO and AIR COMBO on the first drop.
+    // In-flight spin input is cleared; only earned streaks survive the rescue.
+    const rescued=this.c.SC_PROTECT_FIRST_DROP===true&&!this.scProtectedDropUsed;
+    if(rescued){
      this.scProtectedDropUsed=true;
     }else{
      this.combo=0;
+     this.spinStreak=0;
+     this.airStreak=0;
     }
     this.pendingSpins=0;
     this.eligibleSpin=false;
-    this.spinStreak=0;
-    this.airStreak=0;
     p.spinEligible=false;
     this.drops++;
     this.respawn=c.RESPAWN_DELAY;
