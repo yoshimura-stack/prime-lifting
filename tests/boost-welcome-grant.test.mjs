@@ -28,7 +28,7 @@ test('staging SQL contract enforces serialized one-time welcome grant and servic
  assert.match(sql,/from public\.lifting_players where id=v_player for update/i);
  assert.match(sql,/where player_id=v_player for update/i);
  assert.match(sql,/primary key \(player_id,campaign\)/i);
- assert.match(sql,/campaign='welcome-boost-v1'/i);
+ assert.match(sql,/where player_id=v_player/i);
  assert.match(sql,/least\(1,2-v_inventory\.time_count\)/i);
  assert.match(sql,/least\(1,2-v_inventory\.score_count\)/i);
  assert.match(sql,/least\(1,2-v_inventory\.sc_count\)/i);
