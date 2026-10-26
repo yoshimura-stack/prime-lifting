@@ -15,5 +15,8 @@ test('staging preview remains double locked',async()=>{
  assert.match(html,/id="preview-token"[^>]*disabled/);
  const live=await read('../server/worker.mjs');
  assert.ok(!live.includes("from './boost-preview-worker.mjs'"));
- assert.ok(client.includes('SLOT_BROWSER_ENABLED=false'));
+ assert.match(client,/get\\('operator'\\)==='1'/);
+ assert.match(client,/get\\('demo'\\)!=='1'/);
+ assert.match(client,/if\\(SLOT_BROWSER_ENABLED\\)/);
+ assert.ok(!client.includes('localStorage'));
 });
