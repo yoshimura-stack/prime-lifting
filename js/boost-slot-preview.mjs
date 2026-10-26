@@ -30,7 +30,7 @@ export function createSlotPreview(root,{spin,enabled=false}={}){
   const cell=document.createElement('div');cell.className='boost-slot-reel';
   const track=document.createElement('div');track.className='boost-slot-track';
   // Repeat full 20-symbol strips so a reel wraps without changing its order.
-  for(let repeat=0;repeat<3;repeat++)for(const type of strip)track.append(makeSymbol(type));
+  for(let repeat=0;repeat<5;repeat++)for(const type of strip)track.append(makeSymbol(type));
   cell.append(track);reels.append(cell);
   return {cell,track,strip,position:20,velocity:0,raf:0,last:0,active:false};
  });
