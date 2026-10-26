@@ -26,7 +26,7 @@ export default {
    headers.set('referrer-policy','no-referrer');
    // The existing game HTML contains inline initialization scripts. Permit them
    // only on the isolated playable staging page; all other preview assets stay strict.
-   const gamePreview=url.pathname==='/boost-game-preview.html';
+   const gamePreview=url.pathname==='/boost-game-preview.html'||url.pathname==='/boost-device-practice.html';
    headers.set('content-security-policy',"default-src 'none'; script-src 'self'"+(gamePreview?" 'unsafe-inline'":'')+"; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
    return new Response(response.body,{status:response.status,headers});
   }
