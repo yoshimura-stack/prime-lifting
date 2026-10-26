@@ -67,3 +67,15 @@
 .boost-slot-confetti i{position:absolute;left:var(--x);top:-14px;width:9px;height:15px;background:var(--piece-color);border-radius:2px;opacity:0;animation:boost-slot-fall var(--duration) var(--delay) ease-in forwards}
 @keyframes boost-slot-fall{0%{opacity:0;transform:translate3d(0,-10px,0) rotate(0deg)}8%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translate3d(var(--drift),260px,0) rotate(820deg)}}
 @media(prefers-reduced-motion:reduce){.boost-slot-confetti i{animation:none;opacity:.7;top:calc(var(--x) * .6)}}
+
+/* Prize belongs in the previously empty lower area of the slot cabinet. */
+.boost-slot-reels{align-items:start;align-content:start;row-gap:8px;padding:10px 10px 12px;margin:12px 0 10px}
+.boost-slot-celebration{grid-column:1/-1;grid-row:2;box-sizing:border-box;width:100%;margin:0;min-height:90px;border-radius:12px}
+.boost-slot-celebration[hidden]{display:none}
+.boost-slot-announcement{padding:8px 10px;gap:1px}
+.boost-slot-announcement strong{font-size:clamp(18px,3vw,25px)}
+.boost-slot-announcement b{font-size:clamp(17px,3vw,23px)}
+.boost-slot-announcement span{font-size:13px}
+.boost-slot-stage>button{margin:7px auto;min-height:45px}
+.boost-slot-stage [role=status]{min-height:1.5em;margin:6px 0}
+@media(max-width:440px){.boost-slot-celebration{min-height:84px}.boost-slot-announcement{padding:7px 4px}.boost-slot-announcement strong{font-size:18px}.boost-slot-announcement b{font-size:17px}.boost-slot-announcement span{font-size:12px}}
