@@ -21,10 +21,10 @@ class PrimeRenderer{
   this.player=this.makePlayer();this.scene.add(this.player.group);this.player.group.scale.y=1/this.cos;this.setKit(root.PRIME_KITS?root.PRIME_KITS.get(root.PRIME_KITS.defaultId):null);
   // V0.5.18: bold red / blue / green match-ball graphics, visual only.
   // Original sphere geometry, physical radius, movement and collision remain untouched.
-  const ballTex=this.texture(1024,512,(x,w,h)=>{
-   x.fillStyle='#fcfcf6';x.fillRect(0,0,w,h);
+  const paintBall=(x,w,h,baseColor=null)=>{
+   x.fillStyle=baseColor||'#fcfcf6';x.fillRect(0,0,w,h);
    // Broad curved color panels: legible even when the ball is only ~25px tall.
-   const palette=['#df2433','#0864b9','#00875b'];
+   const palette=baseColor?['#ffffff','#ffffff','#ffffff']:['#df2433','#0864b9','#00875b'];
    for(let row=-1;row<4;row++)for(let col=-1;col<7;col++){
     const cx=col*180+((row&1)?90:0),cy=row*178;
     const color=palette[((row+col)%3+3)%3];
@@ -32,7 +32,7 @@ class PrimeRenderer{
     // White panel perimeter, then saturated sweeping crescent.
     x.beginPath();x.moveTo(-70,-55);x.bezierCurveTo(-4,-94,79,-67,83,-9);
     x.bezierCurveTo(94,47,22,86,-48,67);x.bezierCurveTo(-95,49,-105,-19,-70,-55);x.closePath();
-    x.strokeStyle='#9eaaa9';x.lineWidth=3;x.stroke();
+    x.strokeStyle=baseColor?'rgba(255,255,255,.65)':'#9eaaa9';x.lineWidth=3;x.stroke();
     x.beginPath();x.moveTo(-69,-50);x.bezierCurveTo(-17,-75,67,-59,72,-10);
     x.bezierCurveTo(37,-24,2,-7,-13,21);x.bezierCurveTo(-37,49,-60,57,-78,28);
     x.bezierCurveTo(-87,-5,-83,-29,-69,-50);x.closePath();x.fillStyle=color;x.fill();
@@ -47,68 +47,25 @@ class PrimeRenderer{
    for(let py=3;py<h;py+=9)for(let px=3;px<w;px+=9){
     x.fillStyle='rgba(70,82,78,.10)';x.fillRect(px,py,1,1);
    }
-  });
+  };
+  this.paintBall=paintBall;
+  const ballTex=this.texture(1024,512,(x,w,h)=>paintBall(x,w,h));
   this.ball=new T.Mesh(new T.SphereGeometry(c.BALL_RADIUS,32,24),new T.MeshStandardMaterial({map:ballTex,roughness:0.38,metalness:0.02}));this.normalBallTexture=ballTex;this.boostBallColor=null;this.ball.castShadow=true;this.scene.add(this.ball);this.ballShadow=this.shadow(25,.23);this.scene.add(this.ballShadow);this.playerShadow=this.shadow(58,.28);this.scene.add(this.playerShadow);
 
  }
- // True 3D black pentagon patches, not a repeating UV texture.
- // A low-cost icosahedral layout provides 12 evenly spaced football panels.
- makeBoostPanels(){
-  const T=this.T,r=this.c.BALL_RADIUS,group=new T.Group();
-  const ico=new T.IcosahedronGeometry(1,0),position=ico.getAttribute('position');
-  const centers=new Map();
-  for(let i=0;i<position.count;i++){
-   const v=new T.Vector3().fromBufferAttribute(position,i).normalize();
-   centers.set([v.x,v.y,v.z].map(n=>n.toFixed(4)).join(','),v);
-  }
-  ico.dispose();
-  const black=new T.MeshStandardMaterial({color:'#111b21',roughness:.82,side:T.DoubleSide});
-  const seam=new T.LineBasicMaterial({color:'#07131b'});
-  for(const n of centers.values()){
-   const u=new T.Vector3(0,1,0);
-   if(Math.abs(n.dot(u))>.94)u.set(1,0,0);
-   u.addScaledVector(n,-u.dot(n)).normalize();
-   const v=new T.Vector3().crossVectors(n,u).normalize();
-   const points=[],theta=.39;
-   for(let j=0;j<5;j++){
-    const phi=-Math.PI/2+j*2*Math.PI/5;
-    points.push(n.clone().multiplyScalar(Math.cos(theta))
-     .addScaledVector(u,Math.sin(theta)*Math.cos(phi))
-     .addScaledVector(v,Math.sin(theta)*Math.sin(phi))
-     .normalize().multiplyScalar(r*1.012));
-   }
-   const verts=[];
-   for(let j=0;j<5;j++){
-    const center=n.clone().multiplyScalar(r*1.015);
-    verts.push(...center.toArray(),...points[j].toArray(),...points[(j+1)%5].toArray());
-   }
-   const geom=new T.BufferGeometry();
-   geom.setAttribute('position',new T.Float32BufferAttribute(verts,3));
-   geom.computeVertexNormals();
-   group.add(new T.Mesh(geom,black));
-   const line=new T.LineLoop(new T.BufferGeometry().setFromPoints(points),seam);
-   group.add(line);
-  }
-  group.visible=false;
-  this.ball.add(group);
-  return group;
- }
+ // BOOST reuses the NORMAL ball panel geometry with a white-on-color palette.
  setBoostBallColor(color=null){
   const allowed=new Set([null,'#3B82F6','#FACC15','#22C55E']);
   if(!allowed.has(color))throw new TypeError('Invalid BOOST ball color');
   if(this.boostBallColor===color)return;
   this.boostBallColor=color;
   const material=this.ball.material;
+  material.color.set('#ffffff');
   if(color){
-   if(!this.boostPanels)this.boostPanels=this.makeBoostPanels();
-   this.boostPanels.visible=true;
-   material.map=null;
-   material.color.set(color);
-  }else{
-   if(this.boostPanels)this.boostPanels.visible=false;
-   material.map=this.normalBallTexture;
-   material.color.set('#ffffff');
-  }
+   if(!this.boostBallTextures)this.boostBallTextures=new Map();
+   if(!this.boostBallTextures.has(color))this.boostBallTextures.set(color,this.texture(1024,512,(x,w,h)=>this.paintBall(x,w,h,color)));
+   material.map=this.boostBallTextures.get(color);
+  }else material.map=this.normalBallTexture;
   material.needsUpdate=true;
  }
  mat(color,roughness=.78){return new this.T.MeshStandardMaterial({color,roughness});}
