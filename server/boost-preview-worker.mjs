@@ -40,7 +40,7 @@ export default {
     if(env.BOOST_STAGING_RUNS_ENABLED!=='true'||typeof env.BOOST_RUN_SIGNING_SECRET!=='string'||env.BOOST_RUN_SIGNING_SECRET.length<32)return unavailable();
     return createBoostStagingRunHandler({transport,resolvePlayer,secret:env.BOOST_RUN_SIGNING_SECRET,enabled:true})(request);
    }
-   return createBoostPreviewHandler({transport,resolvePlayer,enabled:true,allowReserve:false})(request);
+   return createBoostPreviewHandler({transport,resolvePlayer,enabled:true,allowReserve:false,allowWelcomeGrant:env.BOOST_WELCOME_GRANT_ENABLED==='true'})(request);
   }catch{return unavailable();}
  }
 };
