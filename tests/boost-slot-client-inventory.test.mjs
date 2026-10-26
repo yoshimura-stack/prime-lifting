@@ -38,3 +38,9 @@ test('operator login requires explicit opt-in and keeps token in memory only',()
  assert.match(source,/window\.addEventListener\('pagehide',\(\)=>\{token='';\}\)/);
  assert.doesNotMatch(source,/localStorage|sessionStorage/);
 });
+
+test('successful operator connection retains welcome receipt and authoritative stock on screen',()=>{
+ assert.match(source,/stock\.textContent=renderStock\(inventory,welcome\)/);
+ assert.match(source,/connectButton\.disabled=true/);
+ assert.match(source,/stock\.textContent=renderStock\(updated\)/);
+});
