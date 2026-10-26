@@ -68,7 +68,7 @@ export function createSlotPreview(root,{spin,enabled=false}={}){
   const base=20+index;
   const extra=((base-current)%20+20)%20;
   const start=current;
-  const target=current+40+extra;
+  const target=current+20+extra;
   const duration=2650;
   const begin=performance.now();
   await new Promise(resolve=>{
