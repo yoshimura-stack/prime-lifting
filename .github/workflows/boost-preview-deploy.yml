@@ -32,7 +32,7 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build:boost-preview
-      - name: Verify target Worker and disabled API flags
+      - name: Verify isolated Worker and explicit guarded API flags
         shell: bash
         run: |
           node --input-type=module -e '
@@ -40,7 +40,8 @@ jobs:
             const c=JSON.parse(fs.readFileSync("wrangler.boost-preview.jsonc","utf8"));
             if(c.name!=="prime-boost-isolated-preview" ||
                c.main!=="server/boost-preview-worker.mjs" ||
-               c.vars?.BOOST_PREVIEW_ENABLED!=="false" ||
+               c.vars?.BOOST_PREVIEW_ENABLED!=="true" ||
+               c.vars?.BOOST_WELCOME_GRANT_ENABLED!=="true" ||
                c.vars?.BOOST_PREVIEW_PROJECT_ID!=="tarnzjkxexlozqqmyqof" ||
                c.assets?.directory!=="./boost-preview-public") process.exit(1);
           '
