@@ -5,9 +5,16 @@ import {createBoostBrowserReady} from './boost-browser-ready.mjs';
 import {createBoostStagingHttpClient} from './boost-staging-http-client.mjs';
 export function createBoostStagingReadyFlow({inventory,getBearer,fetcher,origin,beginGame,onStatus}={}){
  const client=createBoostStagingHttpClient({getBearer,fetcher,origin});
+ // Keep a conservative local count after a confirmed reservation. The server
+ // remains authoritative; never re-offer a consumed item from a stale snapshot.
+ const stock={time:inventory?.time??0,score:inventory?.score??0,sc:inventory?.sc??0};
  const makeReady=()=>createBoostBrowserReady({
-  inventory,
-  startOfficialRun:boost=>client.start(boost),
+  inventory:stock,
+  startOfficialRun:async boost=>{
+   const run=await client.start(boost);
+   if(boost!==null)stock[boost]=Math.max(0,stock[boost]-1);
+   return run;
+  },
   beginGame,
   onStatus
  });
