@@ -68,18 +68,25 @@ jobs:
           if [ "$account_status" != "200" ]; then
             echo "::warning::Preview token cannot list Workers in configured account; verify account ID and Workers Scripts Read/Edit scope."
           fi
-      - name: Check staging run signing configuration (no secret output)
-        shell: bash
-        env:
-          BOOST_RUN_SIGNING_SECRET: ${{ secrets.BOOST_RUN_SIGNING_SECRET }}
-        run: |
-          if [ "${#BOOST_RUN_SIGNING_SECRET}" -ge 32 ]; then
-            echo "Staging run signing secret: configured"
-          else
-            echo "::notice::Staging run signing secret absent or too short; keep official run API disabled."
-          fi
       - name: Deploy isolated preview only
         run: npx --yes wrangler@4.153.0 deploy --config wrangler.boost-preview.jsonc
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.BOOST_PREVIEW_CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.BOOST_PREVIEW_CLOUDFLARE_ACCOUNT_ID }}
+      - name: Smoke test isolated signed-run API without credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          origin="https://prime-boost-isolated-preview.yoshimura-yuki.workers.dev"
+          status=$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 20 \
+            -X POST "$origin/api/boost-stage/start" \
+            -H "Origin: $origin" -H "Content-Type: application/json" \
+            --data '{"boost":null}')
+          echo "Unauthenticated staging run start HTTP: $status"
+          test "$status" = "401" || { echo "::error::Signed-run API not available or failed to reject unauthenticated request"; exit 1; }
+          cross=$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 20 \
+            -X POST "$origin/api/boost-stage/start" \
+            -H "Origin: https://invalid.example" -H "Content-Type: application/json" \
+            --data '{"boost":"score"}')
+          echo "Cross-origin staging run start HTTP: $cross"
+          test "$cross" = "403" || { echo "::error::Staging origin guard failed"; exit 1; }
