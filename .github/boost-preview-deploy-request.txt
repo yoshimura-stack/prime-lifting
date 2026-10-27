@@ -44,3 +44,4 @@ SECOND CHANCE first-touch regression CI passed; deploy staging only 2026-10-26
 2026-10-27: deploy CI-green signed staging run API with isolated signing secret, staging only.
 2026-10-27: deploy and smoke-test isolated signed-run HTTP auth/origin guards after green CI.
 2026-10-27: deploy green staging PIN-login changes only; production untouched.
+2026-10-27: deploy CI-green staging inventory UI and login diagnostics; production untouched.
