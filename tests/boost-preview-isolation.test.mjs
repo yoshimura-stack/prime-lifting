@@ -7,6 +7,8 @@ test('staging preview remains double locked',async()=>{
  const client=await read('../js/boost-slot-client.mjs');
  assert.equal(config.vars.BOOST_PREVIEW_ENABLED,'true');
  assert.equal(config.vars.BOOST_WELCOME_GRANT_ENABLED,'true');
+ assert.equal(config.vars.BOOST_DAILY_LOGIN_GRANT_ENABLED,'true');
+ assert.equal(config.vars.BOOST_STAGING_RUNS_ENABLED,undefined,'ranked run API remains disabled by default');
  assert.equal(config.vars.BOOST_PREVIEW_PROJECT_ID,'tarnzjkxexlozqqmyqof');
  assert.equal(config.assets.directory,'./boost-preview-public');
  assert.equal(config.assets.run_worker_first,true,'all static requests must pass security header middleware');
