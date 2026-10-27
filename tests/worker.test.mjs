@@ -269,3 +269,33 @@ test('BOOST run requires reservation before signed ticket and uses signed 65-sec
  assert.equal(submitted.score,100);
  assert.equal(submitted.mobileBonus,0);
 });
+
+
+test('SCORE BOOST uses signed selection and neutral device multiplier',async()=>{
+ let now=100000;
+ const player={id:'player-one',name:'A',best:0,rank:1};
+ const submits=[];
+ const worker=createWorker({now:()=>now,replayGame:(events,width,boost)=>{
+  assert.equal(boost,'score');return {score:105,hits:0,combo:0,drops:0,achievementProof:{},nextProof:{}};
+ },database:()=>({call:async(op,input)=>{
+  if(op==='boost_reserve')return {reserved:true,boost:input.boost,runId:input.runId};
+  if(op==='submit'){submits.push(input);return {player,personalBest:true,newChampion:false};}
+  if(op==='achievement_merge')return {mask:0};
+  return {player};
+ }})});
+ const feature={...env,PRIME_BOOST_ENABLED:'true',PRIME_BOOST_SCORE_PERSISTENCE_READY:'true'};
+ const login=await worker.fetch(request('/api/login',{name:'A',pin:'123456'}),feature);
+ assert.equal(login.status,200);
+ const cookie=login.headers.get('set-cookie').split(';')[0];
+ const start=await worker.fetch(request('/api/game/start',{boost:'score'},cookie),feature);
+ assert.equal(start.status,200);
+ const run=await start.json();
+ now+=61000;
+ const saved=await worker.fetch(request('/api/scores',{...run,boost:'time',events:[],kit:'japan-01'},cookie),feature);
+ assert.equal(saved.status,200);
+ assert.equal((await saved.json()).score,116,'105 x 1.1 rounded to nearest integer');
+ assert.equal(submits.length,1);
+ assert.equal(submits[0].baseScore,105);
+ assert.equal(submits[0].score,116);
+ assert.equal(submits[0].mobileBonus,11);
+});
