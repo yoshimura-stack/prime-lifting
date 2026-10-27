@@ -18,6 +18,12 @@ test('receipt-only support never passes release gate',()=>{
  assert.equal(gate.missing.length,BOOST_REQUIRED_RELEASE_FUNCTIONS.length);
 });
 test('only complete verified transaction and client wiring passes',()=>{
- const gate=assessBoostReleaseReadiness({functions:[...BOOST_REQUIRED_RELEASE_FUNCTIONS],tables:['lifting_runs','lifting_players'],workerWired:true,uiWired:true,ciPassed:true});
+ const gate=assessBoostReleaseReadiness({functions:[...BOOST_REQUIRED_RELEASE_FUNCTIONS],tables:['lifting_runs','lifting_players'],workerWired:true,uiWired:true,ciPassed:true,rankingPersistence:'production-compatible-atomic'});
  assert.deepEqual(gate,{ready:true,missing:[]});
+});
+
+test('shadow ranking cannot pass even with every named RPC and CI green',()=>{
+ const gate=assessBoostReleaseReadiness({functions:[...BOOST_REQUIRED_RELEASE_FUNCTIONS],tables:['lifting_runs','lifting_players'],workerWired:true,uiWired:true,ciPassed:true,rankingPersistence:'shadow'});
+ assert.equal(gate.ready,false);
+ assert.deepEqual(gate.missing,['production_compatible_atomic_ranking']);
 });
