@@ -454,12 +454,12 @@ test('BOOST SQL proposals match Worker RPC names and enforce service-role-only a
 });
 
 test('BOOST score submission retry preserves signed run ID and never reserves stock again',async()=>{
- let now=100000,reservations=0,submitAttempts=0,storedRun=null;
+ let now=100000,reservations=0,submitAttempts=0,storedRun=null,reservedRun=null;
  const player={id:'player-one',name:'A',best:116,rank:1};
  const worker=createWorker({now:()=>now,replayGame:(events,width,boost)=>{
   assert.equal(boost,'score');return {score:105,hits:0,combo:0,drops:0,achievementProof:{},nextProof:{}};
  },database:()=>({call:async(op,input)=>{
-  if(op==='boost_reserve'){reservations++;return {reserved:true,boost:input.boost,runId:input.runId};}
+  if(op==='boost_reserve'){reservations++;reservedRun=input.runId;return {reserved:true,boost:input.boost,runId:input.runId};}
   if(op==='submit'){
    submitAttempts++;
    if(submitAttempts===1)throw Error('temporary database outage');
@@ -485,5 +485,5 @@ test('BOOST score submission retry preserves signed run ID and never reserves st
  assert.equal((await retried.json()).score,116);
  assert.equal(reservations,1,'retrying score save must not reserve or spend another BOOST');
  assert.equal(submitAttempts,2);
- assert.equal(storedRun,run.runId);
+ assert.equal(storedRun,reservedRun,'saved score must use the same run ID as its BOOST reservation');
 });
