@@ -21,6 +21,7 @@ class LiftingGame{
   this.combo=0;
   this.bestCombo=0;
   this.drops=0;
+  this.scUsed=false;
   this.hits=0;
   this.pendingSpins=0;
   this.eligibleSpin=false;
@@ -307,7 +308,10 @@ class LiftingGame{
      this.respawnSide=outLeft?-1:outRight?1:this.respawnSide;
     b.y=Math.min(b.y,c.GROUND_Y-c.BALL_RADIUS);
     b.active=false;
-    this.combo=0;
+    // SECOND CHANCE protects the first drop's combo only; normal respawn continues.
+    const protectCombo=c.SC_PROTECT_FIRST_DROP===true&&!this.scUsed;
+    if(protectCombo)this.scUsed=true;
+    if(!protectCombo)this.combo=0;
     this.pendingSpins=0;
     this.eligibleSpin=false;
     this.spinStreak=0;
