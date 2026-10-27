@@ -111,7 +111,7 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
    await db.call('me',{playerId:session.sub});
    const inventory=await db.call('boost_inventory',{playerId:session.sub});
    // Keep picker hidden until boosted replay and score persistence are verified end-to-end.
-   return json({...inventory,selectionEnabled:false});
+   return json({...inventory,selectionEnabled:env.PRIME_BOOST_SCORE_PERSISTENCE_READY==='true'});
   }
   if(path==='/api/daily/status'){
    const day=jstDay(time),data=await db.call('daily_status',{playerId:session.sub,day});
