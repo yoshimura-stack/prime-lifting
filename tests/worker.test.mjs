@@ -219,3 +219,53 @@ test('authenticated achievement progress accumulates across separately saved run
  assert.equal(leaderboard.entries[0].master,false);
  assert.equal(calls.filter(op=>op==='achievement_merge').length,2);
 });
+
+
+test('BOOST start fails closed when score persistence is not explicitly ready',async()=>{
+ let now=100000;
+ const player={id:'player-one',name:'A',best:0,rank:1};
+ const calls=[];
+ const worker=createWorker({now:()=>now,database:()=>({call:async(op,input)=>{calls.push(op);return {player};}})});
+ const feature={...env,PRIME_BOOST_ENABLED:'true'};
+ const login=await worker.fetch(request('/api/login',{name:'A',pin:'123456'}),feature);
+ assert.equal(login.status,200);
+ const cookie=login.headers.get('set-cookie').split(';')[0];
+ const blocked=await worker.fetch(request('/api/game/start',{boost:'score'},cookie),feature);
+ assert.equal(blocked.status,403);
+ assert.equal(calls.includes('boost_reserve'),false,'inventory must not be consumed before persistence is ready');
+ const ordinary=await worker.fetch(request('/api/game/start',{},cookie),feature);
+ assert.equal(ordinary.status,200,'ordinary play must remain available');
+});
+
+test('BOOST run requires reservation before signed ticket and uses signed 65-second replay',async()=>{
+ let now=100000,submitted=null,verified=null;
+ const player={id:'player-one',name:'A',best:0,rank:1};
+ const calls=[];
+ const worker=createWorker({now:()=>now,replayGame:(events,width,boost)=>{verified=boost;return {score:100,hits:0,combo:0,drops:0,achievementProof:{},nextProof:{}};},
+ database:()=>({call:async(op,input)=>{
+  calls.push(op);
+  if(op==='boost_reserve')return {reserved:true,boost:input.boost,runId:input.runId};
+  if(op==='submit'){submitted=input;return {player,personalBest:true,newChampion:true};}
+  if(op==='achievement_merge')return {mask:0};
+  return {player};
+ }})});
+ const feature={...env,PRIME_BOOST_ENABLED:'true',PRIME_BOOST_SCORE_PERSISTENCE_READY:'true'};
+ const login=await worker.fetch(request('/api/login',{name:'A',pin:'123456'}),feature);
+ assert.equal(login.status,200);
+ const cookie=login.headers.get('set-cookie').split(';')[0];
+ const start=await worker.fetch(request('/api/game/start',{boost:'time'},cookie),feature);
+ assert.equal(start.status,200);
+ const run=await start.json();
+ assert.equal(run.boost,'time');
+ assert.equal(calls.filter(op=>op==='boost_reserve').length,1);
+ now+=64000;
+ const tooEarly=await worker.fetch(request('/api/scores',{...run,events:[],kit:'japan-01'},cookie),feature);
+ assert.equal(tooEarly.status,400);
+ assert.equal(calls.filter(op=>op==='submit').length,0);
+ now+=2000;
+ const saved=await worker.fetch(request('/api/scores',{...run,events:[],kit:'japan-01'},cookie),feature);
+ assert.equal(saved.status,200);
+ assert.equal(verified,'time');
+ assert.equal(submitted.score,100);
+ assert.equal(submitted.mobileBonus,0);
+});
