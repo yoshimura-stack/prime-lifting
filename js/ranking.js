@@ -452,7 +452,7 @@ window.PRIME_RANKING={
  },
  finish(result,events,standard){
   $('result-ranking').hidden=false;$('result-next-rival').hidden=true;$('record-banner').textContent='';$('record-banner').classList.remove('record-celebrate');$('save-retry').hidden=true;
-  $('personal-result').textContent=`今回 ${result.score.toLocaleString()} PTS ／ BEST ${player?player.best.toLocaleString():'—'} PTS ／ 全体 ${player?.rank??'—'}位`;
+  $('personal-result').textContent=`今回 ${(ticket?.boost==='score'?Math.round(result.score*1.1):result.score).toLocaleString()} PTS ／ BEST ${player?player.best.toLocaleString():'—'} PTS ／ 全体 ${player?.rank??'—'}位`;
   refresh();
   if(standard&&ticket&&player){pending={...ticket,events:structuredClone(events),kit:result.kit,device:result.device};save();}
   else $('save-feedback').textContent=!standard?'調整設定でのプレイはランキング対象外です。':!player?'ログインすると次のプレイから記録を保存できます。':'オンライン記録を開始できなかったため、今回は保存できません。';
