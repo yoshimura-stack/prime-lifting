@@ -141,10 +141,13 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   const body=await readBody(request),run=await verify(body.token,env.SESSION_SECRET,'run',time);
   if(run.sub!==session.sub||run.ruleset!==RULESET||body.ruleset!==RULESET)throw new ApiError(403,'このプレイは登録できません。');
   // 60s lower bound leaves the 3s countdown as network-latency allowance.
-  if(time-run.started<60000)throw new ApiError(400,'プレイ終了後に再試行してください。');
+  if(time-run.started<(run.boost==='time'?65000:60000))throw new ApiError(400,'プレイ終了後に再試行してください。');
   const device=run.device??requestDevice(request);
   if(!validKit(body.kit)||!['pc','mobile'].includes(device))throw new ApiError(400,'端末・ユニフォームの指定が正しくありません。');
-  const result=replayGame(body.events,run.worldWidth??1000),score=finalScore(result.score,device);
+  const boost=run.boost??null;
+  if(boost!==null&&(!['time','score','sc'].includes(boost)||env.PRIME_BOOST_ENABLED!=='true'))throw new ApiError(403,'BOOSTの検証に失敗しました。');
+  const result=replayGame(body.events,run.worldWidth??1000,boost);
+  const score=boost==='score'?Math.round(result.score*1.1):finalScore(result.score,device);
   const saved=await db.call('submit',{playerId:session.sub,runId:run.id,...result,score,baseScore:result.score,mobileBonus:score-result.score,kit:body.kit,device,gameVersion:VERSION});
   // Only an accepted and saved standard run can grant titles.
   // Progress is isolated from score storage; a progress outage must not erase a score.
