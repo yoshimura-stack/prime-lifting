@@ -443,7 +443,7 @@ window.PRIME_RANKING={
  worldWidth:()=>ticket?.worldWidth??1000,
  confirmedBoost:()=>ticket?.boost??null,
  boostPreparationAvailable:()=>boostReady&&!!player,
- showBoostPreparation(){if(!boostReady||!player)return false;$('result-ranking').hidden=true;const inventory={};for(const el of boostPanel.querySelectorAll('button[data-boost]'))inventory[el.dataset.boost]=Number(el.querySelector('small').textContent.slice(1));renderBoostPicker(inventory);return true;},
+ async showBoostPreparation(){if(!boostReady||!player)return false;$('result-ranking').hidden=true;await syncBoostPicker();return boostReady&&!!player;},
  achievements(stats){renderLive(stats,false);showAchievements(stats);},resetAchievements,updateAchievements(stats){renderLive(stats,true);},preflight,
  async begin(standard){
   ++generation;pending=null;$('achievement-panel').hidden=true;$('achievement-badges').replaceChildren();$('result-ranking').hidden=true;$('account-panel').hidden=false;
