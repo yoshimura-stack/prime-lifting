@@ -33,3 +33,4 @@ SECOND CHANCE first-touch regression CI passed; deploy staging only 2026-10-26
 2026-10-26 deploy CI-green operator login UI with API disabled
 2026-10-26 staging signed BOOST API deployment after CI green; secrets required and fail closed
 2026-10-27 teacher7 daily BOOST grant staging only (SQL staged; CI green; no production deploy)
+2026-10-27 teacher7 isolated preview retry with pinned Wrangler 4.153.0 (no production)
