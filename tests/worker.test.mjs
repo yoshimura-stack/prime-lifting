@@ -319,3 +319,26 @@ test('BOOST inventory advertises picker only after explicit persistence readines
  assert.equal(on.status,200);
  assert.deepEqual(await on.json(),{inventory:{time:1,score:2,sc:0},selectionEnabled:true});
 });
+
+
+test('BOOST reservation failure never issues a playable run token',async()=>{
+ const player={id:'player-one',name:'A',best:0,rank:1};
+ const calls=[];
+ const worker=createWorker({database:()=>({call:async(op)=>{
+  calls.push(op);
+  if(op==='boost_reserve')throw Error('BOOST inventory empty');
+  return {player};
+ }})});
+ const feature={...env,PRIME_BOOST_ENABLED:'true',PRIME_BOOST_SCORE_PERSISTENCE_READY:'true'};
+ const login=await worker.fetch(request('/api/login',{name:'A',pin:'123456'}),feature);
+ assert.equal(login.status,200);
+ const cookie=login.headers.get('set-cookie').split(';')[0];
+ const denied=await worker.fetch(request('/api/game/start',{boost:'score'},cookie),feature);
+ assert.notEqual(denied.status,200);
+ const body=await denied.json();
+ assert.equal(body.token,undefined,'failed reservation must not expose a signed run');
+ assert.equal(calls.filter(op=>op==='boost_reserve').length,1);
+ const ordinary=await worker.fetch(request('/api/game/start',{},cookie),feature);
+ assert.equal(ordinary.status,200,'normal gameplay remains possible with empty BOOST stock');
+ assert.equal(calls.filter(op=>op==='boost_reserve').length,1);
+});
