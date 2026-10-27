@@ -49,7 +49,7 @@ export function createBoostPreviewHandler({transport,resolvePlayer,enabled=false
    return json({error:'Not found'},404);
   }catch(error){
    if(error instanceof TypeError||error instanceof RangeError)return json({error:'Invalid BOOST request'},400);
-   return json({error:'Preview database unavailable'},503);
+   return json({error:'Preview database unavailable',hint:'Staging database connection or RPC failed; no BOOST was granted'},503);
   }
  };
 }
