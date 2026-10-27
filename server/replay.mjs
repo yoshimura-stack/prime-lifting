@@ -31,7 +31,7 @@ export function replay(events,worldWidth=1000,boost=null){
     // A jump must have been accepted since the previous successful touch; airborne alone is not sufficient.
     if(jumpsSinceHit>0)nextProof.jump++;else nextProof.allJump=false;
     if(prefix.hits<30){prefix.hits++;if(part&&Object.hasOwn(prefix,part))prefix[part]++;if(event.spinCount>0)prefix.spin++;if(jumpsSinceHit>0)prefix.jump++;if(prefix.hits===30&&prefix.unbroken)nextProof.first30={...prefix};}
-    maxAirStreak=Math.max(maxAirStreak,event.airStreak||0);if(event.name==='SHOULDER')shoulderHits++;if(event.spinCount>=3)spinKing=true;if(event.spinCount>=4)quadMaster=true;if(event.spinCount>=4&&jumpsSinceHit>=1)airQuad=true;if(jumpsSinceHit>=2)doubleAir=true;jumpsSinceHit=0;}else if(event.type==='drop'){jumpsSinceHit=0;if(prefix.hits<30)prefix.unbroken=false;}}g.events.length=0;tick++;}
+    maxAirStreak=Math.max(maxAirStreak,event.airStreak||0);if(event.name==='SHOULDER')shoulderHits++;if(event.spinCount>=3)spinKing=true;if(event.spinCount>=4)quadMaster=true;if(event.spinCount>=4&&jumpsSinceHit>=1)airQuad=true;if(jumpsSinceHit>=2)doubleAir=true;jumpsSinceHit=0;}else if(event.type==='drop'){jumpsSinceHit=0;if(prefix.hits<30&&!(boost==='sc'&&g.scProtectedDropUsed&&g.drops===1))prefix.unbroken=false;}}g.events.length=0;tick++;}
  if(at!==events.length||g.phase!=='ended')throw new ApiError(400,'プレイ記録の終了位置が正しくありません。');
  return {score:g.score,hits:g.hits,combo:g.bestCombo,drops:g.drops,achievementProof:{maxAirStreak,shoulderHits,spinKing,quadMaster,airQuad,doubleAir},nextProof};
 }
