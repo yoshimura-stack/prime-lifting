@@ -452,3 +452,38 @@ test('BOOST SQL proposals match Worker RPC names and enforce service-role-only a
  assert.match(source,/last_grant_day date/,'daily grant must have JST idempotency column');
  assert.match(source,/where run_id=v_run and player_id=v_id and boost_type=payload->>'boost'/,'score save must match reservation');
 });
+
+test('BOOST score submission retry preserves signed run ID and never reserves stock again',async()=>{
+ let now=100000,reservations=0,submitAttempts=0,storedRun=null;
+ const player={id:'player-one',name:'A',best:116,rank:1};
+ const worker=createWorker({now:()=>now,replayGame:(events,width,boost)=>{
+  assert.equal(boost,'score');return {score:105,hits:0,combo:0,drops:0,achievementProof:{},nextProof:{}};
+ },database:()=>({call:async(op,input)=>{
+  if(op==='boost_reserve'){reservations++;return {reserved:true,boost:input.boost,runId:input.runId};}
+  if(op==='submit'){
+   submitAttempts++;
+   if(submitAttempts===1)throw Error('temporary database outage');
+   if(storedRun!==null)assert.equal(input.runId,storedRun,'retry must preserve run ID');
+   else storedRun=input.runId;
+   return {player,personalBest:true,newChampion:false};
+  }
+  if(op==='achievement_merge')return {mask:0};
+  return {player};
+ }})});
+ const feature={...env,PRIME_BOOST_ENABLED:'true',PRIME_BOOST_SCORE_PERSISTENCE_READY:'true'};
+ const login=await worker.fetch(request('/api/login',{name:'A',pin:'123456'}),feature);
+ const cookie=login.headers.get('set-cookie').split(';')[0];
+ const start=await worker.fetch(request('/api/game/start',{boost:'score'},cookie),feature);
+ assert.equal(start.status,200);
+ const run=await start.json();
+ now+=61000;
+ const payload={...run,events:[],kit:'japan-01'};
+ const failed=await worker.fetch(request('/api/scores',payload,cookie),feature);
+ assert.notEqual(failed.status,200);
+ const retried=await worker.fetch(request('/api/scores',payload,cookie),feature);
+ assert.equal(retried.status,200);
+ assert.equal((await retried.json()).score,116);
+ assert.equal(reservations,1,'retrying score save must not reserve or spend another BOOST');
+ assert.equal(submitAttempts,2);
+ assert.equal(storedRun,run.runId);
+});
