@@ -51,7 +51,7 @@ form.addEventListener('submit',async event=>{
  try{
   if(!/^\d{6,12}$/.test(candidate))throw new Error('6〜12桁の検証PINを入力してください');
   const login=await fetch('/api/boost-preview/tester-login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({pin:candidate}),credentials:'omit',cache:'no-store'});
-  if(!login.ok)throw new Error('検証PINを確認してください（HTTP '+login.status+'）');
+  if(!login.ok)throw new Error(login.status===503?'検証WorkerのPIN設定が未完了です（管理者に確認）':login.status===429?'接続回数が多すぎます。時間をおいて再試行してください':login.status===401?'検証PINが一致しません':'検証ログイン失敗（HTTP '+login.status+'）');
   const session=await login.json();
   if(typeof session?.token!=='string'||session.token.length<32)throw new Error('検証セッション取得失敗');
   token=session.token;
