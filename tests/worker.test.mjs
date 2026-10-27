@@ -487,3 +487,20 @@ test('BOOST score submission retry preserves signed run ID and never reserves st
  assert.equal(submitAttempts,2);
  assert.equal(storedRun,reservedRun,'saved score must use the same run ID as its BOOST reservation');
 });
+
+test('BOOST SQL keeps duplicate run submission idempotent before BEST and breakdown writes',async()=>{
+ const {readFileSync}=await import('node:fs');
+ const sql=readFileSync(new URL('../sql/prime-boost-submit-proposal-20261027.sql',import.meta.url),'utf8');
+ const lock=sql.indexOf('perform pg_catalog.pg_advisory_xact_lock(5112026)');
+ const lookup=sql.indexOf('select * into v_existing from public.lifting_runs where run_id=v_run');
+ const existing=sql.indexOf('if found then',lookup);
+ const earlyReturn=sql.indexOf("return jsonb_build_object('player',public.lifting_api_player(v_id)",existing);
+ const bestWrite=sql.indexOf('update public.lifting_players set best_score=');
+ const breakdownWrite=sql.indexOf('insert into public.lifting_score_breakdowns');
+ const runWrite=sql.indexOf('insert into public.lifting_runs(');
+ assert.ok(lock>=0&&lock<lookup,'duplicate check must run under global submission lock');
+ assert.ok(lookup<existing&&existing<earlyReturn,'existing run must return its saved result');
+ assert.ok(earlyReturn<bestWrite&&earlyReturn<breakdownWrite&&earlyReturn<runWrite,'duplicate run must exit before all score writes');
+ assert.match(sql,/if v_existing\.player_id<>v_id then raise exception 'Run belongs to another player'/,'run IDs must be bound to their original player');
+ assert.match(sql,/where run_id=v_run and player_id=v_id and boost_type=payload->>'boost'/,'BOOST run must match its reservation');
+});
