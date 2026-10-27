@@ -373,3 +373,33 @@ test('SCORE BOOST applies the same x1.1 on mobile without legacy x1.2',async()=>
  assert.equal(submitted.mobileBonus,100);
  assert.equal(submitted.boost,'score');
 });
+
+test('ordinary play stays neutral and does not reserve inventory when BOOST flags are enabled',async()=>{
+ let now=100000,submitted=null;
+ const player={id:'player-one',name:'A',best:0,rank:1};
+ const calls=[];
+ const worker=createWorker({now:()=>now,replayGame:(events,width,boost)=>{
+  assert.equal(boost,null);return {score:1000,hits:0,combo:0,drops:0,achievementProof:{},nextProof:{}};
+ },database:()=>({call:async(op,input)=>{
+  calls.push(op);
+  if(op==='submit'){submitted=input;return {player,personalBest:true,newChampion:false};}
+  if(op==='achievement_merge')return {mask:0};
+  return {player};
+ }})});
+ const feature={...env,PRIME_BOOST_ENABLED:'true',PRIME_BOOST_SCORE_PERSISTENCE_READY:'true'};
+ const login=await worker.fetch(request('/api/login',{name:'A',pin:'123456'}),feature);
+ const cookie=login.headers.get('set-cookie').split(';')[0];
+ const start=await worker.fetch(request('/api/game/start',{},cookie),feature);
+ assert.equal(start.status,200);
+ const run=await start.json();
+ assert.equal(run.boost,null);
+ assert.equal(calls.includes('boost_reserve'),false);
+ now+=61000;
+ const response=await worker.fetch(request('/api/scores',{...run,events:[],kit:'japan-01'},cookie),feature);
+ assert.equal(response.status,200);
+ assert.equal((await response.json()).score,1000);
+ assert.equal(submitted.baseScore,1000);
+ assert.equal(submitted.mobileBonus,0);
+ assert.equal(submitted.boost,null);
+ assert.equal(calls.includes('boost_reserve'),false);
+});
