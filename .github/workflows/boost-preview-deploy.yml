@@ -42,6 +42,7 @@ jobs:
                c.main!=="server/boost-preview-worker.mjs" ||
                c.vars?.BOOST_PREVIEW_ENABLED!=="true" ||
                c.vars?.BOOST_WELCOME_GRANT_ENABLED!=="true" ||
+               c.vars?.BOOST_DAILY_LOGIN_GRANT_ENABLED!=="true" ||
                c.vars?.BOOST_PREVIEW_PROJECT_ID!=="tarnzjkxexlozqqmyqof" ||
                c.assets?.directory!=="./boost-preview-public") process.exit(1);
           '
