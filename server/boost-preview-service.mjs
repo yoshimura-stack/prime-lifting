@@ -28,6 +28,11 @@ export function createBoostPreviewService(transport){
    }
    return Object.freeze({alreadyGranted:result.alreadyGranted,...counts,...(!result.alreadyGranted?{granted:Object.freeze({...result.granted})}:{})});
   },
+  async dailyLoginGrant(playerId){
+   const result=await db.call('boost_daily_login_grant',{playerId:requirePlayer(playerId)});
+   if(!result||typeof result.day!=='string'||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(result.day)||typeof result.replayed!=='boolean'||(result.boost!==null&&!['time','score','sc'].includes(result.boost))||typeof result.allFull!=='undefined'&&typeof result.allFull!=='boolean'||typeof result.welcomeDay!=='undefined'&&typeof result.welcomeDay!=='boolean')throw new TypeError('Invalid daily login grant result');
+   return Object.freeze({day:result.day,boost:result.boost,replayed:result.replayed,allFull:result.allFull===true,welcomeDay:result.welcomeDay===true});
+  },
   async spin(playerId){
    const result=await db.call('boost_slot_spin',{playerId:requirePlayer(playerId)});
    return parseSlotResult(result);
