@@ -336,7 +336,7 @@ async function save(){
  if(!pending||saving)return;const submission=pending,current=generation;saving=true;
  $('save-retry').hidden=true;$('save-feedback').textContent='プレイを確認して保存しています…';
  try{const data=await api('/api/scores',submission);
- if(current!==generation)return;player=data.player;pending=null;account();window.PRIME_DAILY?.sync?.({submitted:true});
+ if(current!==generation)return;player=data.player;pending=null;account();if(submission.boost)syncBoostPicker();window.PRIME_DAILY?.sync?.({submitted:true});
  $('personal-result').textContent=`今回 ${data.score.toLocaleString()} PTS ／ BEST ${player.best.toLocaleString()} PTS ／ 全体 ${player.rank??'—'}位`;
  $('record-banner').textContent=data.newChampion?'NEW CHAMPION!':data.personalBest?'NEW PERSONAL BEST!':'';$('record-banner').classList.toggle('record-celebrate',!!(data.personalBest||data.newChampion));
  const dailyNote=data.dailyCheck?.enabled===false?' ／ デイチャレ報酬は未有効':data.dailyCheck?.enabled===true&&data.dailyCheck.qualifiedIds?.length===0?' ／ デイチャレ：サーバー判定で未達成':data.dailyCheck?.enabled===true&&data.daily?.earned>0?' ／ デイチャレ +'+data.daily.earned+' PTS 保存済み':data.dailyCheck?.enabled===true?' ／ デイチャレ：今回の新規加点なし':'';
