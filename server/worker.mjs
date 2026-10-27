@@ -148,7 +148,7 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   if(boost!==null&&(!['time','score','sc'].includes(boost)||env.PRIME_BOOST_ENABLED!=='true'))throw new ApiError(403,'BOOSTの検証に失敗しました。');
   const result=replayGame(body.events,run.worldWidth??1000,boost);
   const score=boost==='score'?Math.round(result.score*1.1):finalScore(result.score,device);
-  const saved=await db.call('submit',{playerId:session.sub,runId:run.id,...result,score,baseScore:result.score,mobileBonus:score-result.score,kit:body.kit,device,gameVersion:VERSION});
+  const saved=await db.call('submit',{playerId:session.sub,runId:run.id,...result,score,baseScore:result.score,mobileBonus:score-result.score,boost,kit:body.kit,device,gameVersion:VERSION});
   // Only an accepted and saved standard run can grant titles.
   // Progress is isolated from score storage; a progress outage must not erase a score.
   let progress=null;
