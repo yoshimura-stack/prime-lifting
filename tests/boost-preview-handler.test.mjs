@@ -102,3 +102,24 @@ test('enabled welcome gift uses authenticated player identity',async()=>{
  assert.equal((await res.json()).alreadyGranted,false);
  assert.deepEqual(calls,[{op:'boost_welcome_grant',payload:{playerId:player}}]);
 });
+
+test('daily login grant is fail-closed until separate enable flag is set',async()=>{
+ let calls=0;
+ const handle=createBoostPreviewHandler({enabled:true,resolvePlayer:async()=>player,transport:{call:async()=>{calls++;}}});
+ const res=await handle(request('/api/boost-preview/daily-login-grant',{}));
+ assert.equal(res.status,403);assert.equal(calls,0);
+});
+test('enabled daily login grant uses authenticated identity and returns server result',async()=>{
+ const calls=[];
+ const handle=createBoostPreviewHandler({enabled:true,allowDailyLoginGrant:true,resolvePlayer:async()=>player,transport:{call:async(op,payload)=>{
+  calls.push({op,payload});return {day:'2026-10-28',boost:'sc',replayed:false};
+ }}});
+ const res=await handle(request('/api/boost-preview/daily-login-grant',{playerId:'forged'}));
+ assert.equal(res.status,200);
+ assert.deepEqual(await res.json(),{day:'2026-10-28',boost:'sc',replayed:false,allFull:false,welcomeDay:false});
+ assert.deepEqual(calls,[{op:'boost_daily_login_grant',payload:{playerId:player}}]);
+});
+test('daily login grant rejects invalid RPC response',async()=>{
+ const handle=createBoostPreviewHandler({enabled:true,allowDailyLoginGrant:true,resolvePlayer:async()=>player,transport:{call:async()=>({day:'bad',boost:'miss',replayed:false})}});
+ assert.equal((await handle(request('/api/boost-preview/daily-login-grant',{}))).status,400);
+});
