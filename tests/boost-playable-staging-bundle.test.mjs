@@ -15,7 +15,8 @@ test('staging playable bootstrap requires bearer and verified inventory, never e
  assert.match(script,/window\.PRIME_STAGING_RUN_FLOW=bridge/);
  assert.match(script,/inventory=await refresh\(\)/);
  assert.match(script,/if\(!client\|\|!inventory\)throw new Error\('STAGING authentication required'\)/);
- assert.match(script,/inventory=null; \/\/ Inventory must be refreshed/);
+ assert.match(script,/inventory=null;/);
+ assert.match(script,/inventory=await refresh\(\)/);
  assert.doesNotMatch(script,/localStorage|sessionStorage|service_role|location\.search/);
 });
 
@@ -28,4 +29,11 @@ test('playable staging login grants welcome then daily before reading authoritat
  assert.match(script,/if\(!res\.ok\)throw new Error\('BOOST login grant HTTP '/);
  assert.match(script,/if\(typeof daily\?\.day!=='string'\|\|typeof daily\.replayed!=='boolean'\)/);
  assert.doesNotMatch(script,/localStorage|sessionStorage|service_role/);
+});
+
+test('completed staging run re-fetches stock before allowing another START',()=>{
+ const script=read('js/boost-playable-staging-bootstrap.mjs');
+ assert.match(script,/const result=await client\.finish\(payload\);[\s\S]*inventory=null;[\s\S]*inventory=await refresh\(\)/);
+ assert.match(script,/selected=null;/);
+ assert.match(script,/在庫再取得に失敗。再接続してください/);
 });
