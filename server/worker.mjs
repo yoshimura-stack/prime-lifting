@@ -125,7 +125,7 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
    const startBody=await readBody(request);
    const boost=startBody.boost??null;
    if(boost!==null){
-    if(env.PRIME_BOOST_ENABLED!=='true')throw new ApiError(403,'BOOSTは現在準備中です。');
+    if(env.PRIME_BOOST_ENABLED!=='true'||env.PRIME_BOOST_SCORE_PERSISTENCE_READY!=='true')throw new ApiError(403,'BOOSTは現在準備中です。');
     if(!['time','score','sc'].includes(boost))throw new ApiError(400,'BOOSTの選択が正しくありません。');
    }
    const width=startBody.worldWidth??1000;
