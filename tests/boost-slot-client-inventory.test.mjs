@@ -40,7 +40,19 @@ test('operator login requires explicit opt-in and keeps token in memory only',()
 });
 
 test('successful operator connection retains welcome receipt and authoritative stock on screen',()=>{
- assert.match(source,/stock\.textContent=renderStock\(inventory,welcome\)/);
+ assert.match(source,/stock\.textContent=renderStock\(inventory,welcome,daily\)/);
  assert.match(source,/connectButton\.disabled=true/);
  assert.match(source,/stock\.textContent=renderStock\(updated\)/);
+});
+
+test('operator login performs welcome then daily grant then inventory read without leaking block locals',()=>{
+ const welcome=source.indexOf('const welcome=await requestWelcomeGrant()');
+ const daily=source.indexOf('const daily=await requestDailyLoginGrant()');
+ const inventory=source.indexOf('const inventory=await readInventory()');
+ assert.ok(welcome>=0&&welcome<daily&&daily<inventory,'server grants precede final inventory read');
+ assert.match(source,/verified=\{welcome,daily,inventory\}/);
+ assert.match(source,/const \{welcome,daily,inventory\}=verified/);
+ assert.match(source,/if\(response.status===403\)return Object.freeze\(\{disabled:true\}\)/);
+ assert.match(source,/\/api\/boost-preview\/daily-login-grant/);
+ assert.match(source,/renderStock\(inventory,welcome,daily\)/);
 });
