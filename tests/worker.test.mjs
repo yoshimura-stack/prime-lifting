@@ -342,3 +342,34 @@ test('BOOST reservation failure never issues a playable run token',async()=>{
  assert.equal(ordinary.status,200,'normal gameplay remains possible with empty BOOST stock');
  assert.equal(calls.filter(op=>op==='boost_reserve').length,1);
 });
+
+test('SCORE BOOST applies the same x1.1 on mobile without legacy x1.2',async()=>{
+ let now=100000,submitted=null,deviceSeen=null;
+ const player={id:'player-one',name:'A',best:0,rank:1};
+ const worker=createWorker({now:()=>now,replayGame:()=>({score:1000,hits:0,combo:0,drops:0,achievementProof:{},nextProof:{}}),
+  database:()=>({call:async(op,input)=>{
+   if(op==='boost_reserve')return {reserved:true,boost:input.boost,runId:input.runId};
+   if(op==='submit'){submitted=input;deviceSeen=input.device;return {player,personalBest:true,newChampion:false};}
+   if(op==='achievement_merge')return {mask:0};
+   return {player};
+  }})});
+ const feature={...env,PRIME_BOOST_ENABLED:'true',PRIME_BOOST_SCORE_PERSISTENCE_READY:'true'};
+ const login=await worker.fetch(request('/api/login',{name:'A',pin:'123456'}),feature);
+ const cookie=login.headers.get('set-cookie').split(';')[0];
+ const mobileHeaders={'User-Agent':'Mozilla/5.0 (Linux; Android 14; Pixel 8) Chrome/120.0 Mobile'};
+ const startRequest=request('/api/game/start',{boost:'score'},cookie);
+ for(const [key,value] of Object.entries(mobileHeaders))startRequest.headers.set(key,value);
+ const start=await worker.fetch(startRequest,feature);
+ assert.equal(start.status,200);
+ const run=await start.json();
+ now+=61000;
+ const scoreRequest=request('/api/scores',{...run,events:[],kit:'japan-01'},cookie);
+ for(const [key,value] of Object.entries(mobileHeaders))scoreRequest.headers.set(key,value);
+ const response=await worker.fetch(scoreRequest,feature);
+ assert.equal(response.status,200);
+ assert.equal((await response.json()).score,1100);
+ assert.equal(deviceSeen,'mobile');
+ assert.equal(submitted.baseScore,1000);
+ assert.equal(submitted.mobileBonus,100);
+ assert.equal(submitted.boost,'score');
+});
