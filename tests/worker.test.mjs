@@ -403,3 +403,31 @@ test('ordinary play stays neutral and does not reserve inventory when BOOST flag
  assert.equal(submitted.boost,null);
  assert.equal(calls.includes('boost_reserve'),false);
 });
+
+test('SECOND CHANCE is reserved, replayed and saved with unchanged score',async()=>{
+ let now=100000,verified=null,submitted=null;
+ const player={id:'player-one',name:'A',best:0,rank:1};
+ const worker=createWorker({now:()=>now,replayGame:(events,width,boost)=>{
+  verified=boost;return {score:850,hits:2,combo:2,drops:1,achievementProof:{},nextProof:{}};
+ },database:()=>({call:async(op,input)=>{
+  if(op==='boost_reserve')return {reserved:true,boost:input.boost,runId:input.runId};
+  if(op==='submit'){submitted=input;return {player,personalBest:true,newChampion:false};}
+  if(op==='achievement_merge')return {mask:0};
+  return {player};
+ }})});
+ const feature={...env,PRIME_BOOST_ENABLED:'true',PRIME_BOOST_SCORE_PERSISTENCE_READY:'true'};
+ const login=await worker.fetch(request('/api/login',{name:'A',pin:'123456'}),feature);
+ const cookie=login.headers.get('set-cookie').split(';')[0];
+ const start=await worker.fetch(request('/api/game/start',{boost:'sc'},cookie),feature);
+ assert.equal(start.status,200);
+ const run=await start.json();
+ assert.equal(run.boost,'sc');
+ now+=61000;
+ const response=await worker.fetch(request('/api/scores',{...run,boost:'score',events:[],kit:'japan-01'},cookie),feature);
+ assert.equal(response.status,200);
+ assert.equal((await response.json()).score,850);
+ assert.equal(verified,'sc','replay must use server-signed SECOND CHANCE');
+ assert.equal(submitted.boost,'sc','DB must validate the matching SECOND CHANCE reservation');
+ assert.equal(submitted.baseScore,850);
+ assert.equal(submitted.mobileBonus,0,'SECOND CHANCE must never alter score multiplier');
+});
