@@ -45,7 +45,7 @@ export default {
     const testerId=env.BOOST_TESTER_PLAYER_ID;
     const pin=env.BOOST_TESTER_PIN;
     if(typeof testerId!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(testerId)||
-       typeof pin!=='string'||!/^\\d{6,12}$/.test(pin))return unavailable();
+       typeof pin!=='string'||!/^\d{6,12}$/.test(pin))return unavailable();
     if(Number(request.headers.get('content-length'))>256)return new Response(null,{status:413});
     let data;
     try{const raw=await request.text();if(raw.length>256)throw Error();data=JSON.parse(raw);}catch{return new Response(null,{status:400});}
