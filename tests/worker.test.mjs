@@ -298,6 +298,7 @@ test('SCORE BOOST uses signed selection and neutral device multiplier',async()=>
  assert.equal(submits[0].baseScore,105);
  assert.equal(submits[0].score,116);
  assert.equal(submits[0].mobileBonus,11);
+ assert.equal(submits[0].boost,'score','DB must validate the server-signed boost against its reservation');
 });
 
 
