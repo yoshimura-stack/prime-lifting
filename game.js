@@ -49,7 +49,7 @@ $('kit-change').hidden=true;
 $('kit-change').onclick=()=>{};
 applyKit(PRIME_KITS.starter);$('kit-select').hidden=true;$('overlay').hidden=false;$('overlay').classList.add('intro-overlay');
 let rankTick=0,rankEvents=[],rankDirection=0,rankStandard=true;
-function standardRules(){return JSON.stringify({...c,WORLD_WIDTH:1000,GAME_DURATION:PRIME_DEFAULTS.GAME_DURATION,SC_PROTECT_FIRST_DROP:PRIME_DEFAULTS.SC_PROTECT_FIRST_DROP})===JSON.stringify(PRIME_DEFAULTS);}
+function standardRules(){const baseline={...c,WORLD_WIDTH:1000,GAME_DURATION:PRIME_DEFAULTS.GAME_DURATION};delete baseline.SC_PROTECT_FIRST_DROP;return JSON.stringify(baseline)===JSON.stringify(PRIME_DEFAULTS);}
 function restoreStandardTuning(){
  c.GAME_DURATION=PRIME_DEFAULTS.GAME_DURATION;c.SC_PROTECT_FIRST_DROP=PRIME_DEFAULTS.SC_PROTECT_FIRST_DROP;if(renderer3d?.setBoostBallColor)renderer3d.setBoostBallColor(null);
  for(const [,path] of controls)set(c,path,get(PRIME_DEFAULTS,path));
