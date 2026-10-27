@@ -36,3 +36,4 @@ SECOND CHANCE first-touch regression CI passed; deploy staging only 2026-10-26
 2026-10-27 teacher7 isolated preview retry with pinned Wrangler 4.153.0 (no production)
 2026-10-27: retry isolated preview deploy with credential diagnostics after 925c91a; production untouched.
 2026-10-27: deploy isolated preview after user refreshed staging Cloudflare API token; production untouched.
+2026-10-27: deploy CI-green post-play inventory refresh to isolated staging only; game runs remain disabled.
