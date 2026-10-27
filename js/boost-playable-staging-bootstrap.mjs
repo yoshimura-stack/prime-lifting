@@ -72,8 +72,16 @@ const bridge=Object.freeze({
  async finish(payload){
   if(!client)throw new Error('STAGING authentication required');
   const result=await client.finish(payload);
-  inventory=null; // Inventory must be refreshed before any further start.
-  status.textContent='STAGING検証済み '+result.playScore+' PTS。再接続して在庫を更新してください。';
+  // Refresh server-authoritative stock after a completed play. If it fails,
+  // block another START rather than using stale inventory or consuming twice.
+  inventory=null;
+  selected=null;
+  try{
+   inventory=await refresh();
+   status.textContent='STAGING検証済み '+result.playScore+' PTS。在庫更新済み。次のプレイを選択できます。';
+  }catch{
+   status.textContent='STAGING検証済み '+result.playScore+' PTS。在庫再取得に失敗。再接続してください。';
+  }
   render();
   return result;
  }
