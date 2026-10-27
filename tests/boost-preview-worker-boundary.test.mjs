@@ -50,3 +50,18 @@ test('legacy production account, ranking, daily and achievements API fail closed
   assert.equal(response.headers.get('cache-control'),'no-store');
  }
 });
+
+test('staging tester PIN login is secret-gated, origin-checked and returns scoped short-lived token',async()=>{
+ const url=origin+'/api/boost-preview/tester-login';
+ const base={...vars,BOOST_PREVIEW_ENABLED:'true',BOOST_PREVIEW_SESSION_SECRET:'a'.repeat(40),BOOST_PREVIEW_SERVICE_KEY:'staging-test-key'};
+ const req=(pin,site=origin)=>new Request(url,{method:'POST',headers:{origin:site,'content-type':'application/json','CF-Connecting-IP':'192.0.2.17'},body:JSON.stringify({pin})});
+ assert.equal((await worker.fetch(req('123456'),base)).status,503);
+ const env={...base,BOOST_TESTER_PLAYER_ID:'123e4567-e89b-42d3-a456-426614174001',BOOST_TESTER_PIN:'123456'};
+ assert.equal((await worker.fetch(req('123456','https://evil.example'),env)).status,403);
+ assert.equal((await worker.fetch(req('000000'),env)).status,401);
+ const res=await worker.fetch(req('123456'),env);
+ assert.equal(res.status,200);
+ const body=await res.json();
+ assert.equal(body.expiresIn,900);
+ assert.match(body.token,/^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/);
+});
