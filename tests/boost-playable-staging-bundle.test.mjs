@@ -15,7 +15,7 @@ test('staging playable bootstrap requires bearer and verified inventory, never e
  assert.match(script,/window\.PRIME_STAGING_RUN_FLOW=bridge/);
  assert.match(script,/inventory=await refresh\(\)/);
  assert.match(script,/if\(!client\|\|!inventory\)throw new Error\('STAGING authentication required'\)/);
- assert.match(script,/inventory=null;/);
+ assert.match(script,/if\(!practice\)inventory=null;/);
  assert.match(script,/inventory=await refresh\(\)/);
  assert.doesNotMatch(script,/localStorage|sessionStorage|service_role|location\.search/);
 });
@@ -33,7 +33,7 @@ test('playable staging login grants welcome then daily before reading authoritat
 
 test('completed staging run re-fetches stock before allowing another START',()=>{
  const script=read('js/boost-playable-staging-bootstrap.mjs');
- assert.match(script,/const result=await client\.finish\(payload\);[\s\S]*inventory=null;[\s\S]*inventory=await refresh\(\)/);
+ assert.match(script,/const result=await client\.finish\(payload\);[\s\S]*if\(!practice\)inventory=null;[\s\S]*inventory=practice\?inventory:await refresh\(\)/);
  assert.match(script,/selected=null;/);
  assert.match(script,/在庫再取得に失敗。再接続してください/);
 });
@@ -45,7 +45,7 @@ test('START decrements displayed stock only after the server confirms a reserved
  const finallyBlock=script.indexOf('}finally{busy=false;render();}',start);
  assert.ok(start>=0&&deduction>start&&finallyBlock>deduction,'stock changes only after confirmed START and before UI render');
  assert.match(script,/if\(!client\|\|!inventory\)throw new Error\('STAGING authentication required'\)/);
- assert.match(script,/const result=await client.finish\(payload\);[\s\S]*inventory=null;[\s\S]*inventory=await refresh\(\)/);
+ assert.match(script,/const result=await client.finish\(payload\);[\s\S]*if\(!practice\)inventory=null;[\s\S]*inventory=practice\?inventory:await refresh\(\)/);
 });
 
 test('isolated playable preview offers PIN-free local practice without calling grant or ranking APIs',()=>{
