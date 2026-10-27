@@ -37,3 +37,13 @@ test('completed staging run re-fetches stock before allowing another START',()=>
  assert.match(script,/selected=null;/);
  assert.match(script,/在庫再取得に失敗。再接続してください/);
 });
+
+test('START decrements displayed stock only after the server confirms a reserved run',()=>{
+ const script=read('js/boost-playable-staging-bootstrap.mjs');
+ const start=script.indexOf('const run=await client.start(selected);');
+ const deduction=script.indexOf('if(run.boost&&inventory)inventory={...inventory,[run.boost]:Math.max(0,inventory[run.boost]-1)};');
+ const finallyBlock=script.indexOf('}finally{busy=false;render();}',start);
+ assert.ok(start>=0&&deduction>start&&finallyBlock>deduction,'stock changes only after confirmed START and before UI render');
+ assert.match(script,/if\(!client\|\|!inventory\)throw new Error\('STAGING authentication required'\)/);
+ assert.match(script,/const result=await client.finish\(payload\);[\s\S]*inventory=null;[\s\S]*inventory=await refresh\(\)/);
+});
