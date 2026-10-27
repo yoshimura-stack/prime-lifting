@@ -109,7 +109,9 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   if(path==='/api/boost/inventory'){
    if(env.PRIME_BOOST_ENABLED!=='true')throw new ApiError(403,'BOOSTは現在準備中です。');
    await db.call('me',{playerId:session.sub});
-   return json(await db.call('boost_inventory',{playerId:session.sub}));
+   const inventory=await db.call('boost_inventory',{playerId:session.sub});
+   // Keep picker hidden until boosted replay and score persistence are verified end-to-end.
+   return json({...inventory,selectionEnabled:false});
   }
   if(path==='/api/daily/status'){
    const day=jstDay(time),data=await db.call('daily_status',{playerId:session.sub,day});
