@@ -431,3 +431,24 @@ test('SECOND CHANCE is reserved, replayed and saved with unchanged score',async(
  assert.equal(submitted.baseScore,850);
  assert.equal(submitted.mobileBonus,0,'SECOND CHANCE must never alter score multiplier');
 });
+
+test('BOOST SQL proposals match Worker RPC names and enforce service-role-only access',async()=>{
+ const {readFileSync}=await import('node:fs');
+ const sqlFiles=[
+  '../sql/prime-boost-login-inventory-proposal-20261027.sql',
+  '../sql/prime-boost-reservation-proposal-20261027.sql',
+  '../sql/prime-boost-submit-proposal-20261027.sql'
+ ];
+ const source=sqlFiles.map(path=>readFileSync(new URL(path,import.meta.url),'utf8')).join('\n');
+ for(const rpc of ['boost_login_grant','boost_inventory','boost_reserve','submit']){
+  const name='public.lifting_api_'+rpc;
+  assert.ok(source.includes('create or replace function '+name+'(payload jsonb)'),name+' must exist');
+  assert.ok(source.includes('revoke all on function '+name+'(jsonb) from public,anon,authenticated;'),name+' must not be public');
+  assert.ok(source.includes('grant execute on function '+name+'(jsonb) to service_role;'),name+' must be service-role-only');
+ }
+ for(const table of ['lifting_boost_inventory','lifting_boost_reservations']){
+  assert.ok(source.includes('alter table public.'+table+' enable row level security;'),table+' must enable RLS');
+ }
+ assert.match(source,/last_grant_day date/,'daily grant must have JST idempotency column');
+ assert.match(source,/where run_id=v_run and player_id=v_id and boost_type=payload->>'boost'/,'score save must match reservation');
+});
