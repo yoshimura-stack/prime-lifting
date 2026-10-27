@@ -65,3 +65,15 @@ test('staging tester PIN login is secret-gated, origin-checked and returns scope
  assert.equal(body.expiresIn,900);
  assert.match(body.token,/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/);
 });
+
+test('explicit public staging tester PIN works without tester-specific secrets and stays isolated',async()=>{
+ const base={...vars,BOOST_PREVIEW_ENABLED:'true',BOOST_PREVIEW_SESSION_SECRET:'a'.repeat(40),BOOST_PREVIEW_SERVICE_KEY:'staging-test-key'};
+ const login=pin=>new Request(origin+'/api/boost-preview/tester-login',{method:'POST',headers:{origin,'content-type':'application/json','CF-Connecting-IP':'192.0.2.17'},body:JSON.stringify({pin})});
+ assert.equal((await worker.fetch(login('123456'),base)).status,503,'opt-in is mandatory');
+ const env={...base,BOOST_PUBLIC_TESTER_ENABLED:'true'};
+ assert.equal((await worker.fetch(login('000000'),env)).status,401);
+ const response=await worker.fetch(login('123456'),env);
+ assert.equal(response.status,200);
+ assert.match((await response.json()).token,/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/);
+ assert.equal((await worker.fetch(new Request(origin+'/api/login',{method:'POST'}),env)).status,404,'production login remains blocked');
+});
