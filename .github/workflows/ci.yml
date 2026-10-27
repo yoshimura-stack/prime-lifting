@@ -18,3 +18,14 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+      - name: Upload BOOST review bundle (no deployment)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prime-boost-review-${{ github.sha }}
+          path: |
+            public/
+            server/
+            wrangler.jsonc
+          if-no-files-found: warn
+          retention-days: 7
