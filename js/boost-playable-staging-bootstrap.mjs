@@ -49,7 +49,7 @@ form.addEventListener('submit',async event=>{
  busy=true;connect.disabled=true;
  const candidate=input.value.trim();input.value='';
  try{
-  if(!/^\\d{6,12}$/.test(candidate))throw new Error('6〜12桁の検証PINを入力してください');
+  if(!/^\d{6,12}$/.test(candidate))throw new Error('6〜12桁の検証PINを入力してください');
   const login=await fetch('/api/boost-preview/tester-login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({pin:candidate}),credentials:'omit',cache:'no-store'});
   if(!login.ok)throw new Error('検証PINを確認してください（HTTP '+login.status+'）');
   const session=await login.json();
