@@ -121,15 +121,20 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   if(path==='/api/game/start'){
    await db.call('me',{playerId:session.sub});
    const startBody=await readBody(request);
-   // Do not allow an unreserved BOOST run to enter the ranked pipeline.
-   if(startBody.boost!==undefined&&startBody.boost!==null){
+   const boost=startBody.boost??null;
+   if(boost!==null){
     if(env.PRIME_BOOST_ENABLED!=='true')throw new ApiError(403,'BOOSTは現在準備中です。');
-    throw new ApiError(503,'BOOSTの在庫消費を準備中です。');
+    if(!['time','score','sc'].includes(boost))throw new ApiError(400,'BOOSTの選択が正しくありません。');
    }
    const width=startBody.worldWidth??1000;
    if(!Number.isInteger(width)||width<1000||width>1800||width%100!==0)throw new ApiError(400,'フィールド幅が正しくありません。');
    const worldWidth=requestDevice(request)==='mobile'?1000:width;
-   return json({ruleset:RULESET,worldWidth,token:await sign({kind:'run',sub:session.sub,id:crypto.randomUUID(),started:time,exp:time+86400000,ruleset:RULESET,device:requestDevice(request),worldWidth},env.SESSION_SECRET)});
+   const runId=crypto.randomUUID();
+   if(boost!==null){
+    const reservation=await db.call('boost_reserve',{playerId:session.sub,runId,boost});
+    if(reservation?.reserved!==true||reservation.boost!==boost||reservation.runId!==runId)throw new ApiError(503,'BOOST在庫の確認に失敗しました。');
+   }
+   return json({ruleset:RULESET,worldWidth,boost,token:await sign({kind:'run',sub:session.sub,id:runId,started:time,exp:time+86400000,ruleset:RULESET,device:requestDevice(request),worldWidth,boost},env.SESSION_SECRET)});
   }
   const body=await readBody(request),run=await verify(body.token,env.SESSION_SECRET,'run',time);
   if(run.sub!==session.sub||run.ruleset!==RULESET||body.ruleset!==RULESET)throw new ApiError(403,'このプレイは登録できません。');
