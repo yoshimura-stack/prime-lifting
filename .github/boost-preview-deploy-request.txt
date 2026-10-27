@@ -38,3 +38,4 @@ SECOND CHANCE first-touch regression CI passed; deploy staging only 2026-10-26
 2026-10-27: deploy isolated preview after user refreshed staging Cloudflare API token; production untouched.
 2026-10-27: deploy CI-green post-play inventory refresh to isolated staging only; game runs remain disabled.
 2026-10-27: deploy CI-green restored laptop BOOST four-ball chooser, staging only.
+2026-10-27: deploy CI-green removal of legacy overlay title behind BOOST selector, staging only.
