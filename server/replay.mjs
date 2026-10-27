@@ -12,7 +12,7 @@ export function normalizeName(value){
  return {name,key:name.toLocaleLowerCase('ja')};
 }
 export function replay(events,worldWidth=1000,boost=null){
- if(boost!==null&&!['time','sc'].includes(boost))throw new ApiError(400,'Unsupported replay BOOST');
+ if(boost!==null&&!['time','score','sc'].includes(boost))throw new ApiError(400,'Unsupported replay BOOST');
  const maxTicks=boost==='time'?8400:7800;
  if(!Number.isInteger(worldWidth)||worldWidth<1000||worldWidth>1800||worldWidth%100!==0)throw new ApiError(400,'フィールド幅が正しくありません。');
  if(!Array.isArray(events)||events.length>10000)throw new ApiError(400,'プレイ記録が正しくありません。');
