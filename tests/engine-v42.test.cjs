@@ -134,3 +134,27 @@ test('SECOND CHANCE protects KEEP UPS, SPIN and AIR across first drop and pickup
  g.ball.y=g.c.GROUND_Y;g.ball.vy=200;g.update(1/120);
  assert.equal(g.combo,0);assert.equal(g.spinStreak,0);assert.equal(g.airStreak,0);
 });
+
+test('SECOND CHANCE continues SPIN and AIR streaks from preserved value up to configured MAX',()=>{
+ for(const initial of [3,PRIME_DEFAULTS.MAX_STREAK_LEVEL]){
+  const g=fresh();g.c.SC_PROTECT_FIRST_DROP=true;
+  g.combo=12;g.spinStreak=initial;g.airStreak=initial;
+  g.ball.y=g.c.GROUND_Y;g.ball.vy=200;g.update(1/120);
+  assert.equal(g.scProtectedDropUsed,true);
+  g.respawnAtFeet();g.cooldown=0;
+  assert.equal(g.act(),'PICKUP');
+  const preservedCombo=g.combo;
+  place(g,'FOOT');g.act();
+  assert.equal(g.combo,preservedCombo,'protected first contact must not advance combo');
+  assert.equal(g.spinStreak,initial,'protected first contact keeps SPIN streak');
+  assert.equal(g.airStreak,initial,'protected first contact keeps AIR streak');
+  g.player.y=g.c.GROUND_Y-20;
+  g.pendingSpins=1;
+  place(g,'FOOT');g.act();
+  assert.equal(g.combo,preservedCombo+1,'second contact resumes combo');
+  assert.equal(g.spinStreak,initial+1,'second spinning contact adds to preserved SPIN streak');
+  assert.equal(g.airStreak,initial+1,'second airborne contact adds to preserved AIR streak');
+  assert.equal(Math.min(g.spinStreak,g.c.MAX_STREAK_LEVEL),Math.min(initial+1,g.c.MAX_STREAK_LEVEL),'SPIN bonus gauge stays capped');
+  assert.equal(Math.min(g.airStreak,g.c.MAX_STREAK_LEVEL),Math.min(initial+1,g.c.MAX_STREAK_LEVEL),'AIR bonus gauge stays capped');
+ }
+});
