@@ -12,6 +12,11 @@ const note=document.createElement('p');note.textContent='隔離ステージン�
 form.append(input,connect,note,status,choices);
 form.style.cssText='padding:10px;background:#0c253e;color:white;border:2px solid #7fb8e5;position:relative;z-index:9999';
 const overlay=document.getElementById('overlay');overlay?.prepend(form);
+const loginGrant=async(path)=>{
+ const res=await fetch(path,{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+token},body:'{}',credentials:'omit',cache:'no-store'});
+ if(!res.ok)throw new Error('BOOST login grant HTTP '+res.status);
+ return res.json();
+};
 const refresh=async()=>{
  const res=await fetch('/api/boost-preview/inventory',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+token},body:'{}',credentials:'omit',cache:'no-store'});
  if(!res.ok)throw new Error('Inventory HTTP '+res.status);
@@ -38,7 +43,14 @@ form.addEventListener('submit',async event=>{
  const candidate=input.value.trim();input.value='';
  try{
   if(!candidate)throw new Error('Token required');
-  token=candidate;inventory=await refresh();
+  token=candidate;
+  // Welcome gift first, then JST daily login award. Read stock only after both.
+  // Fail closed: never offer a BOOST from a stale inventory snapshot.
+  const welcome=await loginGrant('/api/boost-preview/welcome-grant');
+  if(typeof welcome?.alreadyGranted!=='boolean')throw new Error('Invalid welcome receipt');
+  const daily=await loginGrant('/api/boost-preview/daily-login-grant');
+  if(typeof daily?.day!=='string'||typeof daily.replayed!=='boolean')throw new Error('Invalid daily receipt');
+  inventory=await refresh();
   client=createBoostStagingHttpClient({origin:location.origin,getBearer:()=>token});
   selected=null;status.textContent='STAGING認証済み。BOOSTを選択してSTARTしてください。';
  }catch(error){token='';client=null;inventory=null;status.textContent='認証失敗：'+error.message;}
