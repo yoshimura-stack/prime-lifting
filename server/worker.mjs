@@ -73,8 +73,10 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
    const data=await db.call(path.slice(5),{name,nameKey,pin:body.pin});
    if(!data?.player)throw new ApiError(401,'名前・PINを確認してください（登録済みの名前はログイン）。');
    const player=publicPlayer(data.player);
+   // Fail closed if a live BOOST login grant cannot be persisted. No grant on guest play.
+   const boost=env.PRIME_BOOST_ENABLED==='true'?await db.call('boost_login_grant',{playerId:player.id}):null;
    const token=await sign({kind:'session',sub:player.id,exp:time+7*86400000},env.SESSION_SECRET);
-   return json({player},200,{'Set-Cookie':`prime_session=${token}; Path=/api; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`});
+   return json({...{player},...(boost?{boost}: {})},200,{'Set-Cookie':`prime_session=${token}; Path=/api; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`});
   }
   if(path==='/api/logout'&&post)return json({ok:true},200,{'Set-Cookie':'prime_session=; Path=/api; HttpOnly; Secure; SameSite=Strict; Max-Age=0'});
   if((path==='/api/leaderboard'||path==='/api/champion'||path==='/api/leaderboard/all')&&!post){
@@ -99,11 +101,16 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
    });
    return json(path==='/api/champion'?{champion:entries[0]||null}:{entries});
   }
-  if(!['/api/me','/api/achievements','/api/daily/status','/api/game/start','/api/scores'].includes(path))throw new ApiError(404,'APIが見つかりません。');
-  if((path==='/api/me'||path==='/api/achievements'||path==='/api/daily/status')===post)throw new ApiError(405,'この操作には対応していません。');
+  if(!['/api/me','/api/boost/inventory','/api/achievements','/api/daily/status','/api/game/start','/api/scores'].includes(path))throw new ApiError(404,'APIが見つかりません。');
+  if((path==='/api/me'||path==='/api/boost/inventory'||path==='/api/achievements'||path==='/api/daily/status')===post)throw new ApiError(405,'この操作には対応していません。');
   const cookie=(request.headers.get('Cookie')||'').split(';').map(v=>v.trim()).find(v=>v.startsWith('prime_session='))?.slice(14);
   const session=await verify(cookie,env.SESSION_SECRET,'session',time);
   if(path==='/api/me')return json({player:publicPlayer((await db.call('me',{playerId:session.sub})).player)});
+  if(path==='/api/boost/inventory'){
+   if(env.PRIME_BOOST_ENABLED!=='true')throw new ApiError(403,'BOOSTは現在準備中です。');
+   await db.call('me',{playerId:session.sub});
+   return json(await db.call('boost_inventory',{playerId:session.sub}));
+  }
   if(path==='/api/daily/status'){
    const day=jstDay(time),data=await db.call('daily_status',{playerId:session.sub,day});
    const allowed=new Set(dailyChallenges(day).map(challenge=>challenge.id));
