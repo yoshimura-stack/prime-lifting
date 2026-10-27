@@ -123,3 +123,10 @@ test('daily login grant rejects invalid RPC response',async()=>{
  const handle=createBoostPreviewHandler({enabled:true,allowDailyLoginGrant:true,resolvePlayer:async()=>player,transport:{call:async()=>({day:'bad',boost:'miss',replayed:false})}});
  assert.equal((await handle(request('/api/boost-preview/daily-login-grant',{}))).status,400);
 });
+
+test('staging DB outage returns a safe generic diagnostic',async()=>{
+ const handle=createBoostPreviewHandler({enabled:true,allowWelcomeGrant:true,resolvePlayer:async()=>player,transport:{call:async()=>{throw Error('upstream unavailable');}}});
+ const res=await handle(request('/api/boost-preview/welcome-grant',{}));
+ assert.equal(res.status,503);
+ assert.deepEqual(await res.json(),{error:'Preview database unavailable',hint:'Staging database connection or RPC failed; no BOOST was granted'});
+});
