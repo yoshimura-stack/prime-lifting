@@ -165,7 +165,8 @@ class LiftingGame{
   // on every successful contact. Missing the condition on the next touch resets
   // that streak, while dropping the ball resets both.
   // First scored contact after a rescued pickup does not alter streaks.
-  if(this.scIgnoreNextContact){
+  const protectedFirstContact=this.scIgnoreNextContact;
+  if(protectedFirstContact){
    this.scIgnoreNextContact=false;
   }else{
    if(spinCount>0)this.spinStreak++;else this.spinStreak=0;
@@ -195,7 +196,8 @@ class LiftingGame{
   this.score+=a.score+bonus;
   this.pendingSpins=0;
   this.eligibleSpin=true;
-  this.combo++;
+  // The first scored touch after a SECOND CHANCE pickup does not advance the combo gauge.
+  if(!protectedFirstContact)this.combo++;
   this.hits++;
   this.bestCombo=Math.max(this.combo,this.bestCombo);
   this.action=hit.name;
