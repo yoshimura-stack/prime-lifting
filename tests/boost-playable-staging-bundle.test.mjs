@@ -18,3 +18,14 @@ test('staging playable bootstrap requires bearer and verified inventory, never e
  assert.match(script,/inventory=null; \/\/ Inventory must be refreshed/);
  assert.doesNotMatch(script,/localStorage|sessionStorage|service_role|location\.search/);
 });
+
+test('playable staging login grants welcome then daily before reading authoritative inventory',()=>{
+ const script=read('js/boost-playable-staging-bootstrap.mjs');
+ const welcome=script.indexOf("loginGrant('/api/boost-preview/welcome-grant')");
+ const daily=script.indexOf("loginGrant('/api/boost-preview/daily-login-grant')");
+ const inventory=script.indexOf('inventory=await refresh()');
+ assert.ok(welcome>=0&&welcome<daily&&daily<inventory);
+ assert.match(script,/if\(!res\.ok\)throw new Error\('BOOST login grant HTTP '/);
+ assert.match(script,/if\(typeof daily\?\.day!=='string'\|\|typeof daily\.replayed!=='boolean'\)/);
+ assert.doesNotMatch(script,/localStorage|sessionStorage|service_role/);
+});
