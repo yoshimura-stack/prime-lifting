@@ -121,6 +121,11 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   if(path==='/api/game/start'){
    await db.call('me',{playerId:session.sub});
    const startBody=await readBody(request);
+   // Do not allow an unreserved BOOST run to enter the ranked pipeline.
+   if(startBody.boost!==undefined&&startBody.boost!==null){
+    if(env.PRIME_BOOST_ENABLED!=='true')throw new ApiError(403,'BOOSTは現在準備中です。');
+    throw new ApiError(503,'BOOSTの在庫消費を準備中です。');
+   }
    const width=startBody.worldWidth??1000;
    if(!Number.isInteger(width)||width<1000||width>1800||width%100!==0)throw new ApiError(400,'フィールド幅が正しくありません。');
    const worldWidth=requestDevice(request)==='mobile'?1000:width;
