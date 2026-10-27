@@ -1,7 +1,21 @@
 // Staging-only playable-game bootstrap. Loaded BEFORE game.js via module entry.
 import {createBoostStagingHttpClient} from './boost-staging-http-client.mjs';
 const types=[null,'time','score','sc'];
-let token='',client=null,inventory=null,selected=null,busy=false;
+let token='',client=null,inventory=null,selected=null,busy=false,practice=false;
+const practiceInventory=()=>({time:2,score:2,sc:2});
+function enableLocalPractice(){
+ // Isolated browser-only practice: no database writes, grants or ranked scores.
+ practice=true;token='';inventory=practiceInventory();selected=null;
+ let active=null;
+ client={
+  get activeRun(){return active;},
+  async start(boost){if(active)throw new Error('Practice run already active');if(boost&&inventory[boost]<1)throw new Error('No practice BOOST remaining');active={runId:crypto.randomUUID(),token:'practice-local-not-server-verified',boost,durationSeconds:boost==='time'?65:60};return active;},
+  async finish(payload){if(!active)throw new Error('No practice run');const playScore=Number(payload?.claimedScore);if(!Number.isSafeInteger(playScore)||playScore<0)throw new Error('Invalid practice score');active=null;return {playScore,practice:true};}
+ };
+ status.textContent='ローカル練習モード：PIN不要・保存なし。BOOSTを選んでSTART！';
+ render();
+}
+
 const status=document.createElement('p');status.setAttribute('role','status');status.textContent='STAGING: 接続してください';
 const form=document.createElement('form');
 form.setAttribute('aria-label','STAGING検証接続');
@@ -11,6 +25,7 @@ const choices=document.createElement('div');
 choices.style.cssText='display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:7px';
 const note=document.createElement('p');note.textContent='隔離ステージング検証専用。実ランキングには保存されません。';
 form.append(status,choices,input,connect,note);
+const practiceButton=document.createElement('button');practiceButton.type='button';practiceButton.textContent='PINなしで練習開始';practiceButton.style.cssText='display:block;width:100%;margin-top:6px;padding:7px;border:1px solid #dfff76;border-radius:7px;background:#dfff76;color:#173047;font-weight:900';practiceButton.onclick=()=>enableLocalPractice();form.append(practiceButton);
 form.style.cssText='position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:20;width:max-content;max-width:calc(100% - 20px);padding:7px 12px;background:#123049;color:white;border:2px solid #65c9ed;border-radius:12px;box-shadow:0 4px 20px #0007;font-size:12px';
 const overlay=document.getElementById('overlay');overlay?.prepend(form);
 render();
@@ -64,7 +79,7 @@ form.addEventListener('submit',async event=>{
   inventory=await refresh();
   client=createBoostStagingHttpClient({origin:location.origin,getBearer:()=>token});
   selected=null;status.textContent='STAGING認証済み。BOOSTを選択してSTARTしてください。';
- }catch(error){token='';client=null;inventory=null;status.textContent='認証失敗：'+error.message;}
+ }catch(error){token='';client=null;inventory=null;status.textContent='接続失敗：'+error.message+'。PINなし練習なら下のボタンから開始できます。';}
  finally{busy=false;connect.disabled=false;render();}
 });
 const bridge=Object.freeze({
@@ -91,8 +106,8 @@ const bridge=Object.freeze({
   inventory=null;
   selected=null;
   try{
-   inventory=await refresh();
-   status.textContent='STAGING検証済み '+result.playScore+' PTS。在庫更新済み。次のプレイを選択できます。';
+   inventory=practice?inventory:await refresh();
+   status.textContent=(practice?'ローカル練習終了（保存なし） ':'STAGING検証済み ')+result.playScore+' PTS。次のプレイを選択できます。';
   }catch{
    status.textContent='STAGING検証済み '+result.playScore+' PTS。在庫再取得に失敗。再接続してください。';
   }
