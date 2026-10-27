@@ -63,5 +63,5 @@ test('staging tester PIN login is secret-gated, origin-checked and returns scope
  assert.equal(res.status,200);
  const body=await res.json();
  assert.equal(body.expiresIn,900);
- assert.match(body.token,/^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/);
+ assert.match(body.token,/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/);
 });
