@@ -42,10 +42,32 @@ async function requestWelcomeGrant(){
  }
  return value;
 }
-function renderStock(inventory,grant){
+async function requestDailyLoginGrant(){
+ if(!token)throw new Error('Not authenticated');
+ const response=await fetch('/api/boost-preview/daily-login-grant',{
+  method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+token},
+  body:'{}',cache:'no-store',credentials:'omit'
+ });
+ // The daily API remains independently disabled until the staging feature
+ // flag is enabled. This must not block the existing welcome grant flow.
+ if(response.status===403)return Object.freeze({disabled:true});
+ if(!response.ok)throw new Error('Daily login grant unavailable: '+response.status);
+ const value=await response.json();
+ if(typeof value?.day!=='string'||!/^\\d{4}-\\d{2}-\\d{2}$/.test(value.day)||
+    typeof value.replayed!=='boolean'||(value.boost!==null&&!['time','score','sc'].includes(value.boost))||
+    (value.allFull!==undefined&&typeof value.allFull!=='boolean')||
+    (value.welcomeDay!==undefined&&typeof value.welcomeDay!=='boolean'))
+  throw new Error('Invalid daily login grant');
+ return value;
+}
+function renderStock(inventory,grant,daily){
  const stock='🔵 '+inventory.time+'/2 · 🟡 '+inventory.score+'/2 · 🟢 '+inventory.sc+'/2';
  const welcome=grant?.alreadyGranted===false?'🎁 初回BOOSTプレゼント付与！ ':'';
- return welcome+'所持数 '+stock;
+ const dailyStatus=daily?.disabled?'（日次付与は準備中） ':
+  daily?.welcomeDay?'':daily?.allFull?'（所持上限により本日の追加付与なし） ':
+  daily?.replayed?'（本日のログイン判定済み） ':
+  daily?.boost?'🎁 今日のBOOST：'+({time:'🔵',score:'🟡',sc:'🟢'}[daily.boost])+' ' :'';
+ return welcome+dailyStatus+'所持数 '+stock;
 }
 const view=createSlotPreview(root,{
  enabled:false,
@@ -66,18 +88,22 @@ form?.addEventListener('submit',async event=>{
  token=tokenInput.value.trim();
  tokenInput.value='';
  if(!token){view.setStatus('検証トークンを入力してください。');return;}
+ let verified;
  try{
-  // The welcome grant is server-atomic and only runs after verified staging login.
+  // Server-side locking and the welcome-day guard prevent double awards.
   const welcome=await requestWelcomeGrant();
+  const daily=await requestDailyLoginGrant();
   const inventory=await readInventory();
-  view.setStatus(renderStock(inventory,welcome));
+  verified={welcome,daily,inventory};
+  view.setStatus(renderStock(inventory,welcome,daily));
  }catch{
   token='';view.setStatus('認証または在庫確認に失敗しました。抽選は無効です。');return;
  }
+ const {welcome,daily,inventory}=verified;
  connectButton.textContent='接続済み（検証専用）';
  connectButton.disabled=true;
  const stock=document.getElementById('boost-slot-stock')||document.createElement('p');
- stock.id='boost-slot-stock';stock.textContent=renderStock(inventory,welcome);
+ stock.id='boost-slot-stock';stock.textContent=renderStock(inventory,welcome,daily);
  root.after(stock);
  createSlotPreview(root,{enabled:true,spin:async()=>{
   const response=await fetch('/api/boost-preview/slot/spin',{
