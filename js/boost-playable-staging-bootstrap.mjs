@@ -76,6 +76,9 @@ const bridge=Object.freeze({
   busy=true;render();
   try{
    const run=await client.start(selected);
+   // START is the authoritative reservation point. Reflect the confirmed
+   // deduction immediately; FINISH will reconcile against server inventory.
+   if(run.boost&&inventory)inventory={...inventory,[run.boost]:Math.max(0,inventory[run.boost]-1)};
    status.textContent='STAGING RUN '+run.runId+' / '+run.durationSeconds+'秒';
    return run;
   }finally{busy=false;render();}
