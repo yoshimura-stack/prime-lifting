@@ -67,6 +67,16 @@ jobs:
           if [ "$account_status" != "200" ]; then
             echo "::warning::Preview token cannot list Workers in configured account; verify account ID and Workers Scripts Read/Edit scope."
           fi
+      - name: Check staging run signing configuration (no secret output)
+        shell: bash
+        env:
+          BOOST_RUN_SIGNING_SECRET: ${{ secrets.BOOST_RUN_SIGNING_SECRET }}
+        run: |
+          if [ "${#BOOST_RUN_SIGNING_SECRET}" -ge 32 ]; then
+            echo "Staging run signing secret: configured"
+          else
+            echo "::notice::Staging run signing secret absent or too short; keep official run API disabled."
+          fi
       - name: Deploy isolated preview only
         run: npx --yes wrangler@4.153.0 deploy --config wrangler.boost-preview.jsonc
         env:
