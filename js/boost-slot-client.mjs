@@ -53,7 +53,7 @@ async function requestDailyLoginGrant(){
  if(response.status===403)return Object.freeze({disabled:true});
  if(!response.ok)throw new Error('Daily login grant unavailable: '+response.status);
  const value=await response.json();
- if(typeof value?.day!=='string'||!/^\\d{4}-\\d{2}-\\d{2}$/.test(value.day)||
+ if(typeof value?.day!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value.day)||
     typeof value.replayed!=='boolean'||(value.boost!==null&&!['time','score','sc'].includes(value.boost))||
     (value.allFull!==undefined&&typeof value.allFull!=='boolean')||
     (value.welcomeDay!==undefined&&typeof value.welcomeDay!=='boolean'))
