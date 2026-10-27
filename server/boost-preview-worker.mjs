@@ -42,8 +42,11 @@ export default {
     if(request.method!=='POST')return new Response(null,{status:405});
     if(request.headers.get('origin')!==url.origin)return new Response(null,{status:403});
     if(!/^application\/json(?:;|$)/i.test(request.headers.get('content-type')||''))return new Response(null,{status:415});
-    const testerId=env.BOOST_TESTER_PLAYER_ID;
-    const pin=env.BOOST_TESTER_PIN;
+    // Public shared tester credentials are allowed ONLY on this isolated staging
+    // Worker, with an explicit opt-in. They are not production authentication.
+    const publicTester=env.BOOST_PUBLIC_TESTER_ENABLED==='true';
+    const testerId=publicTester?'123e4567-e89b-42d3-a456-426614174001':env.BOOST_TESTER_PLAYER_ID;
+    const pin=publicTester?'123456':env.BOOST_TESTER_PIN;
     if(typeof testerId!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(testerId)||
        typeof pin!=='string'||!/^\d{6,12}$/.test(pin))return unavailable();
     if(Number(request.headers.get('content-length'))>256)return new Response(null,{status:413});
