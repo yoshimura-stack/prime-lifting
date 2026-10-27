@@ -5,7 +5,7 @@ let token='',client=null,inventory=null,selected=null,busy=false;
 const status=document.createElement('p');status.setAttribute('role','status');status.textContent='STAGING: 接続してください';
 const form=document.createElement('form');
 form.setAttribute('aria-label','STAGING検証接続');
-const input=document.createElement('input');input.type='password';input.autocomplete='off';input.placeholder='検証用Bearerトークン';
+const input=document.createElement('input');input.type='password';input.autocomplete='off';input.placeholder='検証PIN（6〜12桁）';
 const connect=document.createElement('button');connect.type='submit';connect.textContent='STAGING接続';
 const choices=document.createElement('div');
 choices.style.cssText='display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:7px';
@@ -49,8 +49,12 @@ form.addEventListener('submit',async event=>{
  busy=true;connect.disabled=true;
  const candidate=input.value.trim();input.value='';
  try{
-  if(!candidate)throw new Error('Token required');
-  token=candidate;
+  if(!/^\\d{6,12}$/.test(candidate))throw new Error('6〜12桁の検証PINを入力してください');
+  const login=await fetch('/api/boost-preview/tester-login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({pin:candidate}),credentials:'omit',cache:'no-store'});
+  if(!login.ok)throw new Error('検証PINを確認してください（HTTP '+login.status+'）');
+  const session=await login.json();
+  if(typeof session?.token!=='string'||session.token.length<32)throw new Error('検証セッション取得失敗');
+  token=session.token;
   // Welcome gift first, then JST daily login award. Read stock only after both.
   // Fail closed: never offer a BOOST from a stale inventory snapshot.
   const welcome=await loginGrant('/api/boost-preview/welcome-grant');
