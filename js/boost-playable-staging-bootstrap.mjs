@@ -8,10 +8,12 @@ form.setAttribute('aria-label','STAGING検証接続');
 const input=document.createElement('input');input.type='password';input.autocomplete='off';input.placeholder='検証用Bearerトークン';
 const connect=document.createElement('button');connect.type='submit';connect.textContent='STAGING接続';
 const choices=document.createElement('div');
+choices.style.cssText='display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:7px';
 const note=document.createElement('p');note.textContent='隔離ステージング検証専用。実ランキングには保存されません。';
-form.append(input,connect,note,status,choices);
-form.style.cssText='padding:10px;background:#0c253e;color:white;border:2px solid #7fb8e5;position:relative;z-index:9999';
+form.append(status,choices,input,connect,note);
+form.style.cssText='position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:20;width:max-content;max-width:calc(100% - 20px);padding:7px 12px;background:#123049;color:white;border:2px solid #65c9ed;border-radius:12px;box-shadow:0 4px 20px #0007;font-size:12px';
 const overlay=document.getElementById('overlay');overlay?.prepend(form);
+render();
 const loginGrant=async(path)=>{
  const res=await fetch(path,{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+token},body:'{}',credentials:'omit',cache:'no-store'});
  if(!res.ok)throw new Error('BOOST login grant HTTP '+res.status);
@@ -26,11 +28,16 @@ const refresh=async()=>{
 };
 function render(){
  choices.replaceChildren();
- if(!inventory)return;
  for(const [i,kind] of types.entries()){
   const button=document.createElement('button');button.type='button';
-  button.textContent=['通常','⚽ +5 SEC','⚽ ×1.1','⚽ SC'][i]+(kind?' ('+inventory[kind]+'/2)':'');
-  button.disabled=busy||!!client?.activeRun||(kind!==null&&inventory[kind]===0);
+  const names=['NORMAL','+5 SEC','SCORE ×1.1','2ND CHANCE'];
+  const colors=['#f4f7fa','#46bbff','#ffdc42','#50e895'];
+  const ball=document.createElement('span');ball.textContent='⚽';ball.style.cssText='display:block;font-size:35px;line-height:1.1;color:'+colors[i];
+  const name=document.createElement('span');name.textContent=names[i];name.style.cssText='display:block;font-size:10px;font-weight:900;margin-top:4px';
+  button.append(ball,name);
+  if(kind){const count=document.createElement('span');count.textContent=inventory?String(inventory[kind]):'–';count.style.cssText='position:absolute;right:4px;top:3px;border-radius:12px;background:#dfff76;color:#112b34;padding:1px 5px;font-weight:900';button.append(count);}
+  button.style.cssText='position:relative;padding:7px 5px;min-width:72px;border-radius:9px;background:#18354b;color:white;'+(selected===kind?'border:2px solid #dfff76':'border:1px solid #456475');
+  button.disabled=busy||!inventory||!!client?.activeRun||(kind!==null&&inventory[kind]===0);
   button.setAttribute('aria-pressed',String(selected===kind));
   button.onclick=()=>{selected=kind;status.textContent='選択：'+button.textContent;render();};
   choices.append(button);
