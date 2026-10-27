@@ -20,5 +20,7 @@ test('isolated preview API stays disabled unless both server kill switches are e
  assert.match(config,/"BOOST_PREVIEW_ENABLED": "true"/);
  assert.match(config,/"BOOST_WELCOME_GRANT_ENABLED": "true"/);
  assert.match(config,/"BOOST_PREVIEW_PROJECT_ID": "tarnzjkxexlozqqmyqof"/);
- assert.doesNotMatch(config,/"BOOST_STAGING_RUNS_ENABLED": "true"/);
+ assert.match(config,/"BOOST_STAGING_RUNS_ENABLED": "true"/);
+ assert.match(worker,/env\.BOOST_RUN_SIGNING_SECRET\.length<32/);
+ assert.match(worker,/env\.BOOST_PREVIEW_PROJECT_ID!==STAGING_PROJECT/);
 });
