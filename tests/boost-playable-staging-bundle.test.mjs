@@ -47,3 +47,14 @@ test('START decrements displayed stock only after the server confirms a reserved
  assert.match(script,/if\(!client\|\|!inventory\)throw new Error\('STAGING authentication required'\)/);
  assert.match(script,/const result=await client.finish\(payload\);[\s\S]*inventory=null;[\s\S]*inventory=await refresh\(\)/);
 });
+
+test('isolated playable preview offers PIN-free local practice without calling grant or ranking APIs',()=>{
+ const source=read('js/boost-playable-staging-bootstrap.mjs');
+ assert.match(source,/PINなしで練習開始/);
+ assert.match(source,/function enableLocalPractice\(\)/);
+ assert.match(source,/practice=true;token='';inventory=practiceInventory\(\)/);
+ assert.match(source,/practice-local-not-server-verified/);
+ assert.match(source,/practice\?inventory:await refresh\(\)/);
+ assert.match(source,/ローカル練習終了（保存なし）/);
+ assert.match(source,/if\(!practice\)inventory=null/);
+});
