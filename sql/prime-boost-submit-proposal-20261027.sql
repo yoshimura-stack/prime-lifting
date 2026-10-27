@@ -1,6 +1,7 @@
--- REVIEW-ONLY PROPOSAL. DO NOT APPLY WITHOUT COMPARING AGAINST LIVE lifting_api_submit.
--- Adapted from repo SQL dated 2026-10-18; production function may differ.
--- Must deploy AFTER inventory and reservation tables; preserves the existing run-id idempotency logic.
+-- REVIEW-ONLY PROPOSAL. NOT APPLIED TO PRODUCTION.
+-- Compared against live public.lifting_api_submit(payload jsonb) using read-only pg_get_functiondef on 2026-10-27.
+-- The production function's non-validation logic is retained verbatim; only device/BOOST validation changes.
+-- Apply only after inventory and reservation tables, with explicit production approval.
 -- Save the verified play-score breakdown in the same transaction as a new personal best.
 -- Existing bests and legacy manually verified breakdowns remain untouched until beaten.
 create or replace function public.lifting_api_submit(payload jsonb)
@@ -24,6 +25,9 @@ begin
  -- IMPORTANT: validate the boost against the atomic reservation, never the client alone.
  -- No BOOST means neutral x1.0 on BOTH PC and mobile.
  if nullif(payload->>'boost','') is null then
+  if exists(select 1 from public.lifting_boost_reservations where run_id=v_run) then
+   raise exception 'BOOST reservation required';
+  end if;
   if v_score<>v_base or v_mobile<>0 then raise exception 'Invalid normal score';end if;
  else
   if (payload->>'boost') not in ('time','score','sc') then raise exception 'Invalid BOOST';end if;
