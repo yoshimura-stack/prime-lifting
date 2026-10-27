@@ -121,11 +121,14 @@ test('SECOND CHANCE protects KEEP UPS, SPIN and AIR across first drop and pickup
  assert.equal(g.act(),'PICKUP');
  assert.equal(g.combo,12);assert.equal(g.spinStreak,4);assert.equal(g.airStreak,3);
  assert.equal(g.scIgnoreNextContact,true);
+ const protectedCombo=g.combo;
  place(g,'FOOT');g.act();
+ assert.equal(g.combo,protectedCombo,'first scored touch must not advance combo gauge');
  assert.equal(g.spinStreak,4,'first scored touch must not reset spin streak');
  assert.equal(g.airStreak,3,'first scored touch must not reset air streak');
  assert.equal(g.scIgnoreNextContact,false);
  place(g,'FOOT');g.act();
+ assert.equal(g.combo,protectedCombo+1,'second scored touch resumes combo gauge');
  assert.equal(g.spinStreak,0,'second scored touch resumes ordinary spin rules');
  assert.equal(g.airStreak,0,'second scored touch resumes ordinary air rules');
  g.ball.y=g.c.GROUND_Y;g.ball.vy=200;g.update(1/120);
