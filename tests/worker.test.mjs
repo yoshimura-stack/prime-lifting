@@ -299,3 +299,22 @@ test('SCORE BOOST uses signed selection and neutral device multiplier',async()=>
  assert.equal(submits[0].score,116);
  assert.equal(submits[0].mobileBonus,11);
 });
+
+
+test('BOOST inventory advertises picker only after explicit persistence readiness',async()=>{
+ const player={id:'player-one',name:'A',best:0,rank:1};
+ const worker=createWorker({database:()=>({call:async(op)=>{
+  if(op==='boost_inventory')return {inventory:{time:1,score:2,sc:0}};
+  return {player};
+ }})});
+ const feature={...env,PRIME_BOOST_ENABLED:'true'};
+ const login=await worker.fetch(request('/api/login',{name:'A',pin:'123456'}),feature);
+ assert.equal(login.status,200);
+ const cookie=login.headers.get('set-cookie').split(';')[0];
+ const off=await worker.fetch(request('/api/boost/inventory',null,cookie),feature);
+ assert.equal(off.status,200);
+ assert.deepEqual(await off.json(),{inventory:{time:1,score:2,sc:0},selectionEnabled:false});
+ const on=await worker.fetch(request('/api/boost/inventory',null,cookie),{...feature,PRIME_BOOST_SCORE_PERSISTENCE_READY:'true'});
+ assert.equal(on.status,200);
+ assert.deepEqual(await on.json(),{inventory:{time:1,score:2,sc:0},selectionEnabled:true});
+});
