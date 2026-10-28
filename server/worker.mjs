@@ -74,7 +74,7 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
    if(!data?.player)throw new ApiError(401,'名前・PINを確認してください（登録済みの名前はログイン）。');
    const player=publicPlayer(data.player);
    // Fail closed if a live BOOST login grant cannot be persisted. No grant on guest play.
-   const boost=env.PRIME_BOOST_ENABLED==='true'?await db.call('boost_login_grant',{playerId:player.id}):null;
+   const boost=(env.PRIME_BOOST_ENABLED==='true'&&env.PRIME_BOOST_SCORE_PERSISTENCE_READY==='true')?await db.call('boost_login_grant',{playerId:player.id}):null;
    const token=await sign({kind:'session',sub:player.id,exp:time+7*86400000},env.SESSION_SECRET);
    return json({...{player},...(boost?{boost}: {})},200,{'Set-Cookie':`prime_session=${token}; Path=/api; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`});
   }
@@ -107,11 +107,11 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   const session=await verify(cookie,env.SESSION_SECRET,'session',time);
   if(path==='/api/me')return json({player:publicPlayer((await db.call('me',{playerId:session.sub})).player)});
   if(path==='/api/boost/inventory'){
-   if(env.PRIME_BOOST_ENABLED!=='true')throw new ApiError(403,'BOOSTは現在準備中です。');
+   if(env.PRIME_BOOST_ENABLED!=='true'||env.PRIME_BOOST_SCORE_PERSISTENCE_READY!=='true')throw new ApiError(403,'BOOSTは現在準備中です。');
    await db.call('me',{playerId:session.sub});
    const inventory=await db.call('boost_inventory',{playerId:session.sub});
    // Keep picker hidden until boosted replay and score persistence are verified end-to-end.
-   return json({...inventory,selectionEnabled:env.PRIME_BOOST_SCORE_PERSISTENCE_READY==='true'});
+   return json({...inventory,selectionEnabled:true});
   }
   if(path==='/api/daily/status'){
    const day=jstDay(time),data=await db.call('daily_status',{playerId:session.sub,day});
