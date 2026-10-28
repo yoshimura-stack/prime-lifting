@@ -12,15 +12,11 @@
 - Production remains different: daily refresh was not applied there, and the legacy login-grant function still contains random reward logic. Keep both production feature flags OFF.
 - Additional staging DB inspection was blocked by tool safety checks. Do not bypass those checks; use an authorized review/testing route.
 
-## Compatibility gate: pre-release run tickets (2026-10-28 review)
+## Compatibility gate: pre-release run tickets (2026-10-28 code review)
 
-**Release blocker requiring explicit verification:** A signed run ticket can remain valid for up to 24 hours. The proposed replacement `lifting_api_submit` requires normal PC **and mobile** scores to have `mobileBonus=0`. An already-issued mobile run from the previous Worker/scoring rules might still submit a legitimate historical ×1.1 mobile score after the new RPC is installed. That submission could be rejected, even when both BOOST flags are OFF.
+A signed run ticket remains valid for up to 24 hours. The **new Worker replays events on the server and recomputes scores**, rather than trusting a client-submitted legacy score. Its `finalScore` is neutral on both devices. Therefore the earlier claim that an old mobile ticket would **necessarily be rejected** by the new SQL was too strong: the new Worker may instead accept that ticket with a **different score** from the old mobile ×1.1 rules. The signed `RULESET` remains `cockpit-v42`, so that field alone does not distinguish old mobile scoring from new.
 
-Before replacing the production submit RPC, choose and verify an authorized compatibility strategy:
-- Safest operational choice: stop issuing old-version tickets, allow the full ticket validity window to elapse, and verify outstanding old mobile submissions have settled before applying the stricter RPC. This requires careful coordination and may be impractical while normal gameplay remains available.
-- Alternative: implement and integration-test a tightly bounded legacy-ticket compatibility path that validates server-signed issuance/ruleset/device and permits only the *old* mobile breakdown, without accepting fabricated client bonuses or changing stored historical scores. This requires an explicit security and migration review.
-
-Do **not** assume setting BOOST flags OFF resolves this: the SQL score validation is independent of the flags. Do not replace the RPC until the transition is proven safe for existing users. No historical BEST/ranking rows should be rewritten.
+**Release gate:** Test an old-version signed mobile run submitted after the Worker/RPC change. Verify expected score and preservation of player trust; explicitly decide how to handle outstanding tickets before rollout. Options for review include a bounded compatibility mode keyed to a trustworthy ticket version, or a coordinated transition after old tickets expire. Do not loosen SQL validation based on client-controlled `device` or `mobileBonus` alone. Do not rewrite historical BEST or ranking rows. This risk remains **NOT VERIFIED** until tested.
 
 ## Prerequisites
 - Confirm CI on the exact commit to be deployed and complete actual browser checks (PC and mobile).
