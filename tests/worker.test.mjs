@@ -520,3 +520,15 @@ test('DAILY BOOST SQL defines JST reset, one use per type, and no random grants'
  assert.match(sql,/select \* into v_existing from public\.lifting_boost_reservations where run_id=v_run/,'duplicate reservations must be idempotent');
  assert.match(sql,/grant execute on function public\.lifting_boost_daily_refresh\(uuid\) to service_role/);
 });
+
+test('retired random-reward migration is archival and never the active DAILY BOOST contract',async()=>{
+ const {readFileSync}=await import('node:fs');
+ const legacy=readFileSync(new URL('../sql/prime-boost-login-inventory-proposal-20261027.sql',import.meta.url),'utf8');
+ const daily=readFileSync(new URL('../sql/prime-boost-daily-one-per-type-20261028.sql',import.meta.url),'utf8');
+ const rollout=readFileSync(new URL('../docs/prime-boost-production-rollout-rollback-20261027.md',import.meta.url),'utf8');
+ assert.match(legacy,/HISTORICAL MIGRATION/);
+ assert.match(legacy,/DO NOT REAPPLY OR USE THIS FILE/);
+ assert.match(daily,/No random draws, accumulating stock, or DAILY SLOT/);
+ assert.match(rollout,/legacy random login-grant RPC/);
+ assert.match(rollout,/must NOT be rerun/);
+});
