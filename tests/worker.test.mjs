@@ -607,3 +607,32 @@ test('rollback closes new BOOST starts but permits already-issued BOOST score sa
  assert.equal(reservations,1,'rollback must not reserve another BOOST');
  assert.equal(submissions,1);
 });
+
+test('rollback drain preserves already-issued TIME BOOST 65-second save boundary',async()=>{
+ let now=100000,submissions=0;
+ const player={id:'player-one',name:'A',best:105,rank:1};
+ const worker=createWorker({now:()=>now,replayGame:(events,width,boost)=>{
+  assert.equal(boost,'time');return {score:105,hits:0,combo:0,drops:0,achievementProof:{},nextProof:{}};
+ },database:()=>({call:async(op,input)=>{
+  if(op==='boost_reserve')return {reserved:true,boost:input.boost,runId:input.runId};
+  if(op==='submit'){submissions++;assert.equal(input.score,105);assert.equal(input.boost,'time');return {player,personalBest:true,newChampion:false};}
+  if(op==='achievement_merge')return {mask:0};
+  return {player};
+ }})});
+ const active={...env,PRIME_BOOST_ENABLED:'true',PRIME_BOOST_SCORE_PERSISTENCE_READY:'true'};
+ const login=await worker.fetch(request('/api/login',{name:'A',pin:'123456'}),active);
+ assert.equal(login.status,200);
+ const cookie=login.headers.get('set-cookie').split(';')[0];
+ const start=await worker.fetch(request('/api/game/start',{boost:'time'},cookie),active);
+ assert.equal(start.status,200);
+ const run=await start.json();
+ const draining={...active,PRIME_BOOST_SCORE_PERSISTENCE_READY:'false'};
+ now+=64000;
+ assert.equal((await worker.fetch(request('/api/scores',{...run,events:[],kit:'japan-01'},cookie),draining)).status,400);
+ assert.equal(submissions,0,'early TIME BOOST submissions must not persist');
+ now+=1000;
+ const saved=await worker.fetch(request('/api/scores',{...run,events:[],kit:'japan-01'},cookie),draining);
+ assert.equal(saved.status,200);
+ assert.equal((await saved.json()).score,105);
+ assert.equal(submissions,1);
+});
