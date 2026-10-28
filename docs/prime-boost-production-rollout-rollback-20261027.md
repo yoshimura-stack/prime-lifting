@@ -18,6 +18,18 @@ A signed run ticket remains valid for up to 24 hours. The **new Worker replays e
 
 **Release gate:** Test an old-version signed mobile run submitted after the Worker/RPC change. Verify expected score and preservation of player trust; explicitly decide how to handle outstanding tickets before rollout. Options for review include a bounded compatibility mode keyed to a trustworthy ticket version, or a coordinated transition after old tickets expire. Do not loosen SQL validation based on client-controlled `device` or `mobileBonus` alone. Do not rewrite historical BEST or ranking rows. This risk remains **NOT VERIFIED** until tested.
 
+### Recommended cutover for legacy mobile tickets
+
+**Recommended: preserve the existing signed-ticket behavior until outstanding tickets expire; do not silently rescore an in-flight old mobile play.** The regression test with an authentic HMAC-signed old-format mobile ticket confirms that the new Worker accepts it but recomputes its score at ×1.0 (CI success, mocked DB, 2026-10-28). The new Worker and old Worker both use `cockpit-v42`, so `ruleset` alone cannot safely identify which scoring policy the user saw at start.
+
+**Cutover sequence requiring operational approval:**
+1. Confirm the exact old Worker release, ticket signature fields, and production deployment mechanism. Confirm no unrelated Worker release changes during the cutover.
+2. Before changing the production Worker, either implement a **reviewed, signed-ticket-compatible old-mobile scoring path** (with matching narrowly validated SQL) or schedule a controlled stop of new old-version starts and wait at least the maximum 24-hour ticket lifetime plus clock margin. **Do not present the latter as zero downtime:** a stop of starts impacts users and requires advance communication.
+3. After the old ticket window closes, deploy the approved new Worker with both BOOST flags OFF, smoke-test ordinary login/play/save and leaderboard, then apply/verify the approved SQL changes in the agreed safe order. Coordinate RPC replacement so ordinary scores keep saving throughout. Do not install the new strict submit RPC while old mobile tickets may still be saving.
+4. Only after staging end-to-end checks and production RPC review, enable both flags together. Record release identifiers and retain rollback instructions.
+
+**Current status:** neither a compatibility implementation nor a production ticket-drain window is approved or executed. Staging Worker has not been deployed, production daily refresh migration remains safety-blocked, and production submit migration is not applied. This is a **NO-GO** for enabling BOOST. Existing BEST and rankings must not be modified.
+
 ## Prerequisites
 - Confirm CI on the exact commit to be deployed and complete actual browser checks (PC and mobile).
 - Obtain a fresh **read-only** copy of `pg_get_functiondef('public.lifting_api_submit(jsonb)'::regprocedure)` and compare it with `sql/prime-boost-submit-proposal-20261027.sql`. The draft was compared with the production function on 2026-10-27; do not assume it is unchanged later.
