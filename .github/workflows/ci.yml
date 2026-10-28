@@ -28,6 +28,10 @@ jobs:
           path: |
             public/
             server/
+            js/
+            scripts/
+            package.json
+            package-lock.json
             wrangler.jsonc
             wrangler.staging.jsonc
             docs/prime-boost-staging-acceptance-20261028.md
