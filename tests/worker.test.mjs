@@ -721,3 +721,18 @@ test('preview DB target is isolated and neither BOOST flag is enabled by default
  assert.equal(config.vars.PRIME_BOOST_SCORE_PERSISTENCE_READY,'false');
  assert.notEqual(config.previews.vars.SUPABASE_URL,config.vars.SUPABASE_URL,'preview must never use production DB');
 });
+
+test('dedicated staging Worker config cannot target production database or Worker name',async()=>{
+ const {readFileSync}=await import('node:fs');
+ const staging=JSON.parse(readFileSync(new URL('../wrangler.staging.jsonc',import.meta.url),'utf8'));
+ const production=JSON.parse(readFileSync(new URL('../wrangler.jsonc',import.meta.url),'utf8'));
+ assert.notEqual(staging.name,production.name);
+ assert.equal(staging.vars.SUPABASE_URL,'https://tarnzjkxexlozqqmyqof.supabase.co');
+ assert.notEqual(staging.vars.SUPABASE_URL,production.vars.SUPABASE_URL);
+ assert.equal(staging.main,production.main);
+ assert.equal(staging.assets.directory,production.assets.directory);
+ assert.equal(staging.vars.PRIME_BOOST_ENABLED,'true','BOOST integration must run only in dedicated staging');
+ assert.equal(staging.vars.PRIME_BOOST_SCORE_PERSISTENCE_READY,'true');
+ assert.equal(production.vars.PRIME_BOOST_ENABLED,'false');
+ assert.equal(production.vars.PRIME_BOOST_SCORE_PERSISTENCE_READY,'false');
+});
