@@ -31,5 +31,8 @@ jobs:
             wrangler.jsonc
             wrangler.staging.jsonc
             docs/prime-boost-staging-acceptance-20261028.md
+            docs/prime-boost-production-rollout-rollback-20261027.md
+            sql/prime-boost-daily-one-per-type-20261028.sql
+            sql/prime-boost-submit-proposal-20261027.sql
           if-no-files-found: warn
           retention-days: 7
