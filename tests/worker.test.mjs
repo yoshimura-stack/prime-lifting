@@ -578,3 +578,32 @@ test('partial BOOST flag activation cannot grant or refresh inventory',async()=>
   assert.equal(calls.includes('boost_inventory'),false);
  }
 });
+
+test('rollback closes new BOOST starts but permits already-issued BOOST score saves',async()=>{
+ let now=100000,submissions=0,reservations=0;
+ const player={id:'player-one',name:'A',best:116,rank:1};
+ const worker=createWorker({now:()=>now,replayGame:(events,width,boost)=>{
+  assert.equal(boost,'score');return {score:105,hits:0,combo:0,drops:0,achievementProof:{},nextProof:{}};
+ },database:()=>({call:async(op,input)=>{
+  if(op==='boost_reserve'){reservations++;return {reserved:true,boost:input.boost,runId:input.runId};}
+  if(op==='submit'){submissions++;assert.equal(input.boost,'score');assert.equal(input.score,116);return {player,personalBest:true,newChampion:false};}
+  if(op==='achievement_merge')return {mask:0};
+  return {player};
+ }})});
+ const active={...env,PRIME_BOOST_ENABLED:'true',PRIME_BOOST_SCORE_PERSISTENCE_READY:'true'};
+ const login=await worker.fetch(request('/api/login',{name:'A',pin:'123456'}),active);
+ assert.equal(login.status,200);
+ const cookie=login.headers.get('set-cookie').split(';')[0];
+ const started=await worker.fetch(request('/api/game/start',{boost:'score'},cookie),active);
+ assert.equal(started.status,200);
+ const run=await started.json();
+ const draining={...active,PRIME_BOOST_SCORE_PERSISTENCE_READY:'false'};
+ assert.equal((await worker.fetch(request('/api/game/start',{boost:'score'},cookie),draining)).status,403);
+ assert.equal((await worker.fetch(request('/api/boost/inventory',null,cookie),draining)).status,403);
+ now+=61000;
+ const saved=await worker.fetch(request('/api/scores',{...run,events:[],kit:'japan-01'},cookie),draining);
+ assert.equal(saved.status,200,'already-issued run must save while BOOST issuance is disabled');
+ assert.equal((await saved.json()).score,116);
+ assert.equal(reservations,1,'rollback must not reserve another BOOST');
+ assert.equal(submissions,1);
+});
