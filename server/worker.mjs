@@ -136,7 +136,7 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
     const reservation=await db.call('boost_reserve',{playerId:session.sub,runId,boost});
     if(reservation?.reserved!==true||reservation.boost!==boost||reservation.runId!==runId)throw new ApiError(503,'BOOST在庫の確認に失敗しました。');
    }
-   return json({ruleset:RULESET,worldWidth,boost,token:await sign({kind:'run',sub:session.sub,id:runId,started:time,exp:time+86400000,ruleset:RULESET,device:requestDevice(request),worldWidth,boost},env.SESSION_SECRET)});
+   return json({ruleset:RULESET,worldWidth,boost,token:await sign({kind:'run',sub:session.sub,id:runId,started:time,exp:time+86400000,ruleset:RULESET,scoringPolicy:'neutral-v1',device:requestDevice(request),worldWidth,boost},env.SESSION_SECRET)});
   }
   const body=await readBody(request),run=await verify(body.token,env.SESSION_SECRET,'run',time);
   if(run.sub!==session.sub||run.ruleset!==RULESET||body.ruleset!==RULESET)throw new ApiError(403,'このプレイは登録できません。');
