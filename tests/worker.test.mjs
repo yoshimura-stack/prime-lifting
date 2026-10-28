@@ -555,3 +555,27 @@ test('DAILY BOOST SQL serializes same-player reservations and does not replenish
  assert.match(reserve,/insert into public\.lifting_boost_reservations\(run_id,player_id,boost_type\)/,'reservation must be persisted');
  assert.match(reserve,/if v_existing\.player_id<>v_player or v_existing\.boost_type<>v_type/,'run reuse must not cross player or type');
 });
+
+test('partial BOOST flag activation cannot grant or refresh inventory',async()=>{
+ const calls=[];
+ const worker=createWorker({database:()=>({call:async(op)=>{
+  calls.push(op);
+  if(op==='login')return {player:{id:'player-one',name:'A',best:0,rank:1}};
+  if(op==='me')return {player:{id:'player-one',name:'A',best:0,rank:1}};
+  throw Error('Unexpected database operation: '+op);
+ }})});
+ for(const flags of [
+  {PRIME_BOOST_ENABLED:'true',PRIME_BOOST_SCORE_PERSISTENCE_READY:'false'},
+  {PRIME_BOOST_ENABLED:'false',PRIME_BOOST_SCORE_PERSISTENCE_READY:'true'}
+ ]){
+  calls.length=0;
+  const cfg={...env,...flags};
+  const login=await worker.fetch(request('/api/login',{name:'A',pin:'123456'}),cfg);
+  assert.equal(login.status,200);
+  assert.equal((await login.json()).boost,undefined);
+  const cookie=login.headers.get('set-cookie').split(';')[0];
+  assert.equal((await worker.fetch(request('/api/boost/inventory',null,cookie),cfg)).status,403);
+  assert.equal(calls.includes('boost_login_grant'),false);
+  assert.equal(calls.includes('boost_inventory'),false);
+ }
+});
