@@ -126,7 +126,8 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
    const boost=startBody.boost??null;
    if(boost!==null){
     if(env.PRIME_BOOST_ENABLED!=='true'||env.PRIME_BOOST_SCORE_PERSISTENCE_READY!=='true')throw new ApiError(403,'BOOSTは現在準備中です。');
-    if(!['time','score','sc'].includes(boost))throw new ApiError(400,'BOOSTの選択が正しくありません。');
+    // Limited first release: only SCORE x1.1 can be newly reserved.
+    if(boost!=='score')throw new ApiError(400,'現在利用できるBOOSTはSCORE ×1.1のみです。');
    }
    const width=startBody.worldWidth??1000;
    if(!Number.isInteger(width)||width<1000||width>1800||width%100!==0)throw new ApiError(400,'フィールド幅が正しくありません。');
