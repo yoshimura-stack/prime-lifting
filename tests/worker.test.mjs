@@ -664,3 +664,32 @@ test('rollback drain preserves already-issued SECOND CHANCE BOOST without extra 
  assert.equal(reservations,1);
  assert.equal(submissions,1);
 });
+
+test('full BOOST shutdown leaves ordinary gameplay and score persistence available',async()=>{
+ let now=100000,reservations=0,grants=0,submissions=0;
+ const player={id:'player-one',name:'A',best:105,rank:1};
+ const worker=createWorker({now:()=>now,replayGame:(events,width,boost)=>{
+  assert.equal(boost,null);return {score:105,hits:0,combo:0,drops:0,achievementProof:{},nextProof:{}};
+ },database:()=>({call:async(op,input)=>{
+  if(op==='boost_login_grant'){grants++;throw Error('BOOST grant must remain off');}
+  if(op==='boost_reserve'){reservations++;throw Error('BOOST reservation must remain off');}
+  if(op==='submit'){submissions++;assert.equal(input.boost,null);assert.equal(input.score,105);assert.equal(input.mobileBonus,0);return {player,personalBest:true,newChampion:false};}
+  if(op==='achievement_merge')return {mask:0};
+  return {player};
+ }})});
+ const disabled={...env,PRIME_BOOST_ENABLED:'false',PRIME_BOOST_SCORE_PERSISTENCE_READY:'false'};
+ const login=await worker.fetch(request('/api/login',{name:'A',pin:'123456'}),disabled);
+ assert.equal(login.status,200);
+ const cookie=login.headers.get('set-cookie').split(';')[0];
+ const start=await worker.fetch(request('/api/game/start',{},cookie),disabled);
+ assert.equal(start.status,200);
+ const run=await start.json();
+ assert.equal(run.boost,null);
+ now+=60000;
+ const saved=await worker.fetch(request('/api/scores',{...run,events:[],kit:'japan-01'},cookie),disabled);
+ assert.equal(saved.status,200);
+ assert.equal((await saved.json()).score,105);
+ assert.equal(grants,0);
+ assert.equal(reservations,0);
+ assert.equal(submissions,1);
+});
