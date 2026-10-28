@@ -789,3 +789,33 @@ test('authentic HMAC legacy-format mobile run ticket remains accepted but uses n
  assert.equal(submission.mobileBonus,0);
  assert.equal(submission.boost,null);
 });
+
+test('legacy mobile ticket cannot forge old bonus or bypass signed expiration',async()=>{
+ let now=200000,submits=0;
+ const player={id:'player-one',name:'A',best:0,rank:1};
+ const worker=createWorker({now:()=>now,replayGame:()=>({score:1000}),database:()=>({call:async(op)=>{
+  if(op==='submit'){submits++;return {player,personalBest:true,newChampion:true};}
+  if(op==='achievement_merge')return {mask:0};
+  return {player};
+ }})});
+ const headers={'User-Agent':'Mozilla/5.0 (iPhone; Mobile)'};
+ const login=await worker.fetch(request('/api/login',{name:'A',pin:'123456'},null,headers),env);
+ assert.equal(login.status,200);
+ const cookie=login.headers.get('set-cookie').split(';')[0];
+ const encode=data=>Buffer.from(data).toString('base64url');
+ const bytes=new TextEncoder();
+ const signLegacy=async claims=>{
+  const payload=encode(bytes.encode(JSON.stringify(claims)));
+  const key=await crypto.subtle.importKey('raw',bytes.encode(env.SESSION_SECRET),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+  return payload+'.'+encode(await crypto.subtle.sign('HMAC',key,bytes.encode(payload)));
+ };
+ const legacy={kind:'run',sub:'player-one',id:'old-run',started:now-61000,exp:now+10000,ruleset:RULESET,device:'mobile',worldWidth:1000};
+ const valid=await signLegacy(legacy);
+ const forged=valid.slice(0,-1)+(valid.endsWith('A')?'B':'A');
+ const body={ruleset:RULESET,events:[],kit:'japan-01',score:1100,mobileBonus:100,device:'mobile'};
+ assert.equal((await worker.fetch(request('/api/scores',{...body,token:forged},cookie,headers),env)).status,401);
+ assert.equal(submits,0);
+ now+=10001;
+ assert.equal((await worker.fetch(request('/api/scores',{...body,token:valid},cookie,headers),env)).status,401);
+ assert.equal(submits,0);
+});
