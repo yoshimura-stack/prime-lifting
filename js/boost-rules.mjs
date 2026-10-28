@@ -1,24 +1,10 @@
 // PRIME BOOST pure rules. Shared BOOST rules for mainline integration; runtime activation remains feature-gated.
 export const BOOST_TYPES=Object.freeze(['time','score','sc']);
-export const BOOST_CAP=2;
+export const DAILY_BOOST_USES_PER_TYPE=1;
 export const BOOST_COLOR=Object.freeze({time:'#3B82F6',score:'#FACC15',sc:'#22C55E'});
-export function eligibleBoosts(inventory){
- return BOOST_TYPES.filter(type=>Number.isInteger(inventory?.[type])&&inventory[type]>=0&&inventory[type]<BOOST_CAP);
-}
-export const SLOT_WEIGHTS=Object.freeze({miss:40,time:20,score:20,sc:20});
-export function slotOutcome(inventory,random=Math.random){
- const eligible=eligibleBoosts(inventory);
- if(!eligible.length)return null; // all full: skip without consuming daily spin
- const roll=random();
- if(!Number.isFinite(roll)||roll<0||roll>=1)throw new RangeError('Invalid random draw');
- const outcomes=['miss',...eligible];
- const total=outcomes.reduce((sum,type)=>sum+SLOT_WEIGHTS[type],0);
- let ticket=roll*total;
- for(const type of outcomes){
-  ticket-=SLOT_WEIGHTS[type];
-  if(ticket<0)return Object.freeze({type,reels:[type,type,type]});
- }
- throw new RangeError('Invalid slot draw');
+// DAILY BOOST: each type can be used once per JST day; inventory is refreshed by the server.
+export function availableDailyBoosts(inventory){
+ return BOOST_TYPES.filter(type=>inventory?.[type]===DAILY_BOOST_USES_PER_TYPE);
 }
 export function scoreMultiplier(device,boost=null){
  if(device!=='pc'&&device!=='mobile')throw new TypeError('Unknown device');
