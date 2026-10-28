@@ -811,7 +811,8 @@ test('legacy mobile ticket cannot forge old bonus or bypass signed expiration',a
  };
  const legacy={kind:'run',sub:'player-one',id:'old-run',started:now-61000,exp:now+10000,ruleset:RULESET,device:'mobile',worldWidth:1000};
  const valid=await signLegacy(legacy);
- const forged=valid.slice(0,-1)+(valid.endsWith('A')?'B':'A');
+ const [signedPayload,signedMac]=valid.split('.');
+ const forged=signedPayload+'.'+(signedMac.startsWith('A')?'B':'A')+signedMac.slice(1);
  const body={ruleset:RULESET,events:[],kit:'japan-01',score:1100,mobileBonus:100,device:'mobile'};
  assert.equal((await worker.fetch(request('/api/scores',{...body,token:forged},cookie,headers),env)).status,401);
  assert.equal(submits,0);
