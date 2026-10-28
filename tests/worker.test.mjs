@@ -693,3 +693,20 @@ test('full BOOST shutdown leaves ordinary gameplay and score persistence availab
  assert.equal(reservations,0);
  assert.equal(submissions,1);
 });
+
+test('DAILY BOOST migration preserves historical scores and only resets inventory on a new JST day',async()=>{
+ const {readFileSync}=await import('node:fs');
+ const sql=readFileSync(new URL('../sql/prime-boost-daily-one-per-type-20261028.sql',import.meta.url),'utf8');
+ assert.match(sql,/now\(\) at time zone 'Asia\/Tokyo'/i);
+ assert.match(sql,/last_grant_day is distinct from d/i);
+ assert.match(sql,/on conflict\(player_id\) do update/i);
+ assert.match(sql,/where id=p_player for update/i);
+ assert.doesNotMatch(sql,/\b(?:truncate|delete\s+from|drop\s+table)\b/i,'daily migration must never delete historical records');
+ assert.doesNotMatch(sql,/\bupdate\s+public\.lifting_(?:players|runs|score_breakdowns)\b/i,'daily migration must not rewrite BEST or score history');
+ assert.doesNotMatch(sql,/\brandom\s*\(/i,'daily inventory cannot use roulette');
+ assert.match(sql,/where player_id=v_player and time_count=1/i);
+ assert.match(sql,/where player_id=v_player and score_count=1/i);
+ assert.match(sql,/where player_id=v_player and sc_count=1/i);
+ assert.match(sql,/revoke all on function public\.lifting_boost_daily_refresh\(uuid\) from public,anon,authenticated/i);
+ assert.match(sql,/grant execute on function public\.lifting_boost_daily_refresh\(uuid\) to service_role/i);
+});
