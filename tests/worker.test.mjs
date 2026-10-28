@@ -753,6 +753,8 @@ test('legacy-shaped mobile ticket is replayed neutrally and client-provided old 
  assert.equal(start.status,200);
  const ticket=await start.json();
  assert.equal(ticket.ruleset,RULESET);
+ const signedTicket=JSON.parse(Buffer.from(ticket.token.split('.')[0],'base64url').toString('utf8'));
+ assert.equal(signedTicket.scoringPolicy,'neutral-v1','new run tickets identify their signed scoring policy');
  now+=61000;
  const saved=await worker.fetch(request('/api/scores',{...ticket,events:[],kit:'japan-01',score:1100,baseScore:1000,mobileBonus:100,device:'mobile'},cookie,mobileHeaders),env);
  assert.equal(saved.status,200);
