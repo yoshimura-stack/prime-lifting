@@ -21,6 +21,9 @@ class LiftingGame{
   this.combo=0;
   this.bestCombo=0;
   this.drops=0;
+  this.scProtectedDropUsed=false;
+  this.scPreserveNextPickup=false;
+  this.scIgnoreNextContact=false;
   this.hits=0;
   this.pendingSpins=0;
   this.eligibleSpin=false;
@@ -126,8 +129,10 @@ class LiftingGame{
    b.pickup=false;
    this.pendingSpins=0;
    this.eligibleSpin=false;
-   this.spinStreak=0;
-   this.airStreak=0;
+   // Preserve earned SPIN/AIR streaks through SECOND CHANCE pickup.
+   if(!this.scPreserveNextPickup){this.spinStreak=0;this.airStreak=0;}
+   if(this.scPreserveNextPickup)this.scIgnoreNextContact=true;
+   this.scPreserveNextPickup=false;
    p.spinEligible=false;
    b.vy=-this.c.ACTIONS.FOOT.verticalVelocity;
    b.vx=clamp((b.x-p.x)*1.8+p.vx*.08,-this.c.BALL_MAX_HORIZONTAL_SPEED,this.c.BALL_MAX_HORIZONTAL_SPEED);
@@ -159,8 +164,14 @@ class LiftingGame{
   // Skill streaks reward players who keep adding a spin or an airborne touch
   // on every successful contact. Missing the condition on the next touch resets
   // that streak, while dropping the ball resets both.
-  if(spinCount>0)this.spinStreak++;else this.spinStreak=0;
-  if(airborne)this.airStreak++;else this.airStreak=0;
+  // First scored contact after a rescued pickup does not alter streaks.
+  const protectedFirstContact=this.scIgnoreNextContact;
+  if(protectedFirstContact){
+   this.scIgnoreNextContact=false;
+  }else{
+   if(spinCount>0)this.spinStreak++;else this.spinStreak=0;
+   if(airborne)this.airStreak++;else this.airStreak=0;
+  }
   const spinLevel=Math.min(this.spinStreak,this.c.MAX_STREAK_LEVEL);
   const airLevel=Math.min(this.airStreak,this.c.MAX_STREAK_LEVEL);
   // Rotation score: 100 per completed spin, plus a 600-point QUAD milestone.
@@ -185,7 +196,8 @@ class LiftingGame{
   this.score+=a.score+bonus;
   this.pendingSpins=0;
   this.eligibleSpin=true;
-  this.combo++;
+  // The first scored touch after a SECOND CHANCE pickup does not advance the combo gauge.
+  if(!protectedFirstContact)this.combo++;
   this.hits++;
   this.bestCombo=Math.max(this.combo,this.bestCombo);
   this.action=hit.name;
@@ -307,11 +319,21 @@ class LiftingGame{
      this.respawnSide=outLeft?-1:outRight?1:this.respawnSide;
     b.y=Math.min(b.y,c.GROUND_Y-c.BALL_RADIUS);
     b.active=false;
-    this.combo=0;
+    // First drop protects KEEP UPS, SPIN and AIR streaks; later drops reset normally.
+    const rescued=c.SC_PROTECT_FIRST_DROP===true&&!this.scProtectedDropUsed;
+    if(rescued){
+     this.scProtectedDropUsed=true;
+     this.scPreserveNextPickup=true;
+     this.scIgnoreNextContact=false;
+    }else{
+     this.scPreserveNextPickup=false;
+     this.scIgnoreNextContact=false;
+     this.combo=0;
+     this.spinStreak=0;
+     this.airStreak=0;
+    }
     this.pendingSpins=0;
     this.eligibleSpin=false;
-    this.spinStreak=0;
-    this.airStreak=0;
     p.spinEligible=false;
     this.drops++;
     this.respawn=c.RESPAWN_DELAY;

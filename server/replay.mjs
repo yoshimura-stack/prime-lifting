@@ -11,15 +11,19 @@ export function normalizeName(value){
  if([...name].length<1||[...name].length>16||/[\p{Cc}\p{Cf}<>]/u.test(name))throw new ApiError(400,'名前は1〜16文字で入力してください。');
  return {name,key:name.toLocaleLowerCase('ja')};
 }
-export function replay(events,worldWidth=1000){
+export function replay(events,worldWidth=1000,boost=null){
+ if(boost!==null&&!['time','score','sc'].includes(boost))throw new ApiError(400,'Unsupported replay BOOST');
+ const maxTicks=boost==='time'?8400:7800;
  if(!Number.isInteger(worldWidth)||worldWidth<1000||worldWidth>1800||worldWidth%100!==0)throw new ApiError(400,'フィールド幅が正しくありません。');
  if(!Array.isArray(events)||events.length>10000)throw new ApiError(400,'プレイ記録が正しくありません。');
  let prev=-1;
- for(const e of events){if(!e||!Number.isInteger(e.t)||e.t<prev||e.t<0||e.t>7800||!['move','jump','act','spin'].includes(e.n)||(e.n==='move'&&![-1,0,1].includes(e.v)))throw new ApiError(400,'プレイ記録が正しくありません。');prev=e.t;}
- const c=structuredClone(globalThis.PRIME_DEFAULTS);c.WORLD_WIDTH=worldWidth;const g=new globalThis.LiftingGame(c);g.reset();let at=0,dir=0,tick=0,jumpsSinceHit=0,maxAirStreak=0,shoulderHits=0,spinKing=false,quadMaster=false,airQuad=false,doubleAir=false;
+ for(const e of events){if(!e||!Number.isInteger(e.t)||e.t<prev||e.t<0||e.t>maxTicks||!['move','jump','act','spin'].includes(e.n)||(e.n==='move'&&![-1,0,1].includes(e.v)))throw new ApiError(400,'プレイ記録が正しくありません。');prev=e.t;}
+ const c=structuredClone(globalThis.PRIME_DEFAULTS);c.WORLD_WIDTH=worldWidth;
+ c.GAME_DURATION=boost==='time'?65:60;
+ c.SC_PROTECT_FIRST_DROP=boost==='sc';const g=new globalThis.LiftingGame(c);g.reset();let at=0,dir=0,tick=0,jumpsSinceHit=0,maxAirStreak=0,shoulderHits=0,spinKing=false,quadMaster=false,airQuad=false,doubleAir=false;
  const nextProof={totalHits:0,foot:0,knee:0,chest:0,heading:0,shoulder:0,spin:0,jump:0,allSpin:true,allJump:true,first30:null};
  const prefix={hits:0,foot:0,knee:0,chest:0,heading:0,spin:0,jump:0,unbroken:true};
- while(g.phase!=='ended'&&tick<7800){while(at<events.length&&events[at].t===tick){const e=events[at++];if(e.n==='move')dir=e.v;else {const accepted=g[e.n]();if(e.n==='jump'&&accepted===true)jumpsSinceHit++;}}g.update(c.FIXED_STEP,dir);for(const event of g.events){if(event.type==='hit'){
+ while(g.phase!=='ended'&&tick<maxTicks){while(at<events.length&&events[at].t===tick){const e=events[at++];if(e.n==='move')dir=e.v;else {const accepted=g[e.n]();if(e.n==='jump'&&accepted===true)jumpsSinceHit++;}}g.update(c.FIXED_STEP,dir);for(const event of g.events){if(event.type==='hit'){
     nextProof.totalHits++;
     const part=event.name==='FOOT'?'foot':event.name==='KNEE'?'knee':event.name==='CHEST'?'chest':event.name==='HEADER'||event.name==='JUMP_HEADER'?'heading':event.name==='SHOULDER'?'shoulder':null;
     if(part)nextProof[part]++;
@@ -27,7 +31,7 @@ export function replay(events,worldWidth=1000){
     // A jump must have been accepted since the previous successful touch; airborne alone is not sufficient.
     if(jumpsSinceHit>0)nextProof.jump++;else nextProof.allJump=false;
     if(prefix.hits<30){prefix.hits++;if(part&&Object.hasOwn(prefix,part))prefix[part]++;if(event.spinCount>0)prefix.spin++;if(jumpsSinceHit>0)prefix.jump++;if(prefix.hits===30&&prefix.unbroken)nextProof.first30={...prefix};}
-    maxAirStreak=Math.max(maxAirStreak,event.airStreak||0);if(event.name==='SHOULDER')shoulderHits++;if(event.spinCount>=3)spinKing=true;if(event.spinCount>=4)quadMaster=true;if(event.spinCount>=4&&jumpsSinceHit>=1)airQuad=true;if(jumpsSinceHit>=2)doubleAir=true;jumpsSinceHit=0;}else if(event.type==='drop'){jumpsSinceHit=0;if(prefix.hits<30)prefix.unbroken=false;}}g.events.length=0;tick++;}
+    maxAirStreak=Math.max(maxAirStreak,event.airStreak||0);if(event.name==='SHOULDER')shoulderHits++;if(event.spinCount>=3)spinKing=true;if(event.spinCount>=4)quadMaster=true;if(event.spinCount>=4&&jumpsSinceHit>=1)airQuad=true;if(jumpsSinceHit>=2)doubleAir=true;jumpsSinceHit=0;}else if(event.type==='drop'){jumpsSinceHit=0;if(prefix.hits<30&&!(boost==='sc'&&g.scProtectedDropUsed&&g.drops===1))prefix.unbroken=false;}}g.events.length=0;tick++;}
  if(at!==events.length||g.phase!=='ended')throw new ApiError(400,'プレイ記録の終了位置が正しくありません。');
  return {score:g.score,hits:g.hits,combo:g.bestCombo,drops:g.drops,achievementProof:{maxAirStreak,shoulderHits,spinKing,quadMaster,airQuad,doubleAir},nextProof};
 }

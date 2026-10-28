@@ -17,3 +17,19 @@ body.touch-landscape #mobile-pause{min-width:44px!important;min-height:44px!impo
 .restart-actions{display:flex;gap:10px;justify-content:center}
 .restart-actions button{padding:10px 15px;border-radius:8px;cursor:pointer;font-weight:800}
 #restart-accept{background:#e5fb8c;color:#18241a}
+
+
+/* PRIME BOOST: preparation-only selector. Remains hidden until verified inventory is available. */
+#prime-boost-picker[hidden]{display:none!important}
+#prime-boost-picker{position:absolute;right:clamp(14px,2.3vw,34px);bottom:clamp(70px,12vh,112px);z-index:4;width:min(188px,20vw);box-sizing:border-box;padding:12px;background:rgba(10,31,24,.92);border:1px solid rgba(196,241,126,.36);border-radius:14px;box-shadow:0 14px 38px #0007;color:#edffda;text-align:left}
+#prime-boost-picker>strong{display:block;font-size:12px;letter-spacing:.1em;color:#d9ff79}
+#prime-boost-picker>small{display:block;font-size:10px;margin:4px 0 10px;color:#d1ddcb}
+.prime-boost-options{display:grid;gap:7px}
+.prime-boost-options button{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:5px;width:100%;padding:7px 6px;border:1px solid #526c59;border-radius:9px;background:#16372d;color:#f0ffe2;text-align:left;font-size:10px;font-weight:800}
+.prime-boost-options button[aria-pressed="true"]{border-color:#ddff76;box-shadow:0 0 0 1px #ddff76,0 0 15px #caff5540}
+.prime-boost-options button:disabled{opacity:.48;cursor:not-allowed}
+.prime-boost-options button small{font-size:10px;color:#e0ff9b}
+.boost-ball{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;font-size:19px}
+.boost-blue{background:#2456b9}.boost-yellow{background:#a88d0a}.boost-green{background:#168149}
+@media(max-width:1100px),(max-height:600px){#prime-boost-picker{right:10px;bottom:65px;width:160px;padding:9px}.prime-boost-options button{font-size:9px}}
+@media(hover:none) and (pointer:coarse){#prime-boost-picker{position:relative;right:auto;bottom:auto;width:min(92vw,340px);margin:10px auto}}

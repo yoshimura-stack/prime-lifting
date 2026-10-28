@@ -1,0 +1,47 @@
+name: Deploy PRIME BOOST staging (manual only)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: prime-boost-staging-deploy
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: prime-boost-staging
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_STAGING_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_STAGING_ACCOUNT_ID }}
+      SUPABASE_SECRET_KEY: ${{ secrets.PRIME_BOOST_STAGING_SUPABASE_SECRET_KEY }}
+      SESSION_SECRET: ${{ secrets.PRIME_BOOST_STAGING_SESSION_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Require separate staging credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          for key in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID SUPABASE_SECRET_KEY SESSION_SECRET; do
+            if [ -z "${!key}" ]; then
+              echo "::error::Missing staging credential: $key"
+              exit 1
+            fi
+          done
+          node -e "const fs=require('fs'); const c=JSON.parse(fs.readFileSync('wrangler.staging.jsonc'));if(c.name!=='prime-lifting-boost-staging'||c.vars?.SUPABASE_URL!=='https://tarnzjkxexlozqqmyqof.supabase.co'||c.vars?.PRIME_BOOST_ENABLED!=='true')process.exit(1)"
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - name: Deploy isolated staging Worker
+        run: npx wrangler deploy --config wrangler.staging.jsonc
+      - name: Install staging-only Worker secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          node -e 'const fs=require("fs");fs.writeFileSync("/tmp/prime-boost-staging-secrets.json",JSON.stringify({SUPABASE_SECRET_KEY:process.env.SUPABASE_SECRET_KEY,SESSION_SECRET:process.env.SESSION_SECRET}),{mode:0o600})'
+          npx wrangler secret bulk /tmp/prime-boost-staging-secrets.json --config wrangler.staging.jsonc
+          rm -f /tmp/prime-boost-staging-secrets.json

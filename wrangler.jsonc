@@ -30,11 +30,13 @@
   "vars": {
     "SUPABASE_URL": "https://ctxhopadmvasxvjspwoi.supabase.co",
     "DAILY_REWARDS_TEST_PLAYER_ID": "15021678-6d37-40dd-97ab-9b6c61d15281",
-    "DAILY_REWARDS_ENABLED": "true"
+    "DAILY_REWARDS_ENABLED": "true",
+    "PRIME_BOOST_ENABLED": "true",
+    "PRIME_BOOST_SCORE_PERSISTENCE_READY": "true"
   },
   "previews": {
     "vars": {
-      "SUPABASE_URL": "https://ctxhopadmvasxvjspwoi.supabase.co"
+      "SUPABASE_URL": "https://tarnzjkxexlozqqmyqof.supabase.co"
     },
     "ratelimits": [
       {

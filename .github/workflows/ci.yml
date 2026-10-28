@@ -18,3 +18,25 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+      - name: Validate staging Worker configuration (dry run only)
+        run: npm run check:staging
+      - name: Upload BOOST review bundle (no deployment)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prime-boost-review-${{ github.sha }}
+          path: |
+            public/
+            server/
+            js/
+            scripts/
+            package.json
+            package-lock.json
+            wrangler.jsonc
+            wrangler.staging.jsonc
+            docs/prime-boost-staging-acceptance-20261028.md
+            docs/prime-boost-production-rollout-rollback-20261027.md
+            sql/prime-boost-daily-one-per-type-20261028.sql
+            sql/prime-boost-submit-proposal-20261027.sql
+          if-no-files-found: warn
+          retention-days: 7

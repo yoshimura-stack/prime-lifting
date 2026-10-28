@@ -73,8 +73,10 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
    const data=await db.call(path.slice(5),{name,nameKey,pin:body.pin});
    if(!data?.player)throw new ApiError(401,'名前・PINを確認してください（登録済みの名前はログイン）。');
    const player=publicPlayer(data.player);
+   // Fail closed if a live BOOST login grant cannot be persisted. No grant on guest play.
+   const boost=(env.PRIME_BOOST_ENABLED==='true'&&env.PRIME_BOOST_SCORE_PERSISTENCE_READY==='true')?await db.call('boost_login_grant',{playerId:player.id}):null;
    const token=await sign({kind:'session',sub:player.id,exp:time+7*86400000},env.SESSION_SECRET);
-   return json({player},200,{'Set-Cookie':`prime_session=${token}; Path=/api; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`});
+   return json({...{player},...(boost?{boost}: {})},200,{'Set-Cookie':`prime_session=${token}; Path=/api; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`});
   }
   if(path==='/api/logout'&&post)return json({ok:true},200,{'Set-Cookie':'prime_session=; Path=/api; HttpOnly; Secure; SameSite=Strict; Max-Age=0'});
   if((path==='/api/leaderboard'||path==='/api/champion'||path==='/api/leaderboard/all')&&!post){
@@ -99,11 +101,18 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
    });
    return json(path==='/api/champion'?{champion:entries[0]||null}:{entries});
   }
-  if(!['/api/me','/api/achievements','/api/daily/status','/api/game/start','/api/scores'].includes(path))throw new ApiError(404,'APIが見つかりません。');
-  if((path==='/api/me'||path==='/api/achievements'||path==='/api/daily/status')===post)throw new ApiError(405,'この操作には対応していません。');
+  if(!['/api/me','/api/boost/inventory','/api/achievements','/api/daily/status','/api/game/start','/api/scores'].includes(path))throw new ApiError(404,'APIが見つかりません。');
+  if((path==='/api/me'||path==='/api/boost/inventory'||path==='/api/achievements'||path==='/api/daily/status')===post)throw new ApiError(405,'この操作には対応していません。');
   const cookie=(request.headers.get('Cookie')||'').split(';').map(v=>v.trim()).find(v=>v.startsWith('prime_session='))?.slice(14);
   const session=await verify(cookie,env.SESSION_SECRET,'session',time);
   if(path==='/api/me')return json({player:publicPlayer((await db.call('me',{playerId:session.sub})).player)});
+  if(path==='/api/boost/inventory'){
+   if(env.PRIME_BOOST_ENABLED!=='true'||env.PRIME_BOOST_SCORE_PERSISTENCE_READY!=='true')throw new ApiError(403,'BOOSTは現在準備中です。');
+   await db.call('me',{playerId:session.sub});
+   const inventory=await db.call('boost_inventory',{playerId:session.sub});
+   // Keep picker hidden until boosted replay and score persistence are verified end-to-end.
+   return json({...inventory,selectionEnabled:true});
+  }
   if(path==='/api/daily/status'){
    const day=jstDay(time),data=await db.call('daily_status',{playerId:session.sub,day});
    const allowed=new Set(dailyChallenges(day).map(challenge=>challenge.id));
@@ -114,19 +123,34 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   if(path==='/api/game/start'){
    await db.call('me',{playerId:session.sub});
    const startBody=await readBody(request);
+   const boost=startBody.boost??null;
+   if(boost!==null){
+    if(env.PRIME_BOOST_ENABLED!=='true'||env.PRIME_BOOST_SCORE_PERSISTENCE_READY!=='true')throw new ApiError(403,'BOOSTは現在準備中です。');
+    if(!['time','score','sc'].includes(boost))throw new ApiError(400,'BOOSTの選択が正しくありません。');
+   }
    const width=startBody.worldWidth??1000;
    if(!Number.isInteger(width)||width<1000||width>1800||width%100!==0)throw new ApiError(400,'フィールド幅が正しくありません。');
    const worldWidth=requestDevice(request)==='mobile'?1000:width;
-   return json({ruleset:RULESET,worldWidth,token:await sign({kind:'run',sub:session.sub,id:crypto.randomUUID(),started:time,exp:time+86400000,ruleset:RULESET,device:requestDevice(request),worldWidth},env.SESSION_SECRET)});
+   const runId=crypto.randomUUID();
+   if(boost!==null){
+    const reservation=await db.call('boost_reserve',{playerId:session.sub,runId,boost});
+    if(reservation?.reserved!==true||reservation.boost!==boost||reservation.runId!==runId)throw new ApiError(503,'BOOST在庫の確認に失敗しました。');
+   }
+   return json({ruleset:RULESET,worldWidth,boost,token:await sign({kind:'run',sub:session.sub,id:runId,started:time,exp:time+86400000,ruleset:RULESET,scoringPolicy:'neutral-v1',device:requestDevice(request),worldWidth,boost},env.SESSION_SECRET)});
   }
   const body=await readBody(request),run=await verify(body.token,env.SESSION_SECRET,'run',time);
   if(run.sub!==session.sub||run.ruleset!==RULESET||body.ruleset!==RULESET)throw new ApiError(403,'このプレイは登録できません。');
+  // Pre-policy tickets remain readable during migration; unknown signed policies fail closed.
+  if(run.scoringPolicy!==undefined&&run.scoringPolicy!=='neutral-v1')throw new ApiError(403,'このプレイのスコア方式には対応していません。');
   // 60s lower bound leaves the 3s countdown as network-latency allowance.
-  if(time-run.started<60000)throw new ApiError(400,'プレイ終了後に再試行してください。');
+  if(time-run.started<(run.boost==='time'?65000:60000))throw new ApiError(400,'プレイ終了後に再試行してください。');
   const device=run.device??requestDevice(request);
   if(!validKit(body.kit)||!['pc','mobile'].includes(device))throw new ApiError(400,'端末・ユニフォームの指定が正しくありません。');
-  const result=replayGame(body.events,run.worldWidth??1000),score=finalScore(result.score,device);
-  const saved=await db.call('submit',{playerId:session.sub,runId:run.id,...result,score,baseScore:result.score,mobileBonus:score-result.score,kit:body.kit,device,gameVersion:VERSION});
+  const boost=run.boost??null;
+  if(boost!==null&&(!['time','score','sc'].includes(boost)||env.PRIME_BOOST_ENABLED!=='true'))throw new ApiError(403,'BOOSTの検証に失敗しました。');
+  const result=replayGame(body.events,run.worldWidth??1000,boost);
+  const score=boost==='score'?Math.round(result.score*1.1):finalScore(result.score,device);
+  const saved=await db.call('submit',{playerId:session.sub,runId:run.id,...result,score,baseScore:result.score,mobileBonus:score-result.score,boost,kit:body.kit,device,gameVersion:VERSION});
   // Only an accepted and saved standard run can grant titles.
   // Progress is isolated from score storage; a progress outage must not erase a score.
   let progress=null;

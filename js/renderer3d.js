@@ -51,6 +51,12 @@ class PrimeRenderer{
   this.ball=new T.Mesh(new T.SphereGeometry(c.BALL_RADIUS,32,24),new T.MeshStandardMaterial({map:ballTex,roughness:0.38,metalness:0.02}));this.ball.castShadow=true;this.scene.add(this.ball);this.ballShadow=this.shadow(25,.23);this.scene.add(this.ballShadow);this.playerShadow=this.shadow(58,.28);this.scene.add(this.playerShadow);
 
  }
+ setBoostBallColor(boost){
+  // Tint the existing ball material: no geometry, collision or physics changes.
+  const colors={time:'#3B82F6',score:'#FACC15',sc:'#22C55E'};
+  this.boostBallType=Object.hasOwn(colors,boost)?boost:null;
+  this.ball.material.color.set(this.boostBallType?colors[this.boostBallType]:'#ffffff');
+ }
  mat(color,roughness=.78){return new this.T.MeshStandardMaterial({color,roughness});}
  texture(w,h,paint){const cv=document.createElement('canvas');cv.width=w;cv.height=h;paint(cv.getContext('2d'),w,h);const tex=new this.T.CanvasTexture(cv);tex.colorSpace=this.T.SRGBColorSpace;tex.anisotropy=Math.min(8,this.renderer.capabilities.getMaxAnisotropy());return tex;}
  mesh(geo,material,parent,x,y,z,sx=1,sy=1,sz=1){const m=new this.T.Mesh(geo,material);m.position.set(x,y,z);m.scale.set(sx,sy,sz);m.castShadow=true;parent.add(m);return m;}
@@ -142,7 +148,7 @@ class PrimeRenderer{
   for(const arm of model.arms){const s=arm.s,raise=spinning?12:inAir?10:active&&(a==='CHEST'||a==='SHOULDER')?9:kneeActive?5*kneePose:0;const shoulderLift=active&&a==='SHOULDER'&&s===hitSign?16*pose:0;const elbow=[s*(31+raise*.15),100+raise+shoulderLift,active&&a==='CHEST'?-5:stride*s*5],hand=[s*(35+raise*.4),82+raise*1.9,7+stride*s*9];this.connect(arm.upper,[s*21,117+shoulderLift,0],elbow,7);this.connect(arm.fore,elbow,hand,4.8);arm.shoulder.position.set(s*21,117+shoulderLift,0);arm.elbow.position.set(...elbow);arm.hand.position.set(...hand);}
   model.torso.rotation.z=kneeActive?hitSign*.035*kneePose:active&&a==='SHOULDER'?-hitSign*.11*pose:0;
   model.torso.rotation.x=active&&a==='CHEST'?-.13*pose:active&&a==='SHOULDER'?-.025*pose:0;model.head.rotation.z=active&&a==='SHOULDER'?hitSign*.16*pose:0;model.head.rotation.x=active&&(a==='HEADER'||a==='JUMP_HEADER')?.15*pose:-.06;model.head.rotation.y=spinning?0:Math.max(-.2,Math.min(.2,(g.ball.x-p.x)*.004));
-  const ballDepth=19+26*kneePose;this.ball.visible=g.ball.active;this.ball.position.set(g.ball.x-c.WORLD_WIDTH/2,(c.WORLD_HEIGHT-g.ball.y-310+ballDepth*Math.sin(this.tilt))/this.cos+310,ballDepth);this.ball.rotation.set(t*.3,g.ball.rotation,g.ball.rotation*.6);const height=c.GROUND_Y-g.ball.y;this.ballShadow.visible=g.ball.active;this.ballShadow.position.x=g.ball.x-c.WORLD_WIDTH/2;this.ballShadow.scale.setScalar(.45+height*.0014);this.ballShadow.material.opacity=Math.max(.07,.3-height*.0005);this.playerShadow.position.x=p.x-c.WORLD_WIDTH/2;this.playerShadow.scale.setScalar(.65+(c.GROUND_Y-p.y)*.003);this.playerShadow.material.opacity=inAir?.15:.3;
+  const ballDepth=19+26*kneePose;if(this.boostBallType==='sc'&&g.scProtectedDropUsed)this.setBoostBallColor(null);this.ball.visible=g.ball.active;this.ball.position.set(g.ball.x-c.WORLD_WIDTH/2,(c.WORLD_HEIGHT-g.ball.y-310+ballDepth*Math.sin(this.tilt))/this.cos+310,ballDepth);this.ball.rotation.set(t*.3,g.ball.rotation,g.ball.rotation*.6);const height=c.GROUND_Y-g.ball.y;this.ballShadow.visible=g.ball.active;this.ballShadow.position.x=g.ball.x-c.WORLD_WIDTH/2;this.ballShadow.scale.setScalar(.45+height*.0014);this.ballShadow.material.opacity=Math.max(.07,.3-height*.0005);this.playerShadow.position.x=p.x-c.WORLD_WIDTH/2;this.playerShadow.scale.setScalar(.65+(c.GROUND_Y-p.y)*.003);this.playerShadow.material.opacity=inAir?.15:.3;
 
   for(const person of this.spectators){person.rotation.z=Math.sin(t*.65+person.userData.phase)*.008;}
   this.renderer.render(this.scene,this.camera);

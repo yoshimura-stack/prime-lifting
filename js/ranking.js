@@ -14,6 +14,50 @@ function account(){
  $('account-form').hidden=!!player;$('logout').hidden=!player;
  window.dispatchEvent(new CustomEvent('prime:account-state',{detail:{loggedIn:!!player}}));
 }
+// BOOST selection is only available after the server explicitly advertises run readiness.
+// Inventory alone is not sufficient: the server must support atomic reservation.
+let boostSelection=null;
+let boostReady=false;
+let boostInventory=null;
+const boostPanel=$('prime-boost-picker');
+function hideBoostPicker(){
+ boostReady=false;boostSelection=null;boostInventory=null;
+ if(boostPanel)boostPanel.hidden=true;
+}
+function renderBoostPicker(inventory){
+ if(!boostPanel)return;
+ for(const button of boostPanel.querySelectorAll('[data-boost]')){
+  const kind=button.dataset.boost;
+  // October 31 launch scope: expose SCORE ×1.1 only; keep other BOOSTs unavailable.
+  button.hidden=kind!=='score';
+  const count=Number.isInteger(inventory?.[kind])?Math.max(0,Math.min(1,inventory[kind])):0;
+  button.disabled=kind!=='score'||!boostReady||count===0;
+  button.querySelector('small').textContent='×'+count;
+  button.setAttribute('aria-pressed',String(boostSelection===kind));
+ }
+ boostPanel.hidden=!boostReady||!player||!$('result-ranking').hidden;
+}
+async function syncBoostPicker(){
+ hideBoostPicker();
+ if(!player)return;
+ const id=player.id;
+ try{
+  const data=await api('/api/boost/inventory');
+  if(player?.id!==id)return;
+  // Future server activation must explicitly opt in after reservation is ready.
+  boostReady=data?.selectionEnabled===true;
+  boostInventory=data?.inventory??null;
+  renderBoostPicker(boostInventory);
+ }catch{hideBoostPicker();}
+}
+if(boostPanel){
+ boostPanel.addEventListener('click',event=>{
+  const button=event.target.closest('button[data-boost]');
+  if(!boostReady||!button||button.disabled)return;
+  boostSelection=boostSelection===button.dataset.boost?null:button.dataset.boost;
+  renderBoostPicker(boostInventory);
+ });
+}
 function renderProgress(progress){
  if(!player||!progress){cumulativeEarned=new Set();nextEarned=new Set();progressOwner=null;renderNextCollection();}
  else {cumulativeEarned=new Set(Array.isArray(progress.earned)?progress.earned:[]);progressOwner=player.id;nextEarned=new Set(progress.next?.earned||[]);window.dispatchEvent(new CustomEvent('prime:next-progress',{detail:{earned:[...nextEarned],god:!!progress.next?.god}}));}
@@ -296,7 +340,7 @@ async function save(){
  if(!pending||saving)return;const submission=pending,current=generation;saving=true;
  $('save-retry').hidden=true;$('save-feedback').textContent='プレイを確認して保存しています…';
  try{const data=await api('/api/scores',submission);
- if(current!==generation)return;player=data.player;pending=null;account();window.PRIME_DAILY?.sync?.({submitted:true});
+ if(current!==generation)return;player=data.player;pending=null;account();if(submission.boost)syncBoostPicker();window.PRIME_DAILY?.sync?.({submitted:true});
  $('personal-result').textContent=`今回 ${data.score.toLocaleString()} PTS ／ BEST ${player.best.toLocaleString()} PTS ／ 全体 ${player.rank??'—'}位`;
  $('record-banner').textContent=data.newChampion?'NEW CHAMPION!':data.personalBest?'NEW PERSONAL BEST!':'';$('record-banner').classList.toggle('record-celebrate',!!(data.personalBest||data.newChampion));
  const dailyNote=data.dailyCheck?.enabled===false?' ／ デイチャレ報酬は未有効':data.dailyCheck?.enabled===true&&data.dailyCheck.qualifiedIds?.length===0?' ／ デイチャレ：サーバー判定で未達成':data.dailyCheck?.enabled===true&&data.daily?.earned>0?' ／ デイチャレ +'+data.daily.earned+' PTS 保存済み':data.dailyCheck?.enabled===true?' ／ デイチャレ：今回の新規加点なし':'';
@@ -390,7 +434,7 @@ async function preflight(){
  try{
   const currentPlayer=player?.id;
   const worldWidth=window.PRIME_FIELD_WIDTH?.()??1000;
-   const data=await api('/api/game/start',{worldWidth});
+   const data=await api('/api/game/start',{worldWidth,...(boostReady&&boostSelection?{boost:boostSelection}:{})});
   if(!data.token||!data.ruleset||player?.id!==currentPlayer)throw new Error('ランキング登録の準備に失敗しました。');
   ticket=data;preflightReset();preflightMessage('通信OK：ランキング登録の準備ができました。');return true;
  }catch(e){
@@ -401,6 +445,9 @@ async function preflight(){
 preflightRetry.onclick=()=>{$('start').click();};
 window.PRIME_RANKING={
  worldWidth:()=>ticket?.worldWidth??1000,
+ confirmedBoost:()=>ticket?.boost??null,
+ boostPreparationAvailable:()=>boostReady&&!!player,
+ async showBoostPreparation(){if(!boostReady||!player)return false;$('result-ranking').hidden=true;await syncBoostPicker();return boostReady&&!!player;},
  achievements(stats){renderLive(stats,false);showAchievements(stats);},resetAchievements,updateAchievements(stats){renderLive(stats,true);},preflight,
  async begin(standard){
   ++generation;pending=null;$('achievement-panel').hidden=true;$('achievement-badges').replaceChildren();$('result-ranking').hidden=true;$('account-panel').hidden=false;
@@ -409,7 +456,7 @@ window.PRIME_RANKING={
  },
  finish(result,events,standard){
   $('result-ranking').hidden=false;$('result-next-rival').hidden=true;$('record-banner').textContent='';$('record-banner').classList.remove('record-celebrate');$('save-retry').hidden=true;
-  $('personal-result').textContent=`今回 ${result.score.toLocaleString()} PTS ／ BEST ${player?player.best.toLocaleString():'—'} PTS ／ 全体 ${player?.rank??'—'}位`;
+  $('personal-result').textContent=`今回 ${(ticket?.boost==='score'?Math.round(result.score*1.1):result.score).toLocaleString()} PTS ／ BEST ${player?player.best.toLocaleString():'—'} PTS ／ 全体 ${player?.rank??'—'}位`;
   refresh();
   if(standard&&ticket&&player){pending={...ticket,events:structuredClone(events),kit:result.kit,device:result.device};save();}
   else $('save-feedback').textContent=!standard?'調整設定でのプレイはランキング対象外です。':!player?'ログインすると次のプレイから記録を保存できます。':'オンライン記録を開始できなかったため、今回は保存できません。';
@@ -418,12 +465,12 @@ window.PRIME_RANKING={
 $('account-form').onsubmit=async e=>{
  e.preventDefault();if(authBusy)return;authBusy=true;$('account-status').textContent='確認しています…';
  const pin=$('player-pin').value;$('player-pin').value='';
- try{const data=await api('/api/'+(e.submitter?.value==='register'?'register':'login'),{name:$('player-name').value,pin});player=data.player;preflightReset();cumulativeEarned=new Set();progressOwner=null;account();window.PRIME_DAILY?.sync?.();renderLive(lastLiveStats,false);refreshProgress();}
+ try{const data=await api('/api/'+(e.submitter?.value==='register'?'register':'login'),{name:$('player-name').value,pin});player=data.player;preflightReset();cumulativeEarned=new Set();progressOwner=null;account();syncBoostPicker();window.PRIME_DAILY?.sync?.();renderLive(lastLiveStats,false);refreshProgress();}
  catch(error){$('account-status').textContent=error.message;}finally{authBusy=false;}
 };
-$('logout').onclick=async()=>{try{await api('/api/logout',{});generation++;player=null;ticket=null;pending=null;preflightReset();cumulativeEarned=new Set();progressOwner=null;account();renderLive(lastLiveStats,false);refreshProgress();}catch(e){$('account-status').textContent=e.message;}};
+$('logout').onclick=async()=>{try{await api('/api/logout',{});generation++;player=null;ticket=null;pending=null;hideBoostPicker();preflightReset();cumulativeEarned=new Set();progressOwner=null;account();renderLive(lastLiveStats,false);refreshProgress();}catch(e){$('account-status').textContent=e.message;}};
 $('save-retry').onclick=save;$('rank-refresh').onclick=refresh;
-api('/api/me').then(data=>{if(!authBusy&&!player){player=data.player;account();refreshProgress();}}).catch(()=>{});
+api('/api/me').then(data=>{if(!authBusy&&!player){player=data.player;account();syncBoostPicker();refreshProgress();}}).catch(()=>{});
 renderProgress(null);refresh();document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 setInterval(()=>{if(!document.hidden)refresh();},60000);
 })();
