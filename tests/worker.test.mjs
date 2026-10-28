@@ -636,3 +636,31 @@ test('rollback drain preserves already-issued TIME BOOST 65-second save boundary
  assert.equal((await saved.json()).score,105);
  assert.equal(submissions,1);
 });
+
+test('rollback drain preserves already-issued SECOND CHANCE BOOST without extra inventory spend',async()=>{
+ let now=100000,reservations=0,submissions=0;
+ const player={id:'player-one',name:'A',best:105,rank:1};
+ const worker=createWorker({now:()=>now,replayGame:(events,width,boost)=>{
+  assert.equal(boost,'sc');return {score:105,hits:0,combo:0,drops:1,achievementProof:{},nextProof:{}};
+ },database:()=>({call:async(op,input)=>{
+  if(op==='boost_reserve'){reservations++;return {reserved:true,boost:input.boost,runId:input.runId};}
+  if(op==='submit'){submissions++;assert.equal(input.boost,'sc');assert.equal(input.score,105);assert.equal(input.baseScore,105);return {player,personalBest:true,newChampion:false};}
+  if(op==='achievement_merge')return {mask:0};
+  return {player};
+ }})});
+ const active={...env,PRIME_BOOST_ENABLED:'true',PRIME_BOOST_SCORE_PERSISTENCE_READY:'true'};
+ const login=await worker.fetch(request('/api/login',{name:'A',pin:'123456'}),active);
+ assert.equal(login.status,200);
+ const cookie=login.headers.get('set-cookie').split(';')[0];
+ const started=await worker.fetch(request('/api/game/start',{boost:'sc'},cookie),active);
+ assert.equal(started.status,200);
+ const run=await started.json();
+ const draining={...active,PRIME_BOOST_SCORE_PERSISTENCE_READY:'false'};
+ assert.equal((await worker.fetch(request('/api/game/start',{boost:'sc'},cookie),draining)).status,403);
+ now+=60000;
+ const saved=await worker.fetch(request('/api/scores',{...run,events:[],kit:'japan-01'},cookie),draining);
+ assert.equal(saved.status,200,'SECOND CHANCE run issued before rollback must remain saveable');
+ assert.equal((await saved.json()).score,105);
+ assert.equal(reservations,1);
+ assert.equal(submissions,1);
+});
