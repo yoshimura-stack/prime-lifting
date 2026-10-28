@@ -18,6 +18,8 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+      - name: Validate staging Worker configuration (dry run only)
+        run: npm run check:staging
       - name: Upload BOOST review bundle (no deployment)
         if: success()
         uses: actions/upload-artifact@v4
