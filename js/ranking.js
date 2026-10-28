@@ -30,7 +30,7 @@ function renderBoostPicker(inventory){
   const kind=button.dataset.boost;
   // SCORE, TIME and SECOND CHANCE use the same server-verified reservation path.
   button.hidden=false;
-  const count=Number.isInteger(inventory?.[kind])?Math.max(0,Math.min(1,inventory[kind])):0;
+  const count=Number.isInteger(inventory?.[kind])?Math.max(0,Math.min(2,inventory[kind])):0;
   button.disabled=!boostReady||count===0;
   button.querySelector('small').textContent='×'+count;
   button.setAttribute('aria-pressed',String(boostSelection===kind));
