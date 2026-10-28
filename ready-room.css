@@ -33,3 +33,14 @@ body.touch-landscape #mobile-pause{min-width:44px!important;min-height:44px!impo
 .boost-blue{background:#2456b9}.boost-yellow{background:#a88d0a}.boost-green{background:#168149}
 @media(max-width:1100px),(max-height:600px){#prime-boost-picker{right:10px;bottom:65px;width:160px;padding:9px}.prime-boost-options button{font-size:9px}}
 @media(hover:none) and (pointer:coarse){#prime-boost-picker{position:relative;right:auto;bottom:auto;width:min(92vw,340px);margin:10px auto}}
+
+/* Mobile landscape SCORE BOOST: keep picker in flow, above the start CTA. */
+@media (hover:none) and (pointer:coarse) and (orientation:landscape){
+ .touch-landscape #overlay{overflow-y:auto;overscroll-behavior:contain;padding-bottom:54px;}
+ .touch-landscape #prime-boost-picker:not([hidden]){position:relative;inset:auto;width:min(340px,94%);max-width:94%;flex:0 0 auto;margin:8px auto 0;padding:7px 10px;z-index:1;}
+ .touch-landscape #prime-boost-picker>small{margin:2px 0 5px;}
+ .touch-landscape #prime-boost-picker .prime-boost-options{gap:0;}
+ .touch-landscape #prime-boost-picker .prime-boost-options button:not([hidden]){min-height:40px;padding:5px 8px;}
+ .touch-landscape #prime-boost-picker .prime-boost-options button[hidden]{display:none!important;}
+ .touch-landscape #start{position:relative;z-index:2;flex-shrink:0;margin:10px auto 12px!important;}
+}
