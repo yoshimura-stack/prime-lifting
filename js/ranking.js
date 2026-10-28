@@ -53,7 +53,7 @@ if(boostPanel){
   const button=event.target.closest('button[data-boost]');
   if(!boostReady||!button||button.disabled)return;
   boostSelection=boostSelection===button.dataset.boost?null:button.dataset.boost;
-  renderBoostPicker(Object.fromEntries([...boostPanel.querySelectorAll('button[data-boost]')].map(el=>[el.dataset.boost,Number(el.querySelector('small').textContent.slice(1))])));
+  renderBoostPicker(boostInventory);
  });
 }
 function renderProgress(progress){
