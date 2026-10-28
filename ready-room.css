@@ -44,3 +44,12 @@ body.touch-landscape #mobile-pause{min-width:44px!important;min-height:44px!impo
  .touch-landscape #prime-boost-picker .prime-boost-options button[hidden]{display:none!important;}
  .touch-landscape #start{position:relative;z-index:2;flex-shrink:0;margin:10px auto 12px!important;}
 }
+
+/* V2: short landscape screens must scroll, never compress the BOOST picker beneath CTA. */
+@media (orientation:landscape) and (max-height:750px){
+ body.touch-landscape #overlay:has(#prime-boost-picker:not([hidden])){display:flex!important;flex-direction:column!important;justify-content:flex-start!important;align-items:center!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;box-sizing:border-box;padding:10px 14px 65px!important;}
+ body.touch-landscape #overlay:has(#prime-boost-picker:not([hidden])) > *{flex-shrink:0!important;}
+ body.touch-landscape #prime-boost-picker:not([hidden]){display:block!important;position:static!important;transform:none!important;inset:auto!important;order:0;width:min(340px,90%)!important;min-height:0!important;height:auto!important;flex:none!important;margin:12px auto 0!important;padding:8px 12px!important;}
+ body.touch-landscape #prime-boost-picker .prime-boost-options button[hidden]{display:none!important;}
+ body.touch-landscape #overlay:has(#prime-boost-picker:not([hidden])) #start{position:static!important;transform:none!important;order:0;display:flex!important;flex:none!important;margin:12px auto 0!important;z-index:auto!important;}
+}
