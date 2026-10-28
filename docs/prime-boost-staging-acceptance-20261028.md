@@ -26,3 +26,17 @@
 For each case, record JST time, staging account, sanitized HTTP response, before/after inventory, run count, BEST and score breakdown. Mark blocked checks **NOT VERIFIED**; mocked Worker tests do not prove Supabase transaction correctness.
 
 Before production rollout: all staging cases pass, PC/mobile browser smoke tests pass, CI passes on exact commit, current production submit RPC is re-reviewed against replacement, a credible recovery plan is recorded, and the blocked production DAILY BOOST migration plus score-submit migration have an authorized application path. Never bypass safety checks. PR #141 stays unmerged and both production BOOST flags stay OFF until then. Existing historical BEST, rankings, legacy mobile score compensation, achievements and daily points must not be rewritten.
+
+## Staging Worker deployment handoff (not executed)
+
+The CI job for commit `85592fb` completed its `npm run check:staging` dry-run successfully. This confirms configuration/build compatibility only; no deployed staging URL has been verified.
+
+On an authorized development machine with Node 22, Wrangler access and **staging-only** Supabase credentials:
+1. Check out the reviewed feature branch and run `npm ci`, `npm test`, and `npm run check:staging`.
+2. Verify `wrangler.staging.jsonc` has Worker name `prime-lifting-boost-staging` and `SUPABASE_URL=https://tarnzjkxexlozqqmyqof.supabase.co`. Do not reuse production Supabase credentials.
+3. Configure the required staging secrets for that **named staging Worker**, using approved Cloudflare secret management. Do not put keys in GitHub, logs, screenshots or this document.
+4. Deploy only with an explicit staging config: `npm run build && npx wrangler deploy --config wrangler.staging.jsonc`. Never use the default `npm run deploy` for staging.
+5. Record the actual staging URL and deployment version, then confirm the login and inventory APIs are connected to staging. If either cannot be verified, stop; do not run BOOST gameplay tests.
+6. Keep the production Worker and its two BOOST flags unchanged throughout staging verification.
+
+**Operational note:** A successful dry-run does not create Cloudflare resources, configure secrets, or demonstrate that a staging Worker exists. Do not report deployment complete until the URL and live staging DB behavior have been observed.
