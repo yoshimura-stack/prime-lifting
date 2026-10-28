@@ -710,3 +710,14 @@ test('DAILY BOOST migration preserves historical scores and only resets inventor
  assert.match(sql,/revoke all on function public\.lifting_boost_daily_refresh\(uuid\) from public,anon,authenticated/i);
  assert.match(sql,/grant execute on function public\.lifting_boost_daily_refresh\(uuid\) to service_role/i);
 });
+
+test('preview DB target is isolated and neither BOOST flag is enabled by default',async()=>{
+ const {readFileSync}=await import('node:fs');
+ const raw=readFileSync(new URL('../wrangler.jsonc',import.meta.url),'utf8');
+ const config=JSON.parse(raw.replace(/^\s*\/\/.*$/gm,''));
+ assert.equal(config.vars.SUPABASE_URL,'https://ctxhopadmvasxvjspwoi.supabase.co');
+ assert.equal(config.previews.vars.SUPABASE_URL,'https://tarnzjkxexlozqqmyqof.supabase.co');
+ assert.equal(config.vars.PRIME_BOOST_ENABLED,'false');
+ assert.equal(config.vars.PRIME_BOOST_SCORE_PERSISTENCE_READY,'false');
+ assert.notEqual(config.previews.vars.SUPABASE_URL,config.vars.SUPABASE_URL,'preview must never use production DB');
+});
