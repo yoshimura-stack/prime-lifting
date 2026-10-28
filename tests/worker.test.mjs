@@ -532,3 +532,13 @@ test('retired random-reward migration is archival and never the active DAILY BOO
  assert.match(rollout,/legacy random login-grant RPC/);
  assert.match(rollout,/must NOT be rerun/);
 });
+
+test('production BOOST rollout keeps both feature flags off until DB gates pass',async()=>{
+ const {readFileSync}=await import('node:fs');
+ const config=readFileSync(new URL('../wrangler.jsonc',import.meta.url),'utf8');
+ const rollout=readFileSync(new URL('../docs/prime-boost-production-rollout-rollback-20261027.md',import.meta.url),'utf8');
+ assert.match(config,/"PRIME_BOOST_ENABLED"\s*:\s*"false"/);
+ assert.match(config,/"PRIME_BOOST_SCORE_PERSISTENCE_READY"\s*:\s*"false"/);
+ assert.match(rollout,/daily-reset migration was blocked and is NOT applied/);
+ assert.match(rollout,/PR #141 remains unmerged/);
+});
