@@ -736,3 +736,30 @@ test('dedicated staging Worker config cannot target production database or Worke
  assert.equal(production.vars.PRIME_BOOST_ENABLED,'false');
  assert.equal(production.vars.PRIME_BOOST_SCORE_PERSISTENCE_READY,'false');
 });
+
+test('legacy-shaped mobile ticket is replayed neutrally and client-provided old bonus cannot override score',async()=>{
+ let now=100000,submission=null;
+ const player={id:'player-one',name:'A',best:0,rank:1};
+ const worker=createWorker({now:()=>now,replayGame:()=>({score:1000,hits:1,combo:1,drops:0,achievementProof:{},nextProof:{}}),database:()=>({call:async(op,input)=>{
+  if(op==='submit'){submission=input;return {player,personalBest:true,newChampion:true};}
+  if(op==='achievement_merge')return {mask:0};
+  return {player};
+ }})});
+ const mobileHeaders={'User-Agent':'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit Mobile'};
+ const login=await worker.fetch(request('/api/login',{name:'A',pin:'123456'},null,mobileHeaders),env);
+ assert.equal(login.status,200);
+ const cookie=login.headers.get('set-cookie').split(';')[0];
+ const start=await worker.fetch(request('/api/game/start',{},cookie,mobileHeaders),env);
+ assert.equal(start.status,200);
+ const ticket=await start.json();
+ assert.equal(ticket.ruleset,RULESET);
+ now+=61000;
+ const saved=await worker.fetch(request('/api/scores',{...ticket,events:[],kit:'japan-01',score:1100,baseScore:1000,mobileBonus:100,device:'mobile'},cookie,mobileHeaders),env);
+ assert.equal(saved.status,200);
+ assert.equal((await saved.json()).score,1000,'new Worker recomputes even legacy-shaped mobile ticket at neutral multiplier');
+ assert.equal(submission.score,1000);
+ assert.equal(submission.baseScore,1000);
+ assert.equal(submission.mobileBonus,0);
+ assert.equal(submission.device,'mobile');
+ assert.equal(submission.boost,null);
+});
