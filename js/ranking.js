@@ -18,16 +18,17 @@ function account(){
 // Inventory alone is not sufficient: the server must support atomic reservation.
 let boostSelection=null;
 let boostReady=false;
+let boostInventory=null;
 const boostPanel=$('prime-boost-picker');
 function hideBoostPicker(){
- boostReady=false;boostSelection=null;
+ boostReady=false;boostSelection=null;boostInventory=null;
  if(boostPanel)boostPanel.hidden=true;
 }
 function renderBoostPicker(inventory){
  if(!boostPanel)return;
  for(const button of boostPanel.querySelectorAll('[data-boost]')){
   const kind=button.dataset.boost;
-  const count=Number.isInteger(inventory?.[kind])?Math.max(0,Math.min(2,inventory[kind])):0;
+  const count=Number.isInteger(inventory?.[kind])?Math.max(0,Math.min(1,inventory[kind])):0;
   button.disabled=!boostReady||count===0;
   button.querySelector('small').textContent='×'+count;
   button.setAttribute('aria-pressed',String(boostSelection===kind));
@@ -43,7 +44,8 @@ async function syncBoostPicker(){
   if(player?.id!==id)return;
   // Future server activation must explicitly opt in after reservation is ready.
   boostReady=data?.selectionEnabled===true;
-  renderBoostPicker(data.inventory);
+  boostInventory=data?.inventory??null;
+  renderBoostPicker(boostInventory);
  }catch{hideBoostPicker();}
 }
 if(boostPanel){
