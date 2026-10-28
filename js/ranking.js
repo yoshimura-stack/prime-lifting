@@ -290,8 +290,8 @@ async function updateRankDialog(){
      part('Ⓟ',hasBasic?e.playScore:e.score,hasSplit&&e.mobileBonus>0?'保存済みプレイスコア（旧スマホ補正を含む）':'保存済みプレイスコア');
      const boostPart=document.createElement('small');boostPart.className='rank-bonus-part';
      const verifiedScoreBoost=e.bestBoost==='score'&&hasSplit&&e.mobileBonus>0;
-     const verifiedTimeBoost=e.bestBoost==='time'&&hasSplit&&e.mobileBonus===0;
-      const verifiedScBoost=e.bestBoost==='sc'&&hasSplit&&e.mobileBonus===0;
+     const verifiedTimeBoost=e.bestBoost==='time'&&hasSplit;
+      const verifiedScBoost=e.bestBoost==='sc'&&hasSplit;
      boostPart.textContent=verifiedScoreBoost?'⚡ 🟡':verifiedTimeBoost?'⚡ 🔵':verifiedScBoost?'⚡ 🟢':'⚡ —';boostPart.title=verifiedScoreBoost?`SCORE BOOST ×1.1（+${e.mobileBonus.toLocaleString()} PTS）`:verifiedTimeBoost?'TIME BOOST +5 SEC':verifiedScBoost?'SECOND CHANCE（最初の落球でコンボ維持）':'BEST記録のBOOST使用なし／未確認';
      boostPart.setAttribute('aria-label',verifiedScoreBoost?'SCORE BOOST使用済み':verifiedTimeBoost?'TIME BOOST使用済み':verifiedScBoost?'SECOND CHANCE使用済み':'BOOST使用なし／未確認');parts.append(boostPart);
      if(hasBasic)part('Ⓓ',e.dailyBonus,'当月デイリー加点');
