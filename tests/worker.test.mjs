@@ -763,3 +763,29 @@ test('legacy-shaped mobile ticket is replayed neutrally and client-provided old 
  assert.equal(submission.device,'mobile');
  assert.equal(submission.boost,null);
 });
+
+test('authentic HMAC legacy-format mobile run ticket remains accepted but uses new neutral score',async()=>{
+ let now=100000,submission=null;
+ const player={id:'player-one',name:'A',best:0,rank:1};
+ const worker=createWorker({now:()=>now,replayGame:()=>({score:1000,hits:1,combo:1,drops:0}),database:()=>({call:async(op,input)=>{
+  if(op==='submit'){submission=input;return {player,personalBest:true,newChampion:true};}
+  if(op==='achievement_merge')return {mask:0};
+  return {player};
+ }})});
+ const headers={'User-Agent':'Mozilla/5.0 (iPhone; Mobile)'};
+ const login=await worker.fetch(request('/api/login',{name:'A',pin:'123456'},null,headers),env);
+ assert.equal(login.status,200);
+ const cookie=login.headers.get('set-cookie').split(';')[0];
+ const legacy={kind:'run',sub:'player-one',id:'legacy-mobile-run',started:now-61000,exp:now+86400000,ruleset:RULESET,device:'mobile',worldWidth:1000};
+ const bytes=new TextEncoder();
+ const base64url=data=>Buffer.from(data).toString('base64url');
+ const payload=base64url(bytes.encode(JSON.stringify(legacy)));
+ const hmacKey=await crypto.subtle.importKey('raw',bytes.encode(env.SESSION_SECRET),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+ const signature=base64url(await crypto.subtle.sign('HMAC',hmacKey,bytes.encode(payload)));
+ const saved=await worker.fetch(request('/api/scores',{token:payload+'.'+signature,ruleset:RULESET,events:[],kit:'japan-01',score:1100,device:'mobile'},cookie,headers),env);
+ assert.equal(saved.status,200);
+ assert.equal(submission.runId,'legacy-mobile-run');
+ assert.equal(submission.score,1000,'legacy mobile score 1100 is not preserved for an in-flight ticket');
+ assert.equal(submission.mobileBonus,0);
+ assert.equal(submission.boost,null);
+});
