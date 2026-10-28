@@ -1,5 +1,9 @@
--- PRIME BOOST inventory and authenticated-login rewards.
--- PROPOSED ONLY: committed to feature branch; NOT applied to production.
+-- HISTORICAL MIGRATION — APPLIED TO PRODUCTION ON 2026-10-28.
+-- RETIRED BEHAVIOR: the login-grant function below implements random daily rewards.
+-- DO NOT REAPPLY OR USE THIS FILE TO RESTORE FUNCTIONS. Its random grant logic is obsolete.
+-- The intended replacement is prime-boost-daily-one-per-type-20261028.sql (NOT YET APPLIED).
+-- Keep this file only as an audit record of the original table/RPC definitions.
+-- PRIME BOOST inventory and legacy authenticated-login rewards.
 -- Only the existing trusted Cloudflare Worker may invoke these service_role RPCs.
 create table if not exists public.lifting_boost_inventory (
   player_id uuid primary key references public.lifting_players(id) on delete cascade,
