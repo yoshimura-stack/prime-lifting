@@ -18,10 +18,10 @@ test('DAILY BOOST picker uses server inventory with one use per type',()=>{
  assert.doesNotMatch(source,/Object\.fromEntries\(\[\.\.\.boostPanel/);
 });
 
-test('first-release picker exposes SCORE only and production stays disabled until DB is ready',()=>{
+test('first-release picker exposes SCORE only with production flags enabled after DB readiness',()=>{
  assert.match(source,/button\.hidden=kind!=='score'/);
  assert.match(source,/button\.disabled=kind!=='score'\|\|!boostReady\|\|count===0/);
  const config=readFileSync(new URL('../wrangler.jsonc',import.meta.url),'utf8');
- assert.match(config,/"PRIME_BOOST_ENABLED": "false"/);
- assert.match(config,/"PRIME_BOOST_SCORE_PERSISTENCE_READY": "false"/);
+ assert.match(config,/"PRIME_BOOST_ENABLED": "true"/);
+ assert.match(config,/"PRIME_BOOST_SCORE_PERSISTENCE_READY": "true"/);
 });
