@@ -305,7 +305,7 @@ test('SCORE BOOST uses signed selection and neutral device multiplier',async()=>
 test('BOOST inventory advertises picker only after explicit persistence readiness',async()=>{
  const player={id:'player-one',name:'A',best:0,rank:1};
  const worker=createWorker({database:()=>({call:async(op)=>{
-  if(op==='boost_inventory')return {inventory:{time:1,score:2,sc:0}};
+  if(op==='boost_inventory')return {inventory:{time:1,score:1,sc:0}};
   return {player};
  }})});
  const feature={...env,PRIME_BOOST_ENABLED:'true'};
@@ -313,11 +313,10 @@ test('BOOST inventory advertises picker only after explicit persistence readines
  assert.equal(login.status,200);
  const cookie=login.headers.get('set-cookie').split(';')[0];
  const off=await worker.fetch(request('/api/boost/inventory',null,cookie),feature);
- assert.equal(off.status,200);
- assert.deepEqual(await off.json(),{inventory:{time:1,score:2,sc:0},selectionEnabled:false});
+ assert.equal(off.status,403,'inventory must remain closed while persistence is not ready');
  const on=await worker.fetch(request('/api/boost/inventory',null,cookie),{...feature,PRIME_BOOST_SCORE_PERSISTENCE_READY:'true'});
  assert.equal(on.status,200);
- assert.deepEqual(await on.json(),{inventory:{time:1,score:2,sc:0},selectionEnabled:true});
+ assert.deepEqual(await on.json(),{inventory:{time:1,score:1,sc:0},selectionEnabled:true});
 });
 
 
