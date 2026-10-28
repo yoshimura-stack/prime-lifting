@@ -289,8 +289,9 @@ async function updateRankDialog(){
      // BOOST credit is not available until server-verified BOOST runs are launched.
      part('Ⓟ',hasBasic?e.playScore:e.score,hasSplit&&e.mobileBonus>0?'保存済みプレイスコア（旧スマホ補正を含む）':'保存済みプレイスコア');
      const boostPart=document.createElement('small');boostPart.className='rank-bonus-part';
-     boostPart.textContent='⚡ —';boostPart.title='BOOST加点：機能公開後に表示';
-     boostPart.setAttribute('aria-label','BOOST加点は未提供');parts.append(boostPart);
+     const verifiedScoreBoost=e.bestBoost==='score'&&hasSplit&&e.mobileBonus>0;
+     boostPart.textContent=verifiedScoreBoost?'⚡ 🟡':'⚡ —';boostPart.title=verifiedScoreBoost?`SCORE BOOST ×1.1（+${e.mobileBonus.toLocaleString()} PTS）`:'BEST記録のBOOST使用なし／未確認';
+     boostPart.setAttribute('aria-label',verifiedScoreBoost?'SCORE BOOST使用済み':'BOOST使用なし／未確認');parts.append(boostPart);
      if(hasBasic)part('Ⓓ',e.dailyBonus,'当月デイリー加点');
      else {const unknownDaily=document.createElement('small');unknownDaily.className='rank-bonus-part';unknownDaily.textContent='Ⓓ —';unknownDaily.title='デイリー加点は未確認';parts.append(unknownDaily);}
      li.append(parts);
