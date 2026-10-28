@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 const source=readFileSync(new URL('../js/ranking.js',import.meta.url),'utf8');
 test('ranking keeps historical totals and removes the mobile bonus row',()=>{
  assert.match(source,/part\('Ⓟ',hasBasic\?e\.playScore:e\.score/);
- assert.match(source,/boostPart\.textContent=verifiedScoreBoost\?'⚡ 🟡':verifiedTimeBoost\?'⚡ 🔵':'⚡ —'/);
+ assert.match(source,/boostPart\.textContent=verifiedScoreBoost\?'⚡ 🟡':verifiedTimeBoost\?'⚡ 🔵':verifiedScBoost\?'⚡ 🟢':'⚡ —'/);
  assert.match(source,/e\.bestBoost==='score'&&hasSplit&&e\.mobileBonus>0/);
  assert.doesNotMatch(source,/part\('📱'/);
  assert.match(source,/旧スマホ補正を含む/);
@@ -19,9 +19,9 @@ test('DAILY BOOST picker uses server inventory with one use per type',()=>{
  assert.doesNotMatch(source,/Object\.fromEntries\(\[\.\.\.boostPanel/);
 });
 
-test('picker exposes SCORE and TIME but keeps SECOND CHANCE hidden',()=>{
- assert.match(source,/button\.hidden=kind==='sc'/);
- assert.match(source,/button\.disabled=kind==='sc'\|\|!boostReady\|\|count===0/);
+test('picker exposes all three BOOST types with server-backed inventory',()=>{
+ assert.match(source,/button\.hidden=false;/);
+ assert.match(source,/button\.disabled=!boostReady\|\|count===0/);
  const config=readFileSync(new URL('../wrangler.jsonc',import.meta.url),'utf8');
  assert.match(config,/"PRIME_BOOST_ENABLED": "true"/);
  assert.match(config,/"PRIME_BOOST_SCORE_PERSISTENCE_READY": "true"/);

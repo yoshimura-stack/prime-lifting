@@ -28,10 +28,10 @@ function renderBoostPicker(inventory){
  if(!boostPanel)return;
  for(const button of boostPanel.querySelectorAll('[data-boost]')){
   const kind=button.dataset.boost;
-  // SCORE and TIME BOOST are live; SECOND CHANCE remains hidden until verified.
-  button.hidden=kind==='sc';
+  // SCORE, TIME and SECOND CHANCE use the same server-verified reservation path.
+  button.hidden=false;
   const count=Number.isInteger(inventory?.[kind])?Math.max(0,Math.min(1,inventory[kind])):0;
-  button.disabled=kind==='sc'||!boostReady||count===0;
+  button.disabled=!boostReady||count===0;
   button.querySelector('small').textContent='×'+count;
   button.setAttribute('aria-pressed',String(boostSelection===kind));
  }
@@ -290,9 +290,10 @@ async function updateRankDialog(){
      part('Ⓟ',hasBasic?e.playScore:e.score,hasSplit&&e.mobileBonus>0?'保存済みプレイスコア（旧スマホ補正を含む）':'保存済みプレイスコア');
      const boostPart=document.createElement('small');boostPart.className='rank-bonus-part';
      const verifiedScoreBoost=e.bestBoost==='score'&&hasSplit&&e.mobileBonus>0;
-     const verifiedTimeBoost=e.bestBoost==='time'&&hasSplit&&e.mobileBonus===0;
-     boostPart.textContent=verifiedScoreBoost?'⚡ 🟡':verifiedTimeBoost?'⚡ 🔵':'⚡ —';boostPart.title=verifiedScoreBoost?`SCORE BOOST ×1.1（+${e.mobileBonus.toLocaleString()} PTS）`:verifiedTimeBoost?'TIME BOOST +5 SEC':'BEST記録のBOOST使用なし／未確認';
-     boostPart.setAttribute('aria-label',verifiedScoreBoost?'SCORE BOOST使用済み':verifiedTimeBoost?'TIME BOOST使用済み':'BOOST使用なし／未確認');parts.append(boostPart);
+     const verifiedTimeBoost=e.bestBoost==='time'&&hasSplit;
+      const verifiedScBoost=e.bestBoost==='sc'&&hasSplit;
+     boostPart.textContent=verifiedScoreBoost?'⚡ 🟡':verifiedTimeBoost?'⚡ 🔵':verifiedScBoost?'⚡ 🟢':'⚡ —';boostPart.title=verifiedScoreBoost?`SCORE BOOST ×1.1（+${e.mobileBonus.toLocaleString()} PTS）`:verifiedTimeBoost?'TIME BOOST +5 SEC':verifiedScBoost?'SECOND CHANCE（最初の落球でコンボ維持）':'BEST記録のBOOST使用なし／未確認';
+     boostPart.setAttribute('aria-label',verifiedScoreBoost?'SCORE BOOST使用済み':verifiedTimeBoost?'TIME BOOST使用済み':verifiedScBoost?'SECOND CHANCE使用済み':'BOOST使用なし／未確認');parts.append(boostPart);
      if(hasBasic)part('Ⓓ',e.dailyBonus,'当月デイリー加点');
      else {const unknownDaily=document.createElement('small');unknownDaily.className='rank-bonus-part';unknownDaily.textContent='Ⓓ —';unknownDaily.title='デイリー加点は未確認';parts.append(unknownDaily);}
      li.append(parts);
