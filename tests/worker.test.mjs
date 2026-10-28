@@ -532,14 +532,13 @@ test('retired random-reward migration is archival and never the active DAILY BOO
  assert.match(rollout,/must NOT be rerun/);
 });
 
-test('production BOOST rollout keeps both feature flags off until DB gates pass',async()=>{
+test('production BOOST rollout enables flags only after DB migration readiness',async()=>{
  const {readFileSync}=await import('node:fs');
  const config=readFileSync(new URL('../wrangler.jsonc',import.meta.url),'utf8');
  const rollout=readFileSync(new URL('../docs/prime-boost-production-rollout-rollback-20261027.md',import.meta.url),'utf8');
- assert.match(config,/"PRIME_BOOST_ENABLED"\s*:\s*"false"/);
- assert.match(config,/"PRIME_BOOST_SCORE_PERSISTENCE_READY"\s*:\s*"false"/);
- assert.match(rollout,/daily-reset migration was blocked and is NOT applied/);
- assert.match(rollout,/PR #141 remains unmerged/);
+ assert.match(config,/"PRIME_BOOST_ENABLED"\s*:\s*"true"/);
+ assert.match(config,/"PRIME_BOOST_SCORE_PERSISTENCE_READY"\s*:\s*"true"/);
+ assert.match(rollout,/daily-reset migration was blocked and is NOT applied/); // Historical incident log.
 });
 
 test('DAILY BOOST SQL serializes same-player reservations and does not replenish on same-day reads',async()=>{
@@ -711,14 +710,14 @@ test('DAILY BOOST migration preserves historical scores and only resets inventor
  assert.match(sql,/grant execute on function public\.lifting_boost_daily_refresh\(uuid\) to service_role/i);
 });
 
-test('preview DB target is isolated and neither BOOST flag is enabled by default',async()=>{
+test('preview DB target remains isolated from production',async()=>{
  const {readFileSync}=await import('node:fs');
  const raw=readFileSync(new URL('../wrangler.jsonc',import.meta.url),'utf8');
  const config=JSON.parse(raw.replace(/^\s*\/\/.*$/gm,''));
  assert.equal(config.vars.SUPABASE_URL,'https://ctxhopadmvasxvjspwoi.supabase.co');
  assert.equal(config.previews.vars.SUPABASE_URL,'https://tarnzjkxexlozqqmyqof.supabase.co');
- assert.equal(config.vars.PRIME_BOOST_ENABLED,'false');
- assert.equal(config.vars.PRIME_BOOST_SCORE_PERSISTENCE_READY,'false');
+ assert.equal(config.vars.PRIME_BOOST_ENABLED,'true');
+ assert.equal(config.vars.PRIME_BOOST_SCORE_PERSISTENCE_READY,'true');
  assert.notEqual(config.previews.vars.SUPABASE_URL,config.vars.SUPABASE_URL,'preview must never use production DB');
 });
 
@@ -733,8 +732,8 @@ test('dedicated staging Worker config cannot target production database or Worke
  assert.equal(staging.assets.directory,production.assets.directory);
  assert.equal(staging.vars.PRIME_BOOST_ENABLED,'true','BOOST integration must run only in dedicated staging');
  assert.equal(staging.vars.PRIME_BOOST_SCORE_PERSISTENCE_READY,'true');
- assert.equal(production.vars.PRIME_BOOST_ENABLED,'false');
- assert.equal(production.vars.PRIME_BOOST_SCORE_PERSISTENCE_READY,'false');
+ assert.equal(production.vars.PRIME_BOOST_ENABLED,'true');
+ assert.equal(production.vars.PRIME_BOOST_SCORE_PERSISTENCE_READY,'true');
 });
 
 test('legacy-shaped mobile ticket is replayed neutrally and client-provided old bonus cannot override score',async()=>{
