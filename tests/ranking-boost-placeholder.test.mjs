@@ -8,3 +8,12 @@ test('ranking keeps historical totals and removes the mobile bonus row',()=>{
  assert.doesNotMatch(source,/part\('📱'/);
  assert.match(source,/旧スマホ補正を含む/);
 });
+
+test('DAILY BOOST picker uses server inventory with one use per type',()=>{
+ assert.match(source,/let boostInventory=null;/);
+ assert.match(source,/boostInventory=data\?\.inventory\?\?null;/);
+ assert.match(source,/Math\.min\(1,inventory\[kind\]\)/);
+ assert.match(source,/renderBoostPicker\(boostInventory\);/);
+ assert.doesNotMatch(source,/Math\.min\(2,inventory\[kind\]\)/);
+ assert.doesNotMatch(source,/Object\.fromEntries\(\[\.\.\.boostPanel/);
+});
