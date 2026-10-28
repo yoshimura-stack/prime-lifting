@@ -822,3 +822,23 @@ test('legacy mobile ticket cannot forge old bonus or bypass signed expiration',a
  assert.equal((await worker.fetch(request('/api/scores',{...body,token:valid},cookie,headers),env)).status,401);
  assert.equal(submits,0);
 });
+
+test('unknown signed scoring policy is rejected before score persistence',async()=>{
+ let now=200000,submits=0;
+ const player={id:'player-one',name:'A',best:0,rank:1};
+ const worker=createWorker({now:()=>now,database:()=>({call:async(op)=>{
+  if(op==='submit'){submits++;return {player,personalBest:false,newChampion:false};}
+  return {player};
+ }})});
+ const login=await worker.fetch(request('/api/login',{name:'A',pin:'123456'}),env);
+ assert.equal(login.status,200);
+ const cookie=login.headers.get('set-cookie').split(';')[0];
+ const bytes=new TextEncoder(),encode=data=>Buffer.from(data).toString('base64url');
+ const claims={kind:'run',sub:'player-one',id:'unknown-policy',started:now-61000,exp:now+10000,ruleset:RULESET,scoringPolicy:'unsupported-v999',device:'pc',worldWidth:1000};
+ const payload=encode(bytes.encode(JSON.stringify(claims)));
+ const key=await crypto.subtle.importKey('raw',bytes.encode(env.SESSION_SECRET),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+ const token=payload+'.'+encode(await crypto.subtle.sign('HMAC',key,bytes.encode(payload)));
+ const response=await worker.fetch(request('/api/scores',{token,ruleset:RULESET,events:[],kit:'japan-01'},cookie),env);
+ assert.equal(response.status,403);
+ assert.equal(submits,0);
+});
