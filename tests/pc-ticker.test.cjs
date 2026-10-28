@@ -51,7 +51,7 @@ test('PC wide field reveals extra scenery and signs playable world width',()=>{
  assert.match(renderer,/this\.camera\.left=-width\/2/,'orthographic camera widens rather than stretching model');
  assert.match(renderer,/this\.camera\.right=width\/2/);
  assert.match(renderer,/this\.camera\.updateProjectionMatrix\(\)/);
- assert.match(html,/js\/renderer3d\.js\?v=(?:signed-field-1|boost-halo-1)/,'cache bust Three.js rendering update');
+ assert.match(html,/js\/renderer3d\.js\?v=(?:signed-field-1|boost-halo-1|boost-halo-visible-2)/,'cache bust Three.js rendering update');
  assert.match(read('game.js'),/window\.PRIME_FIELD_WIDTH=/,'PC gameplay width follows stage');
  assert.match(read('server/worker.mjs'),/worldWidth/,'server signs gameplay width');
 });
