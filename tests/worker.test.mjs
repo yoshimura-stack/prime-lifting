@@ -542,3 +542,16 @@ test('production BOOST rollout keeps both feature flags off until DB gates pass'
  assert.match(rollout,/daily-reset migration was blocked and is NOT applied/);
  assert.match(rollout,/PR #141 remains unmerged/);
 });
+
+test('DAILY BOOST SQL serializes same-player reservations and does not replenish on same-day reads',async()=>{
+ const {readFileSync}=await import('node:fs');
+ const sql=readFileSync(new URL('../sql/prime-boost-daily-one-per-type-20261028.sql',import.meta.url),'utf8');
+ const reserve=sql.slice(sql.indexOf('create or replace function public.lifting_api_boost_reserve('));
+ const refresh=sql.slice(sql.indexOf('create or replace function public.lifting_boost_daily_refresh('),sql.indexOf('create or replace function public.lifting_api_boost_login_grant('));
+ assert.match(reserve,/from public\.lifting_players where id=v_player for update/,'same-player reservations must serialize');
+ assert.match(reserve,/perform public\.lifting_boost_daily_refresh\(v_player\)/,'reservation must refresh JST date');
+ assert.match(refresh,/where public\.lifting_boost_inventory\.last_grant_day is distinct from d/,'same-day refresh must not restore consumed inventory');
+ assert.match(reserve,/if not found then raise exception 'BOOST already used today'/,'duplicate use must be rejected');
+ assert.match(reserve,/insert into public\.lifting_boost_reservations\(run_id,player_id,boost_type\)/,'reservation must be persisted');
+ assert.match(reserve,/if v_existing\.player_id<>v_player or v_existing\.boost_type<>v_type/,'run reuse must not cross player or type');
+});
