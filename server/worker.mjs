@@ -140,6 +140,8 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   }
   const body=await readBody(request),run=await verify(body.token,env.SESSION_SECRET,'run',time);
   if(run.sub!==session.sub||run.ruleset!==RULESET||body.ruleset!==RULESET)throw new ApiError(403,'このプレイは登録できません。');
+  // Pre-policy tickets remain readable during migration; unknown signed policies fail closed.
+  if(run.scoringPolicy!==undefined&&run.scoringPolicy!=='neutral-v1')throw new ApiError(403,'このプレイのスコア方式には対応していません。');
   // 60s lower bound leaves the 3s countdown as network-latency allowance.
   if(time-run.started<(run.boost==='time'?65000:60000))throw new ApiError(400,'プレイ終了後に再試行してください。');
   const device=run.device??requestDevice(request);
