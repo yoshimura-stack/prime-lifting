@@ -504,3 +504,19 @@ test('BOOST SQL keeps duplicate run submission idempotent before BEST and breakd
  assert.match(sql,/if v_existing\.player_id<>v_id then raise exception 'Run belongs to another player'/,'run IDs must be bound to their original player');
  assert.match(sql,/where run_id=v_run and player_id=v_id and boost_type=payload->>'boost'/,'BOOST run must match its reservation');
 });
+
+test('DAILY BOOST SQL defines JST reset, one use per type, and no random grants',async()=>{
+ const {readFileSync}=await import('node:fs');
+ const sql=readFileSync(new URL('../sql/prime-boost-daily-one-per-type-20261028.sql',import.meta.url),'utf8');
+ assert.match(sql,/now\(\) at time zone 'Asia\/Tokyo'/,'day boundary must use JST');
+ assert.match(sql,/create or replace function public\.lifting_boost_daily_refresh\(p_player uuid\)/);
+ assert.match(sql,/set time_count=1,score_count=1,sc_count=1,last_grant_day=d/,'next day must restore one of each');
+ assert.match(sql,/where public\.lifting_boost_inventory\.last_grant_day is distinct from d/,'same-day reads must not replenish consumed BOOSTs');
+ for(const type of ['time','score','sc']){
+  assert.match(sql,new RegExp('set '+type+'_count=0'),'using '+type+' must consume its one daily use');
+  assert.match(sql,new RegExp('and '+type+'_count=1'),'using '+type+' twice must fail');
+ }
+ assert.doesNotMatch(sql,/random\s*\(/i,'DAILY BOOST must never grant random stock');
+ assert.match(sql,/select \* into v_existing from public\.lifting_boost_reservations where run_id=v_run/,'duplicate reservations must be idempotent');
+ assert.match(sql,/grant execute on function public\.lifting_boost_daily_refresh\(uuid\) to service_role/);
+});
