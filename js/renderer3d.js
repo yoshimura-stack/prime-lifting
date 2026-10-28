@@ -52,10 +52,10 @@ class PrimeRenderer{
   // Reuse one lightweight additive sprite for the BOOST halo (no bloom postprocessing).
   const glowCanvas=document.createElement('canvas');glowCanvas.width=128;glowCanvas.height=128;
   const glowCtx=glowCanvas.getContext('2d');const gradient=glowCtx.createRadialGradient(64,64,25,64,64,64);
-  gradient.addColorStop(0,'rgba(255,255,255,.95)');gradient.addColorStop(.25,'rgba(255,255,255,.88)');gradient.addColorStop(.48,'rgba(255,255,255,.58)');gradient.addColorStop(.75,'rgba(255,255,255,.22)');gradient.addColorStop(1,'rgba(255,255,255,0)');
+  gradient.addColorStop(0,'rgba(255,255,255,.10)');gradient.addColorStop(.25,'rgba(255,255,255,.25)');gradient.addColorStop(.48,'rgba(255,255,255,.24)');gradient.addColorStop(.75,'rgba(255,255,255,.10)');gradient.addColorStop(1,'rgba(255,255,255,0)');
   glowCtx.fillStyle=gradient;glowCtx.fillRect(0,0,128,128);
-  this.boostHalo=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(glowCanvas),color:'#ffffff',transparent:true,blending:T.AdditiveBlending,depthWrite:false,depthTest:false,opacity:1}));
-  this.boostHalo.scale.set(c.BALL_RADIUS*6.5,c.BALL_RADIUS*6.5,1);this.boostHalo.visible=false;this.scene.add(this.boostHalo);
+  this.boostHalo=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(glowCanvas),color:'#ffffff',transparent:true,blending:T.AdditiveBlending,depthWrite:false,depthTest:false,opacity:.8}));
+  this.boostHalo.scale.set(c.BALL_RADIUS*5.5,c.BALL_RADIUS*5.5,1);this.boostHalo.visible=false;this.scene.add(this.boostHalo);
   this.ballShadow=this.shadow(25,.23);this.scene.add(this.ballShadow);this.playerShadow=this.shadow(58,.28);this.scene.add(this.playerShadow);
 
  }
