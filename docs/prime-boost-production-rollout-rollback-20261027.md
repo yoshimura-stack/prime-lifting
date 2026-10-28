@@ -2,6 +2,16 @@
 
 **Status (2026-10-28):** User approved proceeding with BOOST while preserving all existing scores. Production migrations for inventory and reservations have already succeeded; the daily-reset migration was blocked and is NOT applied. PR #141 remains unmerged, and both BOOST flags are explicitly false on the feature branch. Do not reapply the first two migrations unnecessarily. Do not reset BEST, achievements, rankings, daily awards, or existing accounts. No test-account isolation system is needed.
 
+## Staging evidence and remaining verification (2026-10-28)
+
+- Read-only inspection of staging project `tarnzjkxexlozqqmyqof` confirmed 1 test player, 0 runs, 0 BOOST inventory rows, and 0 reservations.
+- Staging defines `lifting_boost_daily_refresh`. Its login-grant, inventory, and reserve functions reference daily refresh; login-grant does not reference `random()`.
+- Staging `lifting_api_submit` references BOOST reservations and the 1.1 factor. All four inspected API functions deny direct `anon` and `authenticated` EXECUTE.
+- These are **schema/code-presence checks, not end-to-end gameplay results**. No live BOOST stock consumption, JST midnight reset, signed replay submission, or PC/mobile score persistence has been proven by this inspection.
+- GitHub CI passed for the three rollback-drain tests: yellow SCORE, blue TIME (65-second boundary), and green SECOND CHANCE. They use mocked database calls, so passing does not establish Supabase transaction correctness.
+- Production remains different: daily refresh was not applied there, and the legacy login-grant function still contains random reward logic. Keep both production feature flags OFF.
+- Additional staging DB inspection was blocked by tool safety checks. Do not bypass those checks; use an authorized review/testing route.
+
 ## Prerequisites
 - Confirm CI on the exact commit to be deployed and complete actual browser checks (PC and mobile).
 - Obtain a fresh **read-only** copy of `pg_get_functiondef('public.lifting_api_submit(jsonb)'::regprocedure)` and compare it with `sql/prime-boost-submit-proposal-20261027.sql`. The draft was compared with the production function on 2026-10-27; do not assume it is unchanged later.
