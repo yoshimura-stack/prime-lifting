@@ -29,5 +29,7 @@ jobs:
             public/
             server/
             wrangler.jsonc
+            wrangler.staging.jsonc
+            docs/prime-boost-staging-acceptance-20261028.md
           if-no-files-found: warn
           retention-days: 7
