@@ -18,19 +18,13 @@ test('SE viewport keeps center field bounded with room for edge rails',()=>{
  assert.match(css,/#mobile-icon-rails/);
 });
 
-test('three-circle landscape controls use responsive sizing and no connector strokes',()=>{
- assert.match(css,/--action-unit:clamp\(/);
- assert.match(css,/\[data-action="jump"\]/);
- assert.match(css,/\[data-action="spin"\]/);
- assert.match(css,/\.touch-kick\{/);
- assert.match(css,/width:calc\(var\(--action-unit\) \* 1\.5\)!important/);
- assert.match(css,/\.touch-actions::before,/);
- assert.match(css,/\.touch-actions::after\{content:none!important/);
-});
 
-test('responsive action buttons explicitly retain 1.5x KICK size',()=>{
- assert.match(css,/--action-unit:clamp\(38px, min\(12dvh, 6\.5vw\), 58px\)/);
+test('unified cluster scales all buttons with KICK 25 percent larger',()=>{
+ assert.match(css,/--control-size:clamp\(/);
+ assert.match(css,/button\[data-action="jump"\]/);
+ assert.match(css,/button\[data-action="spin"\]/);
  assert.match(css,/button\.touch-kick\[data-action="act"\]/);
- assert.match(css,/min-width:calc\(var\(--action-unit\) \* 1\.5\)!important/);
- assert.match(html,/iphone-se-landscape\.css\?v=responsive-controls-169/);
+ assert.match(css,/width:calc\(var\(--control-size\) \* 1\.25\)!important/);
+ assert.match(css,/\.touch-actions::after\{content:none!important/);
+ assert.match(html,/iphone-se-landscape\.css\?v=unified-controls-170/);
 });
