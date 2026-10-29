@@ -27,3 +27,10 @@ test('three-circle landscape controls use responsive sizing and no connector str
  assert.match(css,/\.touch-actions::before,/);
  assert.match(css,/\.touch-actions::after\{content:none!important/);
 });
+
+test('responsive action buttons explicitly retain 1.5x KICK size',()=>{
+ assert.match(css,/--action-unit:clamp\(38px, min\(12dvh, 6\.5vw\), 58px\)/);
+ assert.match(css,/button\.touch-kick\[data-action="act"\]/);
+ assert.match(css,/min-width:calc\(var\(--action-unit\) \* 1\.5\)!important/);
+ assert.match(html,/iphone-se-landscape\.css\?v=responsive-controls-169/);
+});

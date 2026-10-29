@@ -110,3 +110,34 @@
  body.touch-landscape #touch-controls .touch-actions::after{content:none!important;display:none!important}
 
 }
+
+/* Responsive control cluster v3: proportionate sizes on smaller iPhones and Pro Max.
+   Explicit action selectors defeat older equal-sized button rules. */
+@media (orientation:landscape) and (pointer:coarse){
+ body.touch-landscape #touch-controls .touch-actions{
+  --action-unit:clamp(38px, min(12dvh, 6.5vw), 58px);
+  width:calc(var(--action-unit) * 3.55)!important;
+  height:calc(var(--action-unit) * 3.1)!important;
+  right:max(8px,env(safe-area-inset-right))!important;
+  bottom:max(8px,env(safe-area-inset-bottom))!important;
+ }
+ body.touch-landscape #touch-controls .touch-actions button[data-action="jump"],
+ body.touch-landscape #touch-controls .touch-actions button[data-action="spin"]{
+  width:var(--action-unit)!important;height:var(--action-unit)!important;
+ }
+ body.touch-landscape #touch-controls .touch-actions button[data-action="jump"]{
+  left:calc(var(--action-unit) * .68)!important;top:0!important;
+ }
+ body.touch-landscape #touch-controls .touch-actions button[data-action="spin"]{
+  left:0!important;top:calc(var(--action-unit) * 1.40)!important;
+ }
+ body.touch-landscape #touch-controls .touch-actions button.touch-kick[data-action="act"]{
+  left:calc(var(--action-unit) * 1.75)!important;
+  top:calc(var(--action-unit) * 1.43)!important;
+  width:calc(var(--action-unit) * 1.5)!important;
+  height:calc(var(--action-unit) * 1.5)!important;
+  min-width:calc(var(--action-unit) * 1.5)!important;
+  min-height:calc(var(--action-unit) * 1.5)!important;
+  flex:none!important;aspect-ratio:1!important;
+ }
+}
