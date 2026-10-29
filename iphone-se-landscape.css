@@ -102,21 +102,11 @@
  body.touch-landscape #touch-controls .touch-actions .touch-kick{
   left:calc(var(--action-unit) * 1.62)!important;
   top:calc(var(--action-unit) * 1.43)!important;
-  width:calc(var(--action-unit) * 1.25)!important;
-  height:calc(var(--action-unit) * 1.25)!important;
+  width:calc(var(--action-unit) * 1.5)!important;
+  height:calc(var(--action-unit) * 1.5)!important;
   font-size:clamp(12px,3.2dvh,16px)!important;
  }
- /* Subtle connected-ring strokes behind the touch targets. */
- body.touch-landscape #touch-controls .touch-actions::before{
-  content:"";position:absolute;pointer-events:none;
-  left:calc(var(--action-unit) * .54);top:calc(var(--action-unit) * .88);
-  width:2px;height:calc(var(--action-unit) * .6);
-  background:#d9ff79a6;transform:rotate(26deg);transform-origin:top;
- }
- body.touch-landscape #touch-controls .touch-actions::after{
-  content:"";position:absolute;pointer-events:none;
-  left:calc(var(--action-unit) * .98);top:calc(var(--action-unit) * 1.85);
-  width:calc(var(--action-unit) * .68);height:2px;
-  background:#d9ff79a6;
- }
+ body.touch-landscape #touch-controls .touch-actions::before,
+ body.touch-landscape #touch-controls .touch-actions::after{content:none!important;display:none!important}
+
 }
