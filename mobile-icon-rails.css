@@ -141,3 +141,16 @@ body.touch-landscape #mobile-icon-rails>.mobile-icon-column>#restart-mobile{posi
 
 /* Position each action within its own edge rail, not in the playfield. */
 body.touch-landscape #mobile-icon-rails>.mobile-icon-column{position:relative!important}
+
+/* Safari landscape safe gutters: move rails away from cutouts and rounded edges. */
+@media (orientation:landscape) and (pointer:coarse){
+ body.touch-landscape #mobile-icon-rails{
+  padding-left:max(14px,env(safe-area-inset-left))!important;
+  padding-right:max(14px,env(safe-area-inset-right))!important;
+  width:100%!important;
+ }
+ body.touch-landscape main.game-app>.center-stage{
+  padding-left:max(60px,calc(env(safe-area-inset-left) + 48px))!important;
+  padding-right:max(60px,calc(env(safe-area-inset-right) + 48px))!important;
+ }
+}
