@@ -71,3 +71,11 @@ test('horizontal launch tuning changes displacement without moving player or bal
 });
 console.log(`${checks} checks passed.`);
 
+
+test('RISING flash is cosmetic and only fires on a qualifying rising FOOT touch',()=>{
+ const g=fresh();g.spinStreak=2;g.lastTouchAt=0;g.elapsed=.2;place(g,'FOOT');g.ball.vy=-40;
+ const score=g.score;assert.equal(g.act(),'FOOT');const e=g.events.find(e=>e.type==='hit');
+ assert.equal(e.risingFlash,true);assert.equal(g.spinStreak,2);assert.equal(g.score-score,g.c.ACTIONS.FOOT.score);
+ const other=fresh();other.spinStreak=2;other.lastTouchAt=0;other.elapsed=.2;place(other,'KNEE');other.ball.vy=-40;
+ assert.equal(other.act(),'KNEE');assert.equal(other.events.find(e=>e.type==='hit').risingFlash,false);
+});
