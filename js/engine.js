@@ -229,7 +229,7 @@ class LiftingGame{
    spinStreak:this.spinStreak,
    airStreak:this.airStreak,
    airborne,
-   risingFlash:!protectedFirstContact&&risingChain&&(hit.name==='FOOT'||hit.name==='HEADING')&&((spinCount===0&&this.spinStreak>0)||(!airborne&&this.airStreak>0)),
+   risingFlash:!protectedFirstContact&&risingChain&&(hit.name==='FOOT'||hit.name==='HEADER'||hit.name==='JUMP_HEADER')&&((spinCount===0&&this.spinStreak>0)||(!airborne&&this.airStreak>0)),
    x:b.x,
    y:b.y,
    quality:hit.ratio<0.4?'PERFECT':'GOOD'
