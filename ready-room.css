@@ -92,3 +92,11 @@ body.touch-landscape #mobile-pause{min-width:44px!important;min-height:44px!impo
   z-index:6!important;width:max-content!important;max-width:75%!important;
  }
 }
+
+/* CRITICAL: the ready overlay must disappear when the game starts.
+   Landscape BOOST layout uses display:flex!important; never let that
+   override the overlay's [hidden] state. */
+body.touch-landscape #overlay[hidden],
+body.touch-landscape #overlay[hidden]:has(#prime-boost-picker:not([hidden])){
+ display:none!important;
+}
