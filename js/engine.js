@@ -29,6 +29,7 @@ class LiftingGame{
   this.eligibleSpin=false;
   this.spinStreak=0;
   this.airStreak=0;
+  this.lastTouchAt=null;
   this.respawn=0;
   this.respawnSide=1;
   this.respawnMode='throw';
@@ -59,12 +60,14 @@ class LiftingGame{
    vx:0,vy:0,rotation:0,active:true,pickup:true
   };
   this.trail=[];
+  this.lastTouchAt=null;
  }
  respawnAtFeet(){
   const c=this.c;
   this.ball={x:clamp(this.player.x+34,c.BALL_RADIUS,c.WORLD_WIDTH-c.BALL_RADIUS),y:c.GROUND_Y-c.BALL_RADIUS,vx:0,vy:0,rotation:0,active:true,pickup:true};
   this.respawn=0;
   this.trail=[];
+  this.lastTouchAt=null;
  }
  throwIn(){
   const c=this.c,side=this.respawnSide;
@@ -74,6 +77,7 @@ class LiftingGame{
    vx:-side*170,vy:-130,rotation:0,active:true,pickup:true
   };
   this.trail=[];
+  this.lastTouchAt=null;
  }
 
  emit(type,data={}){
@@ -127,6 +131,7 @@ class LiftingGame{
   if(b.active&&b.pickup&&p.spin<=0&&
      Math.abs(b.x-p.x)<=65&&b.y>=this.c.GROUND_Y-85){
    b.pickup=false;
+   this.lastTouchAt=this.elapsed;
    this.pendingSpins=0;
    this.eligibleSpin=false;
    // Preserve earned SPIN/AIR streaks through SECOND CHANCE pickup.
@@ -166,11 +171,14 @@ class LiftingGame{
   // that streak, while dropping the ball resets both.
   // First scored contact after a rescued pickup does not alter streaks.
   const protectedFirstContact=this.scIgnoreNextContact;
-  if(protectedFirstContact){
-   this.scIgnoreNextContact=false;
-  }else{
-   if(spinCount>0)this.spinStreak++;else this.spinStreak=0;
-   if(airborne)this.airStreak++;else this.airStreak=0;
+  // Hidden rising chain: a rapid touch while the ball is still climbing
+  // preserves existing skill streaks if that touch lacks the skill.
+  const risingChain=this.lastTouchAt!==null&&b.vy<0&&
+   this.elapsed-this.lastTouchAt<=0.35;
+  if(protectedFirstContact)this.scIgnoreNextContact=false;
+  if(!protectedFirstContact){
+   if(spinCount>0)this.spinStreak++;else if(!risingChain)this.spinStreak=0;
+   if(airborne)this.airStreak++;else if(!risingChain)this.airStreak=0;
   }
   const spinLevel=Math.min(this.spinStreak,this.c.MAX_STREAK_LEVEL);
   const airLevel=Math.min(this.airStreak,this.c.MAX_STREAK_LEVEL);
@@ -194,6 +202,7 @@ class LiftingGame{
   );
 
   this.score+=a.score+bonus;
+  this.lastTouchAt=this.elapsed;
   this.pendingSpins=0;
   this.eligibleSpin=true;
   // The first scored touch after a SECOND CHANCE pickup does not advance the combo gauge.
@@ -334,6 +343,7 @@ class LiftingGame{
     }
     this.pendingSpins=0;
     this.eligibleSpin=false;
+    this.lastTouchAt=null;
     p.spinEligible=false;
     this.drops++;
     this.respawn=c.RESPAWN_DELAY;
