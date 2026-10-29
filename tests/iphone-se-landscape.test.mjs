@@ -26,7 +26,7 @@ test('unified cluster scales all buttons with KICK 25 percent larger',()=>{
  assert.match(css,/button\.touch-kick\[data-action="act"\]/);
  assert.match(css,/width:calc\(var\(--control-size\) \* 1\.25\)!important/);
  assert.match(css,/\.touch-actions::after\{content:none!important/);
- assert.match(html,/iphone-se-landscape\.css\?v=unified-controls-170/);
+ assert.match(html,/iphone-se-landscape\.css\?v=closer-cluster-171/);
 });
 
 test('cluster uses compact nonoverlapping triangle with unchanged circle sizes',()=>{
