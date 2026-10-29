@@ -64,3 +64,59 @@
   height:clamp(58px,20dvh,78px)!important;font-size:clamp(12px,3.8dvh,16px)!important;
  }
 }
+
+
+/* Unified Safari browser / Home Screen landscape controller.
+   Three independent, non-overlapping circles; KICK is 25% larger.
+   No DOM, gameplay, touch-handler or ready overlay changes. */
+@media (orientation:landscape) and (pointer:coarse){
+ body.touch-landscape #touch-controls .touch-actions{
+  --action-unit:clamp(38px,11dvh,49px);
+  position:absolute!important;
+  display:block!important;
+  width:calc(var(--action-unit) * 3.2)!important;
+  height:calc(var(--action-unit) * 3.1)!important;
+  right:max(14px,env(safe-area-inset-right))!important;
+  bottom:max(12px,env(safe-area-inset-bottom))!important;
+  left:auto!important;top:auto!important;
+  padding:0!important;margin:0!important;gap:0!important;
+  pointer-events:none!important;
+ }
+ body.touch-landscape #touch-controls .touch-actions>div{
+  display:contents!important;
+ }
+ body.touch-landscape #touch-controls .touch-actions button{
+  position:absolute!important;display:grid!important;place-items:center!important;
+  margin:0!important;padding:0!important;
+  width:var(--action-unit)!important;height:var(--action-unit)!important;
+  min-width:0!important;min-height:0!important;
+  border-radius:50%!important;font-size:clamp(10px,2.7dvh,13px)!important;
+  pointer-events:auto!important;touch-action:none!important;
+ }
+ body.touch-landscape #touch-controls .touch-actions [data-action="jump"]{
+  left:calc(var(--action-unit) * .67)!important;top:0!important;
+ }
+ body.touch-landscape #touch-controls .touch-actions [data-action="spin"]{
+  left:0!important;top:calc(var(--action-unit) * 1.34)!important;
+ }
+ body.touch-landscape #touch-controls .touch-actions .touch-kick{
+  left:calc(var(--action-unit) * 1.62)!important;
+  top:calc(var(--action-unit) * 1.43)!important;
+  width:calc(var(--action-unit) * 1.25)!important;
+  height:calc(var(--action-unit) * 1.25)!important;
+  font-size:clamp(12px,3.2dvh,16px)!important;
+ }
+ /* Subtle connected-ring strokes behind the touch targets. */
+ body.touch-landscape #touch-controls .touch-actions::before{
+  content:"";position:absolute;pointer-events:none;
+  left:calc(var(--action-unit) * .54);top:calc(var(--action-unit) * .88);
+  width:2px;height:calc(var(--action-unit) * .6);
+  background:#d9ff79a6;transform:rotate(26deg);transform-origin:top;
+ }
+ body.touch-landscape #touch-controls .touch-actions::after{
+  content:"";position:absolute;pointer-events:none;
+  left:calc(var(--action-unit) * .98);top:calc(var(--action-unit) * 1.85);
+  width:calc(var(--action-unit) * .68);height:2px;
+  background:#d9ff79a6;
+ }
+}
