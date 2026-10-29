@@ -100,3 +100,11 @@ body.touch-landscape #overlay[hidden],
 body.touch-landscape #overlay[hidden]:has(#prime-boost-picker:not([hidden])){
  display:none!important;
 }
+
+/* Home Screen landscape: keep ranking CTA clear of the fixed PLAY START CTA.
+   Visual-only adjustment; do not change overlay hidden/start behavior. */
+@media (hover:none) and (pointer:coarse) and (orientation:landscape) and (min-width:760px){
+ body.touch-landscape #overlay:not([hidden]):has(#prime-boost-picker:not([hidden])) > #mobile-intro-ranking{
+  position:relative!important;top:-48px!important;
+ }
+}
