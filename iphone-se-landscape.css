@@ -70,8 +70,8 @@
  body.touch-landscape #touch-controls .touch-actions{
   --control-size:clamp(52px, min(16dvh, 8vw), 68px);
   position:absolute!important;display:block!important;
-  width:calc(var(--control-size) * 2.65)!important;
-  height:calc(var(--control-size) * 2.48)!important;
+  width:calc(var(--control-size) * 2.45)!important;
+  height:calc(var(--control-size) * 2.22)!important;
   right:max(8px,env(safe-area-inset-right))!important;
   bottom:max(8px,env(safe-area-inset-bottom))!important;
   left:auto!important;top:auto!important;
@@ -87,20 +87,20 @@
  body.touch-landscape #touch-controls .touch-actions button[data-action="jump"]{
   width:var(--control-size)!important;height:var(--control-size)!important;
   min-width:var(--control-size)!important;min-height:var(--control-size)!important;
-  left:calc(var(--control-size) * .52)!important;top:0!important;
+  left:calc(var(--control-size) * .55)!important;top:0!important;
  }
  body.touch-landscape #touch-controls .touch-actions button[data-action="spin"]{
   width:var(--control-size)!important;height:var(--control-size)!important;
   min-width:var(--control-size)!important;min-height:var(--control-size)!important;
-  left:0!important;top:calc(var(--control-size) * 1.20)!important;
+  left:0!important;top:calc(var(--control-size) * 1.02)!important;
  }
  body.touch-landscape #touch-controls .touch-actions button.touch-kick[data-action="act"]{
   width:calc(var(--control-size) * 1.25)!important;
   height:calc(var(--control-size) * 1.25)!important;
   min-width:calc(var(--control-size) * 1.25)!important;
   min-height:calc(var(--control-size) * 1.25)!important;
-  left:calc(var(--control-size) * 1.38)!important;
-  top:calc(var(--control-size) * 1.20)!important;
+  left:calc(var(--control-size) * 1.12)!important;
+  top:calc(var(--control-size) * .90)!important;
   font-size:clamp(13px,3.4dvh,17px)!important;
   flex:none!important;aspect-ratio:1!important;
  }
