@@ -65,79 +65,45 @@
  }
 }
 
-
-/* Unified Safari browser / Home Screen landscape controller.
-   Three independent, non-overlapping circles; KICK is 25% larger.
-   No DOM, gameplay, touch-handler or ready overlay changes. */
+/* Single responsive coordinate system: no competing v2/v3 overrides. */
 @media (orientation:landscape) and (pointer:coarse){
  body.touch-landscape #touch-controls .touch-actions{
-  --action-unit:clamp(38px,11dvh,49px);
-  position:absolute!important;
-  display:block!important;
-  width:calc(var(--action-unit) * 3.2)!important;
-  height:calc(var(--action-unit) * 3.1)!important;
-  right:max(14px,env(safe-area-inset-right))!important;
-  bottom:max(12px,env(safe-area-inset-bottom))!important;
+  --control-size:clamp(52px, min(16dvh, 8vw), 68px);
+  position:absolute!important;display:block!important;
+  width:calc(var(--control-size) * 2.65)!important;
+  height:calc(var(--control-size) * 2.48)!important;
+  right:max(8px,env(safe-area-inset-right))!important;
+  bottom:max(8px,env(safe-area-inset-bottom))!important;
   left:auto!important;top:auto!important;
-  padding:0!important;margin:0!important;gap:0!important;
-  pointer-events:none!important;
+  margin:0!important;padding:0!important;gap:0!important;pointer-events:none!important;
  }
- body.touch-landscape #touch-controls .touch-actions>div{
-  display:contents!important;
- }
+ body.touch-landscape #touch-controls .touch-actions>div{display:contents!important}
  body.touch-landscape #touch-controls .touch-actions button{
   position:absolute!important;display:grid!important;place-items:center!important;
-  margin:0!important;padding:0!important;
-  width:var(--action-unit)!important;height:var(--action-unit)!important;
-  min-width:0!important;min-height:0!important;
-  border-radius:50%!important;font-size:clamp(10px,2.7dvh,13px)!important;
-  pointer-events:auto!important;touch-action:none!important;
+  box-sizing:border-box!important;margin:0!important;padding:0!important;
+  border-radius:50%!important;pointer-events:auto!important;touch-action:none!important;
+  font-size:clamp(11px,3dvh,15px)!important;
  }
- body.touch-landscape #touch-controls .touch-actions [data-action="jump"]{
-  left:calc(var(--action-unit) * .67)!important;top:0!important;
+ body.touch-landscape #touch-controls .touch-actions button[data-action="jump"]{
+  width:var(--control-size)!important;height:var(--control-size)!important;
+  min-width:var(--control-size)!important;min-height:var(--control-size)!important;
+  left:calc(var(--control-size) * .52)!important;top:0!important;
  }
- body.touch-landscape #touch-controls .touch-actions [data-action="spin"]{
-  left:0!important;top:calc(var(--action-unit) * 1.34)!important;
+ body.touch-landscape #touch-controls .touch-actions button[data-action="spin"]{
+  width:var(--control-size)!important;height:var(--control-size)!important;
+  min-width:var(--control-size)!important;min-height:var(--control-size)!important;
+  left:0!important;top:calc(var(--control-size) * 1.20)!important;
  }
- body.touch-landscape #touch-controls .touch-actions .touch-kick{
-  left:calc(var(--action-unit) * 1.62)!important;
-  top:calc(var(--action-unit) * 1.43)!important;
-  width:calc(var(--action-unit) * 1.5)!important;
-  height:calc(var(--action-unit) * 1.5)!important;
-  font-size:clamp(12px,3.2dvh,16px)!important;
+ body.touch-landscape #touch-controls .touch-actions button.touch-kick[data-action="act"]{
+  width:calc(var(--control-size) * 1.25)!important;
+  height:calc(var(--control-size) * 1.25)!important;
+  min-width:calc(var(--control-size) * 1.25)!important;
+  min-height:calc(var(--control-size) * 1.25)!important;
+  left:calc(var(--control-size) * 1.38)!important;
+  top:calc(var(--control-size) * 1.20)!important;
+  font-size:clamp(13px,3.4dvh,17px)!important;
+  flex:none!important;aspect-ratio:1!important;
  }
  body.touch-landscape #touch-controls .touch-actions::before,
  body.touch-landscape #touch-controls .touch-actions::after{content:none!important;display:none!important}
-
-}
-
-/* Responsive control cluster v3: proportionate sizes on smaller iPhones and Pro Max.
-   Explicit action selectors defeat older equal-sized button rules. */
-@media (orientation:landscape) and (pointer:coarse){
- body.touch-landscape #touch-controls .touch-actions{
-  --action-unit:clamp(38px, min(12dvh, 6.5vw), 58px);
-  width:calc(var(--action-unit) * 3.55)!important;
-  height:calc(var(--action-unit) * 3.1)!important;
-  right:max(8px,env(safe-area-inset-right))!important;
-  bottom:max(8px,env(safe-area-inset-bottom))!important;
- }
- body.touch-landscape #touch-controls .touch-actions button[data-action="jump"],
- body.touch-landscape #touch-controls .touch-actions button[data-action="spin"]{
-  width:var(--action-unit)!important;height:var(--action-unit)!important;
- }
- body.touch-landscape #touch-controls .touch-actions button[data-action="jump"]{
-  left:calc(var(--action-unit) * .68)!important;top:0!important;
- }
- body.touch-landscape #touch-controls .touch-actions button[data-action="spin"]{
-  left:0!important;top:calc(var(--action-unit) * 1.40)!important;
- }
- body.touch-landscape #touch-controls .touch-actions button.touch-kick[data-action="act"]{
-  left:calc(var(--action-unit) * 1.75)!important;
-  top:calc(var(--action-unit) * 1.43)!important;
-  width:calc(var(--action-unit) * 1.5)!important;
-  height:calc(var(--action-unit) * 1.5)!important;
-  min-width:calc(var(--action-unit) * 1.5)!important;
-  min-height:calc(var(--action-unit) * 1.5)!important;
-  flex:none!important;aspect-ratio:1!important;
- }
 }
