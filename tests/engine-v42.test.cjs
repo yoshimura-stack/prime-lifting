@@ -158,3 +158,24 @@ test('SECOND CHANCE continues SPIN and AIR streaks from preserved value up to co
   assert.equal(Math.min(g.airStreak,g.c.MAX_STREAK_LEVEL),Math.min(initial+1,g.c.MAX_STREAK_LEVEL),'AIR bonus gauge stays capped');
  }
 });
+
+// Hidden rising-chain regression checks: no special UI or announcement.
+test('rapid rising touch preserves earned skill streaks without bonus inflation',()=>{
+ const g=fresh();g.spinStreak=3;g.airStreak=2;g.lastTouchAt=g.elapsed;
+ place(g,'HEADER');g.ball.vy=-300;
+ assert.equal(g.act(),'HEADER');assert.equal(g.spinStreak,3);assert.equal(g.airStreak,2);
+ assert.equal(g.score,g.c.ACTIONS.HEADER.score);assert.equal(g.combo,1);
+});
+test('descending or late touch resets skill streaks normally',()=>{
+ for(const late of [false,true]){
+  const g=fresh();g.spinStreak=3;g.airStreak=2;g.lastTouchAt=g.elapsed;
+  if(late)g.elapsed+=0.4;
+  place(g,'HEADER');g.ball.vy=late?-300:300;
+  g.act();assert.equal(g.spinStreak,0);assert.equal(g.airStreak,0);
+ }
+});
+test('rising touch with jump still advances air streak',()=>{
+ const g=fresh();g.spinStreak=2;g.airStreak=2;g.lastTouchAt=g.elapsed;
+ g.player.y-=30;place(g,'JUMP_HEADER');g.ball.vy=-200;
+ g.act();assert.equal(g.spinStreak,2);assert.equal(g.airStreak,3);
+});
