@@ -92,3 +92,38 @@ body.touch-landscape #mobile-pause{min-width:44px!important;min-height:44px!impo
   z-index:6!important;width:max-content!important;max-width:75%!important;
  }
 }
+
+/* Safari landscape ready-room: central CTA stack and separate right BOOST rail. */
+@media (orientation:landscape) and (pointer:coarse){
+ body.touch-landscape #overlay:has(#prime-boost-picker:not([hidden])){
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  overflow:hidden!important;padding:8px max(10px,env(safe-area-inset-right)) 74px max(10px,env(safe-area-inset-left))!important;
+ }
+ body.touch-landscape #overlay:has(#prime-boost-picker:not([hidden])) #account-panel{
+  max-width:min(62%,550px)!important;
+ }
+ body.touch-landscape #overlay:has(#prime-boost-picker:not([hidden])) #account-help{
+  display:none!important;
+ }
+ body.touch-landscape #overlay:has(#prime-boost-picker:not([hidden])) #overlay-copy,
+ body.touch-landscape #overlay:has(#prime-boost-picker:not([hidden])) #overlay-note{
+  display:none!important;
+ }
+ body.touch-landscape #overlay:has(#prime-boost-picker:not([hidden])) #mobile-intro-ranking{
+  position:absolute!important;left:50%!important;bottom:69px!important;
+  transform:translateX(-50%)!important;margin:0!important;
+  max-width:48%!important;white-space:nowrap!important;z-index:6!important;
+ }
+ body.touch-landscape #overlay:has(#prime-boost-picker:not([hidden])) #start{
+  position:absolute!important;left:50%!important;right:auto!important;
+  bottom:12px!important;top:auto!important;transform:translateX(-50%)!important;
+  margin:0!important;z-index:7!important;width:min(250px,44%)!important;
+  min-height:44px!important;padding:7px 14px!important;
+ }
+ body.touch-landscape #prime-boost-picker:not([hidden]){
+  position:absolute!important;right:8px!important;left:auto!important;
+  top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;
+  width:clamp(132px,17%,180px)!important;max-width:23%!important;
+  margin:0!important;padding:7px!important;z-index:5!important;
+ }
+}
