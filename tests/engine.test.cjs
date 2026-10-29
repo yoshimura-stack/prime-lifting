@@ -71,3 +71,14 @@ test('horizontal launch tuning changes displacement without moving player or bal
 });
 console.log(`${checks} checks passed.`);
 
+
+test('RISING flash follows rising-chain timing for any contact type',()=>{
+ for(const name of ['FOOT','KNEE','CHEST','HEADER']){
+  const g=fresh();g.lastTouchAt=0;g.elapsed=.2;place(g,name);g.ball.vy=-40;
+  assert.equal(g.act(),name);assert.equal(g.events.find(e=>e.type==='hit').risingFlash,true);
+ }
+ for(const [elapsed,vy] of [[.4,-40],[.2,40]]){
+  const g=fresh();g.lastTouchAt=0;g.elapsed=elapsed;place(g,'FOOT');g.ball.vy=vy;
+  g.act();assert.equal(g.events.find(e=>e.type==='hit').risingFlash,false);
+ }
+});

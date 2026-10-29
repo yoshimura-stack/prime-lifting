@@ -132,7 +132,7 @@ class LiftingGame{
      Math.abs(b.x-p.x)<=65&&b.y>=this.c.GROUND_Y-85){
    b.pickup=false;
    this.lastTouchAt=this.elapsed;
-   this.pendingSpins=0;
+    this.pendingSpins=0;
    this.eligibleSpin=false;
    // Preserve earned SPIN/AIR streaks through SECOND CHANCE pickup.
    if(!this.scPreserveNextPickup){this.spinStreak=0;this.airStreak=0;}
@@ -229,6 +229,7 @@ class LiftingGame{
    spinStreak:this.spinStreak,
    airStreak:this.airStreak,
    airborne,
+   risingFlash:!protectedFirstContact&&risingChain,
    x:b.x,
    y:b.y,
    quality:hit.ratio<0.4?'PERFECT':'GOOD'
