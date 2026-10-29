@@ -72,18 +72,13 @@ test('horizontal launch tuning changes displacement without moving player or bal
 console.log(`${checks} checks passed.`);
 
 
-test('RISING flash is cosmetic and only fires on a qualifying rising FOOT touch',()=>{
- const g=fresh();g.spinStreak=2;g.lastScoredTouch='HEADER';g.lastTouchAt=0;g.elapsed=.2;place(g,'FOOT');g.ball.vy=-40;
- const score=g.score;assert.equal(g.act(),'FOOT');const e=g.events.find(e=>e.type==='hit');
- assert.equal(e.risingFlash,true);assert.equal(g.spinStreak,2);assert.equal(g.score-score,g.c.ACTIONS.FOOT.score);
- const other=fresh();other.spinStreak=2;other.lastTouchAt=0;other.elapsed=.2;place(other,'KNEE');other.ball.vy=-40;
- assert.equal(other.act(),'KNEE');assert.equal(other.events.find(e=>e.type==='hit').risingFlash,false);
-});
-
-test('RISING flash does not trigger on repeated FOOT or non-foot/head pair',()=>{
- for(const previous of ['FOOT','KNEE']){
-  const g=fresh();g.spinStreak=2;g.lastScoredTouch=previous;g.lastTouchAt=0;g.elapsed=.2;
-  place(g,'FOOT');g.ball.vy=-40;g.act();
-  assert.equal(g.events.find(e=>e.type==='hit').risingFlash,false);
+test('RISING flash follows rising-chain timing for any contact type',()=>{
+ for(const name of ['FOOT','KNEE','CHEST','HEADER']){
+  const g=fresh();g.lastTouchAt=0;g.elapsed=.2;place(g,name);g.ball.vy=-40;
+  assert.equal(g.act(),name);assert.equal(g.events.find(e=>e.type==='hit').risingFlash,true);
+ }
+ for(const [elapsed,vy] of [[.4,-40],[.2,40]]){
+  const g=fresh();g.lastTouchAt=0;g.elapsed=elapsed;place(g,'FOOT');g.ball.vy=vy;
+  g.act();assert.equal(g.events.find(e=>e.type==='hit').risingFlash,false);
  }
 });

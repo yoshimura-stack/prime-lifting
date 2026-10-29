@@ -30,7 +30,6 @@ class LiftingGame{
   this.spinStreak=0;
   this.airStreak=0;
   this.lastTouchAt=null;
-  this.lastScoredTouch=null;
   this.respawn=0;
   this.respawnSide=1;
   this.respawnMode='throw';
@@ -62,7 +61,6 @@ class LiftingGame{
   };
   this.trail=[];
   this.lastTouchAt=null;
-  this.lastScoredTouch=null;
  }
  respawnAtFeet(){
   const c=this.c;
@@ -70,7 +68,6 @@ class LiftingGame{
   this.respawn=0;
   this.trail=[];
   this.lastTouchAt=null;
-  this.lastScoredTouch=null;
  }
  throwIn(){
   const c=this.c,side=this.respawnSide;
@@ -81,7 +78,6 @@ class LiftingGame{
   };
   this.trail=[];
   this.lastTouchAt=null;
-  this.lastScoredTouch=null;
  }
 
  emit(type,data={}){
@@ -136,8 +132,7 @@ class LiftingGame{
      Math.abs(b.x-p.x)<=65&&b.y>=this.c.GROUND_Y-85){
    b.pickup=false;
    this.lastTouchAt=this.elapsed;
-   this.lastScoredTouch=null;
-   this.pendingSpins=0;
+    this.pendingSpins=0;
    this.eligibleSpin=false;
    // Preserve earned SPIN/AIR streaks through SECOND CHANCE pickup.
    if(!this.scPreserveNextPickup){this.spinStreak=0;this.airStreak=0;}
@@ -206,10 +201,8 @@ class LiftingGame{
    this.c.BALL_MAX_HORIZONTAL_SPEED
   );
 
-  const risingFootHeadPair=risingChain&&((this.lastScoredTouch==='FOOT'&&(hit.name==='HEADER'||hit.name==='JUMP_HEADER'))||((this.lastScoredTouch==='HEADER'||this.lastScoredTouch==='JUMP_HEADER')&&hit.name==='FOOT'));
   this.score+=a.score+bonus;
   this.lastTouchAt=this.elapsed;
-  this.lastScoredTouch=hit.name;
   this.pendingSpins=0;
   this.eligibleSpin=true;
   // The first scored touch after a SECOND CHANCE pickup does not advance the combo gauge.
@@ -236,7 +229,7 @@ class LiftingGame{
    spinStreak:this.spinStreak,
    airStreak:this.airStreak,
    airborne,
-   risingFlash:!protectedFirstContact&&risingFootHeadPair&&((spinCount===0&&this.spinStreak>0)||(!airborne&&this.airStreak>0)),
+   risingFlash:!protectedFirstContact&&risingChain,
    x:b.x,
    y:b.y,
    quality:hit.ratio<0.4?'PERFECT':'GOOD'
@@ -352,7 +345,6 @@ class LiftingGame{
     this.pendingSpins=0;
     this.eligibleSpin=false;
     this.lastTouchAt=null;
-  this.lastScoredTouch=null;
     p.spinEligible=false;
     this.drops++;
     this.respawn=c.RESPAWN_DELAY;
