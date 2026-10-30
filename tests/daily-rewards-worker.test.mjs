@@ -93,14 +93,11 @@ test('monthly reward resets on JST month boundary without changing saved play be
  let ranking=await (await worker.fetch(req('/api/leaderboard'),env)).json();
  assert.equal(ranking.entries[0].score,74605,'October ranking includes earned daily bonus');
  now=Date.parse('2026-10-31T15:00:01Z'); // November 1, 00:00 JST
- const status=await (await worker.fetch(req('/api/daily/status',undefined,cookie),env)).json();
- assert.equal(status.day,'2026-11-01');
- assert.deepEqual(status.completedIds,[]);
- assert.equal(status.monthlyBonus,0);
- ranking=await (await worker.fetch(req('/api/leaderboard'),env)).json();
- assert.equal(ranking.entries[0].score,74305,'November ranking retains saved best, drops October bonus');
- assert.equal(ranking.entries[0].playScore,74305);
- assert.equal(ranking.entries[0].dailyBonus,0);
+ const statusResponse=await worker.fetch(req('/api/daily/status',undefined,cookie),env);
+ assert.equal(statusResponse.status,423,'season lock hides November daily status');
+ const rankingResponse=await worker.fetch(req('/api/leaderboard'),env);
+ assert.equal(rankingResponse.status,423,'season lock hides final standings');
+ assert.equal(player.best,74305,'play best is preserved');
  assert.equal(awards.size,3,'October award history remains intact');
 });
 
