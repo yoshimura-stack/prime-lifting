@@ -163,7 +163,20 @@ button.prime-coin-wallet:hover,button.prime-coin-wallet:focus-visible{border-col
  #daily-preview .daily-heading strong{font-size:10px}
  #daily-preview #daily-day{font-size:8px}
 }
-</style><link rel="stylesheet" href="pc-cockpit.css?v=bottom-rail-actions-1"><link rel="stylesheet" href="mobile-icon-rails.css?v=sidebar-controls-2"><link rel="stylesheet" href="mobile-kit-portrait.css?v=portrait-rows-1"><link rel="stylesheet" href="mobile-king-marquee.css?v=top10-mobile-1"><link rel="stylesheet" href="update-news.css?v=6"><link rel="stylesheet" href="ranking-daily-breakdown.css?v=1"><link rel="stylesheet" href="iphone-se-landscape.css?v=closer-cluster-171"></head>
+</style><link rel="stylesheet" href="pc-cockpit.css?v=bottom-rail-actions-1"><link rel="stylesheet" href="mobile-icon-rails.css?v=sidebar-controls-2"><link rel="stylesheet" href="mobile-kit-portrait.css?v=portrait-rows-1"><link rel="stylesheet" href="mobile-king-marquee.css?v=top10-mobile-1"><link rel="stylesheet" href="update-news.css?v=6"><link rel="stylesheet" href="ranking-daily-breakdown.css?v=1"><link rel="stylesheet" href="iphone-se-landscape.css?v=closer-cluster-171"><script>
+// Existing open tabs also switch to the maintenance screen when the server closes the season.
+(function(){
+ let closed=false;
+ async function checkSeason(){
+  if(closed)return;
+  try{const response=await fetch('/api/season/status',{cache:'no-store'});if(!response.ok)return;
+   const state=await response.json();if(state.closed){closed=true;location.replace('/?season=closed');}
+  }catch{} // Offline clients cannot submit a score; retry on the next interval.
+ }
+ checkSeason();setInterval(checkSeason,10000);
+})();
+</script>
+</head>
 <body>
 <nav id="mobile-icon-rails" class="mobile-icon-rails" aria-label="スマホ版クイックメニュー">
  <div class="mobile-icon-column" aria-label="左メニュー">
