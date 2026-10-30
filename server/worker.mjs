@@ -26,9 +26,20 @@ async function readBody(request){
  const bytes=new Uint8Array(size);let at=0;for(const c of chunks){bytes.set(c,at);at+=c.length;}
  try{const body=JSON.parse(new TextDecoder().decode(bytes));if(!body||Array.isArray(body)||typeof body!=='object')throw 0;return body;}catch{throw new ApiError(400,'入力形式が正しくありません。');}
 }
+// October award season closes at 2026-11-01 00:00 JST (2026-10-31 15:00 UTC).
+// Keep the cutoff server-side so client clocks cannot bypass it.
+export const OCTOBER_CLOSE_AT=Date.parse('2026-10-31T15:00:00Z');
+const seasonClosed=time=>time>=OCTOBER_CLOSE_AT;
+const maintenancePage=()=>new Response(`<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0c1521"><title>PRIME LIFTING LAB | MAINTENANCE</title><style>*{box-sizing:border-box}body{margin:0;min-height:100svh;display:grid;place-items:center;background:radial-gradient(circle at 50% 28%,#27334a 0%,#0b1220 65%,#070b13 100%);color:#f3f2ed;font-family:system-ui,-apple-system,'Noto Sans JP',sans-serif;padding:24px}.card{text-align:center;width:min(100%,560px);border:1px solid #a78a4a70;background:#111a29e8;border-radius:26px;padding:56px 22px;box-shadow:0 24px 100px #0008}.brand{letter-spacing:.26em;font-size:13px;color:#d7bb77}.lock{font-size:42px;margin:24px 0 10px}h1{font-size:clamp(32px,8vw,52px);letter-spacing:.14em;color:#e6cb8d;margin:0 0 24px}h2{font-size:clamp(20px,5vw,28px);margin:0 0 20px}p{line-height:2;color:#c9d0db}.line{height:1px;background:linear-gradient(90deg,transparent,#a78a4a,transparent);margin:30px 0}.soon{font-weight:800;letter-spacing:.12em;color:#e6cb8d;font-size:clamp(18px,5vw,26px)}.foot{font-size:12px;color:#8f9bad;margin-top:30px}</style></head><body><main class="card"><div class="brand">PRIME LIFTING LAB</div><div class="lock" aria-hidden="true">🔒</div><h1>MAINTENANCE</h1><h2>10月シーズン終了</h2><p>すべてのスコアが確定しました。<br>現在、最終ランキングを集計中です。</p><div class="line"></div><div class="soon">🏆 TOP 3 — COMING SOON</div><div class="foot">結果発表をお楽しみに。</div></main></body></html>`,{status:200,headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store, max-age=0','X-Content-Type-Options':'nosniff','X-Robots-Tag':'noindex'}});
 export function createWorker({database=createDatabase,now=()=>Date.now(),replayGame=replay}={}){return {async fetch(request,env){
  const url=new URL(request.url),path=url.pathname;
- if(!path.startsWith('/api/'))return env.ASSETS.fetch(request);
+ const currentTime=now();
+ if(!path.startsWith('/api/')){
+  if(seasonClosed(currentTime)&&(path==='/'||path==='/index.html'||request.mode==='navigate'))return maintenancePage();
+  return env.ASSETS.fetch(request);
+ }
+ if(path==='/api/season/status'&&request.method==='GET')return json({closed:seasonClosed(currentTime),closesAt:'2026-11-01T00:00:00+09:00'});
+ if(seasonClosed(currentTime))return json({error:'10月シーズンは終了しました。結果発表をお待ちください。',closed:true},423);
  try{
   if(!['GET','POST'].includes(request.method))throw new ApiError(405,'この操作には対応していません。');
   if(request.method==='POST'&&request.headers.get('origin')!==url.origin)throw new ApiError(403,'同じサイトから操作してください。');
