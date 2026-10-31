@@ -1,0 +1,10 @@
+const test=require('node:test');const assert=require('node:assert/strict');
+require('../js/config.js');require('../js/engine.js');
+const make=()=>{const g=new LiftingGame(structuredClone(PRIME_DEFAULTS));g.phase='playing';g.cooldown=0;g.player.spin=0;g.ball.active=true;g.ball.pickup=false;g.ball.vx=0;g.ball.vy=80;return g};
+const setup=(g,dx,dy=0)=>{g.ball.x=g.player.x+dx;g.ball.y=g.player.y-g.c.ACTIONS.FOOT.height+dy;g.cooldown=0};
+test('exact foot-circle overlap center scores a FOOT hit',()=>{const g=make();setup(g,0);assert.equal(g.act(),'FOOT');assert.equal(g.actionSide,'LEFT');assert.equal(g.combo,1);assert.equal(g.score,100)});
+test('both sides of overlap are hittable',()=>{for(const dx of [-15,-5,0,5,15]){const g=make();setup(g,dx);assert.equal(g.act(),'FOOT',String(dx));assert.equal(g.combo,1)}});
+test('vertical overlap boundaries are hittable',()=>{for(const dy of [-10,0,10]){const g=make();setup(g,0,dy);assert.equal(g.act(),'FOOT',String(dy))}});
+test('ball visually intersects FOOT circle but center outside can miss',()=>{const g=make();setup(g,0,18);assert.ok(Math.hypot(19,18)>25);assert.ok(Math.hypot(19,18)<25+g.c.BALL_RADIUS);assert.equal(g.act(),null);assert.equal(g.action,'MISS')});
+test('active cooldown blocks otherwise valid center overlap',()=>{const g=make();setup(g,0);g.cooldown=0.01;assert.equal(g.act(),null);assert.equal(g.combo,0)});
+test('pickup mode uses separate broad-foot pickup rather than scored contact',()=>{const g=make();setup(g,0);g.ball.pickup=true;assert.equal(g.act(),'PICKUP');assert.equal(g.combo,0)});
