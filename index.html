@@ -413,7 +413,7 @@ button.prime-coin-wallet:hover,button.prime-coin-wallet:focus-visible{border-col
  if(!entry||!play)return;
  // Keep the October maintenance/locked preview untouched until November APIs are ready.
  fetch('/api/season/status',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(state=>{
-  if(state&&!state.closed&&!state.scoresLocked)entry.hidden=true===false;
+  if(state&&!state.closed&&!state.scoresLocked)entry.hidden=false;
  }).catch(()=>{});
  play.addEventListener('click',()=>{entry.hidden=true;});
 })();
