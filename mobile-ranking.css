@@ -608,3 +608,11 @@ body.touch-landscape #result-next-rival{display:none!important}
 #ranking-dialog .prime-league ol li.rank-self{background:rgba(218,255,107,.13);box-shadow:inset 3px 0 0 #dcff6a;color:#eaffba;font-weight:800}
 #ranking-dialog .prime-league ol li .rank-entry-head{min-width:0}
 #ranking-dialog .prime-league ol li .rank-total{white-space:nowrap}
+
+/* Preserve original leaderboard row layout after moving rows into three lists. */
+#ranking-dialog .prime-league ol li{display:flex;flex-direction:column;justify-content:space-between;gap:5px;padding:9px 8px;border-bottom:1px solid #ffffff24;font-size:clamp(11px,1.4vw,14px)}
+#ranking-dialog .prime-league ol li:first-child{font-weight:800;background:#dcff6a0b}
+#ranking-dialog .prime-league ol li strong{font-family:Consolas,monospace}
+#ranking-dialog .prime-league ol li .rank-entry-head{display:flex;justify-content:space-between;align-items:center;gap:6px}
+#ranking-dialog .prime-league ol li .rank-player-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-height:450px){#ranking-dialog .prime-league ol li{padding:5px 7px}}
