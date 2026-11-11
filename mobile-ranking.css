@@ -590,29 +590,3 @@ body.touch-landscape #result-next-rival{display:none!important}
  left:clamp(48px,8dvh,60px)!important;
  width:calc(50vw - clamp(48px,8dvh,60px))!important;
 }
-
-/* PRIME LEAGUE: 3 divisions on desktop, swipeable columns on small screens. */
-#ranking-dialog .ranking-dialog-card{width:min(96vw,1380px);max-width:1380px}
-#ranking-dialog .prime-league-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;flex:1 1 auto;min-height:0;overflow:hidden}
-#ranking-dialog .prime-league{display:flex;flex-direction:column;min-width:0;min-height:0;border:1px solid #536e65;border-radius:10px;background:rgba(10,28,27,.6);overflow:hidden}
-#ranking-dialog .prime-league h3{margin:0;padding:11px 13px;font-size:18px;letter-spacing:.08em;color:#e8cf8d;background:rgba(119,96,48,.19);border-bottom:1px solid #5c6651}
-#ranking-dialog .prime-league h3 small{font-size:11px;letter-spacing:0;color:#d7e3d7;margin-left:8px}
-#ranking-dialog .prime-league-j2 h3{color:#9bc9ff;background:rgba(55,100,143,.2)}
-#ranking-dialog .prime-league-j3 h3{color:#d9b5a0;background:rgba(130,85,65,.2)}
-#ranking-dialog .prime-league ol{margin:0;padding:6px;list-style:none;overflow-y:auto;overscroll-behavior:contain;min-height:0;flex:1}
-#ranking-dialog .prime-league li{min-width:0}
-@media(max-width:760px){#ranking-dialog .prime-league-board{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:8px;overscroll-behavior-x:contain}#ranking-dialog .prime-league{flex:0 0 min(84vw,420px);scroll-snap-align:start}#ranking-dialog .prime-league h3{padding:7px 10px;font-size:15px}}
-
-/* League-specific equivalents of legacy full-ranking row treatments. */
-#ranking-dialog .prime-league ol li>.rank-player-name{flex:1;min-width:0}
-#ranking-dialog .prime-league ol li.rank-self{background:rgba(218,255,107,.13);box-shadow:inset 3px 0 0 #dcff6a;color:#eaffba;font-weight:800}
-#ranking-dialog .prime-league ol li .rank-entry-head{min-width:0}
-#ranking-dialog .prime-league ol li .rank-total{white-space:nowrap}
-
-/* Preserve original leaderboard row layout after moving rows into three lists. */
-#ranking-dialog .prime-league ol li{display:flex;flex-direction:column;justify-content:space-between;gap:5px;padding:9px 8px;border-bottom:1px solid #ffffff24;font-size:clamp(11px,1.4vw,14px)}
-#ranking-dialog .prime-league ol li:first-child{font-weight:800;background:#dcff6a0b}
-#ranking-dialog .prime-league ol li strong{font-family:Consolas,monospace}
-#ranking-dialog .prime-league ol li .rank-entry-head{display:flex;justify-content:space-between;align-items:center;gap:6px}
-#ranking-dialog .prime-league ol li .rank-player-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-@media(max-height:450px){#ranking-dialog .prime-league ol li{padding:5px 7px}}
