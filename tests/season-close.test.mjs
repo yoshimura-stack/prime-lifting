@@ -18,3 +18,12 @@ test('JST midnight is the exact season cutoff, without a client-clock dependency
  }
  assert.equal(await (await after.fetch(req('/style.css'),env)).text(),'normal game');
 });
+
+test('preview flag restores game screen but keeps October API locked',async()=>{
+ const worker=createWorker({now:()=>OCTOBER_CLOSE_AT+86400000});
+ const preview={...env,SEASON_PREVIEW_ENABLED:'true'};
+ assert.equal(await (await worker.fetch(req('/'),preview)).text(),'normal game');
+ assert.equal((await (await worker.fetch(req('/api/season/status'),preview)).json()).closed,true);
+ assert.equal((await worker.fetch(req('/api/game/start','POST'),preview)).status,423);
+ assert.equal((await worker.fetch(req('/api/scores','POST'),preview)).status,423);
+});
