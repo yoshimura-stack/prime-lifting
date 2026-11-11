@@ -35,7 +35,7 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
  const url=new URL(request.url),path=url.pathname;
  const currentTime=now();
  if(!path.startsWith('/api/')){
-  if(seasonClosed(currentTime)&&(path==='/'||path==='/index.html'||request.mode==='navigate'))return maintenancePage();
+  if(seasonClosed(currentTime)&&env.SEASON_PREVIEW_ENABLED!=='true'&&(path==='/'||path==='/index.html'||request.mode==='navigate'))return maintenancePage();
   return env.ASSETS.fetch(request);
  }
  if(path==='/api/season/status'&&request.method==='GET')return json({closed:seasonClosed(currentTime),closesAt:'2026-11-01T00:00:00+09:00'});
