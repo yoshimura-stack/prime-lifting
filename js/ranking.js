@@ -272,7 +272,7 @@ async function updateRankDialog(){
  try{
   const data=await api('/api/leaderboard/all');
   if(current!==rankDialogGeneration||rankDialog.hidden)return;
-  const leagueLists=[$('ranking-dialog-list-j1'),$('ranking-dialog-list-j2'),$('ranking-dialog-list-j3')];for(const list of leagueLists)list.replaceChildren();selfRankRow=null;jumpSelf.hidden=true;
+  const list=$('ranking-dialog-list');list.replaceChildren();selfRankRow=null;jumpSelf.hidden=true;
   for(const e of data.entries){
     const li=document.createElement('li'),name=rankName(e,`${e.rank}. `);
     const total=document.createElement('strong');total.className='rank-total';total.textContent=e.score.toLocaleString()+' PTS';
@@ -305,7 +305,7 @@ async function updateRankDialog(){
      }else li.classList.add('rank-podium-breakdown');
     }
     if(player&&e.name===player.name){li.classList.add('rank-self');li.setAttribute('aria-current','true');selfRankRow=li;}
-    leagueLists[e.rank<=10?0:e.rank<=20?1:2].append(li);
+    list.append(li);
    }
    $('ranking-dialog-status').textContent=data.entries.length?`${data.entries.length}人のランキングを表示中（上下にスクロールできます）`:'まだ記録がありません。';
   jumpSelf.hidden=!selfRankRow;
