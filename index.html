@@ -176,8 +176,43 @@ button.prime-coin-wallet:hover,button.prime-coin-wallet:focus-visible{border-col
  checkSeason();setInterval(checkSeason,10000);
 })();
 </script>
+<style>
+/* Season 02 entry screen: isolated from the existing SOLO game DOM. */
+#prime-mode-entry[hidden]{display:none!important}
+#prime-mode-entry{position:fixed;inset:0;z-index:12000;overflow:auto;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 25%,#243c57,#0a1222 75%);color:#f6f3e9;font-family:system-ui,-apple-system,sans-serif}
+.prime-mode-panel{width:min(780px,100%);text-align:center}
+.prime-mode-kicker{font-size:13px;letter-spacing:.24em;color:#dfc17a;font-weight:800}
+.prime-mode-panel h1{font-size:clamp(24px,5vw,44px);letter-spacing:.09em;margin:16px 0 26px}
+.prime-mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.prime-mode-card{min-height:245px;border-radius:20px;padding:30px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px}
+.prime-mode-solo{background:linear-gradient(145deg,#173e60,#10243b);border:1px solid #4a96d0;cursor:pointer;color:#fff;font:inherit}
+.prime-mode-solo:hover,.prime-mode-solo:focus-visible{outline:3px solid #a4dcff;outline-offset:3px}
+.prime-mode-team{background:linear-gradient(145deg,#463720,#251e1b);border:1px solid #a38448}
+.prime-mode-symbol{font-size:40px}.prime-mode-card strong{font-size:29px;letter-spacing:.08em}
+.prime-mode-card small{font-size:12px;letter-spacing:.08em}
+.prime-mode-action{padding:10px 20px;border-radius:8px;background:#2679bc;font-size:13px;font-weight:900;letter-spacing:.07em}
+.prime-mode-team .prime-mode-action{background:#64502b;color:#f7dfa5}
+.prime-mode-foot{margin-top:23px;font-size:13px;color:#d5dce7}
+@media(max-width:560px){.prime-mode-grid{grid-template-columns:1fr}.prime-mode-card{min-height:185px;padding:20px}.prime-mode-panel h1{margin:12px 0 18px}}
+</style>
 </head>
 <body>
+<section id="prime-mode-entry" hidden role="region" aria-label="ゲームモード選択">
+ <div class="prime-mode-panel">
+  <div class="prime-mode-kicker">PRIME LIFTING LAB · SEASON 02</div>
+  <h1>CHOOSE YOUR MODE</h1>
+  <div class="prime-mode-grid">
+   <button type="button" class="prime-mode-card prime-mode-solo" id="prime-mode-play">
+    <span class="prime-mode-symbol" aria-hidden="true">⚽</span><strong>SOLO</strong><small>60 SEC SCORE ATTACK</small><span class="prime-mode-action">PLAY NOW</span>
+   </button>
+   <div class="prime-mode-card prime-mode-team" aria-label="チームリーグ、近日公開">
+    <span class="prime-mode-symbol" aria-hidden="true">🏆</span><strong>TEAM LEAGUE</strong><small>J1 / J2 / J3</small><span class="prime-mode-action">COMING SOON</span>
+   </div>
+  </div>
+  <p class="prime-mode-foot">新たな戦いが、まもなく始まる。</p>
+ </div>
+</section>
+
 <nav id="mobile-icon-rails" class="mobile-icon-rails" aria-label="スマホ版クイックメニュー">
  <div class="mobile-icon-column" aria-label="左メニュー">
   <button type="button" data-mobile-panel="titles" aria-label="称号の獲得条件" title="称号">🏅</button>
@@ -371,4 +406,15 @@ button.prime-coin-wallet:hover,button.prime-coin-wallet:focus-visible{border-col
   toggle.textContent=expanded?'閉じる ▴':'3問 ▾';
  });
 })();
-</script><script src="js/pc-cockpit.js?v=bottom-rail-actions-1" defer></script><script src="js/mobile-king-marquee.js?v=top10-mobile-1" defer></script><script src="js/update-news.js?v=3" defer></script><link rel="stylesheet" href="ready-room.css?v=mobile-boost-layout-v2"><link rel="stylesheet" href="kit-notebook-fix.css?v=1"><script src="js/kit-notebook-fix.js?v=1"></script></body></html>
+</script><script src="js/pc-cockpit.js?v=bottom-rail-actions-1" defer></script><script src="js/mobile-king-marquee.js?v=top10-mobile-1" defer></script><script src="js/update-news.js?v=3" defer></script><link rel="stylesheet" href="ready-room.css?v=mobile-boost-layout-v2"><link rel="stylesheet" href="kit-notebook-fix.css?v=1"><script src="js/kit-notebook-fix.js?v=1"></script><script>
+(function(){
+ const entry=document.getElementById('prime-mode-entry');
+ const play=document.getElementById('prime-mode-play');
+ if(!entry||!play)return;
+ // Keep the October maintenance/locked preview untouched until November APIs are ready.
+ fetch('/api/season/status',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(state=>{
+  if(state&&!state.closed&&!state.scoresLocked)entry.hidden=true===false;
+ }).catch(()=>{});
+ play.addEventListener('click',()=>{entry.hidden=true;});
+})();
+</script></body></html>
