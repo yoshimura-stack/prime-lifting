@@ -23,7 +23,10 @@ test('preview flag restores game screen but keeps October API locked',async()=>{
  const worker=createWorker({now:()=>OCTOBER_CLOSE_AT+86400000});
  const preview={...env,SEASON_PREVIEW_ENABLED:'true'};
  assert.equal(await (await worker.fetch(req('/'),preview)).text(),'normal game');
- assert.equal((await (await worker.fetch(req('/api/season/status'),preview)).json()).closed,true);
+ const status=await (await worker.fetch(req('/api/season/status'),preview)).json();
+ assert.equal(status.closed,false);
+ assert.equal(status.preview,true);
+ assert.equal(status.scoresLocked,true);
  assert.equal((await worker.fetch(req('/api/game/start','POST'),preview)).status,423);
  assert.equal((await worker.fetch(req('/api/scores','POST'),preview)).status,423);
 });
