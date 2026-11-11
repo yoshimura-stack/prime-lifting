@@ -602,3 +602,9 @@ body.touch-landscape #result-next-rival{display:none!important}
 #ranking-dialog .prime-league ol{margin:0;padding:6px;list-style:none;overflow-y:auto;overscroll-behavior:contain;min-height:0;flex:1}
 #ranking-dialog .prime-league li{min-width:0}
 @media(max-width:760px){#ranking-dialog .prime-league-board{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:8px;overscroll-behavior-x:contain}#ranking-dialog .prime-league{flex:0 0 min(84vw,420px);scroll-snap-align:start}#ranking-dialog .prime-league h3{padding:7px 10px;font-size:15px}}
+
+/* League-specific equivalents of legacy full-ranking row treatments. */
+#ranking-dialog .prime-league ol li>.rank-player-name{flex:1;min-width:0}
+#ranking-dialog .prime-league ol li.rank-self{background:rgba(218,255,107,.13);box-shadow:inset 3px 0 0 #dcff6a;color:#eaffba;font-weight:800}
+#ranking-dialog .prime-league ol li .rank-entry-head{min-width:0}
+#ranking-dialog .prime-league ol li .rank-total{white-space:nowrap}
