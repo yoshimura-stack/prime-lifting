@@ -38,7 +38,7 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   if(seasonClosed(currentTime)&&env.SEASON_PREVIEW_ENABLED!=='true'&&(path==='/'||path==='/index.html'||request.mode==='navigate'))return maintenancePage();
   return env.ASSETS.fetch(request);
  }
- if(path==='/api/season/status'&&request.method==='GET')return json({closed:seasonClosed(currentTime),closesAt:'2026-11-01T00:00:00+09:00'});
+ if(path==='/api/season/status'&&request.method==='GET')return json({closed:seasonClosed(currentTime)&&env.SEASON_PREVIEW_ENABLED!=='true',preview:seasonClosed(currentTime)&&env.SEASON_PREVIEW_ENABLED==='true',scoresLocked:seasonClosed(currentTime),closesAt:'2026-11-01T00:00:00+09:00'});
  if(seasonClosed(currentTime))return json({error:'10月シーズンは終了しました。結果発表をお待ちください。',closed:true},423);
  try{
   if(!['GET','POST'].includes(request.method))throw new ApiError(405,'この操作には対応していません。');
