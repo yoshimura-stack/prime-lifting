@@ -30,3 +30,20 @@ test('preview flag restores game screen but keeps October API locked',async()=>{
  assert.equal((await worker.fetch(req('/api/game/start','POST'),preview)).status,423);
  assert.equal((await worker.fetch(req('/api/scores','POST'),preview)).status,423);
 });
+
+test('November reopens only with explicit readiness flag and locks after November',async()=>{
+ const november=Date.parse('2026-11-11T08:00:00Z');
+ const worker=createWorker({now:()=>november});
+ const locked=await (await worker.fetch(req('/api/season/status'),env)).json();
+ assert.equal(locked.closed,true);
+ assert.equal(locked.scoresLocked,true);
+ const ready={...env,SEASON_02_READY:'true'};
+ assert.equal(await (await worker.fetch(req('/'),ready)).text(),'normal game');
+ const active=await (await worker.fetch(req('/api/season/status'),ready)).json();
+ assert.equal(active.closed,false);
+ assert.equal(active.scoresLocked,false);
+ assert.equal(active.closesAt,'2026-12-01T00:00:00+09:00');
+ const ended=createWorker({now:()=>Date.parse('2026-11-30T15:00:00Z')});
+ assert.equal((await (await ended.fetch(req('/api/season/status'),ready)).json()).closed,true);
+ assert.equal((await ended.fetch(req('/api/game/start','POST'),ready)).status,423);
+});
