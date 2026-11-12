@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {createWorker,finalScore} from '../server/worker.mjs';
+import {createWorker as createRealWorker,finalScore} from '../server/worker.mjs';
+// Legacy gameplay tests use an explicit pre-closure clock; production still uses real time.
+const createWorker=(options={})=>createRealWorker({now:()=>100000,...options});
 import {replay,RULESET} from '../server/replay.mjs';
 const limiter={limit:async()=>({success:true})};
 const env={SESSION_SECRET:'test-only-secret-012345678901234567890',AUTH_LIMITER:limiter,API_LIMITER:limiter,ASSETS:{fetch:()=>new Response('asset')}};
