@@ -46,6 +46,8 @@ export function createWorker({database=createDatabase,now=()=>Date.now(),replayG
   if(request.method==='POST'&&request.headers.get('origin')!==url.origin)throw new ApiError(403,'同じサイトから操作してください。');
   const adminLogin=path==='/api/admin/login';
   const adminReset=path==='/api/admin/reset';
+  // Season 02 protects all inherited player accounts. Never expose legacy destructive reset.
+  if(adminReset&&env.SEASON_02_READY==='true')throw new ApiError(403,'シーズン再開後のアカウント一括削除は禁止されています。');
   const auth=path==='/api/register'||path==='/api/login'||adminLogin;
   const limiter=auth?env.AUTH_LIMITER:env.API_LIMITER;
   if(!limiter)throw new ApiError(503,'ランキング設定を確認中です。');
