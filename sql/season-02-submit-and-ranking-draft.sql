@@ -58,8 +58,8 @@ begin
  select max(best_score) into v_top from public.lifting_season_scores where season_key=v_season;
  -- Legacy test-force flag must never alter real season scores.
  v_force:=false;
- v_best:=v_force or v_score>v_old;
- v_champion:=v_score>coalesce(v_top,0);
+ v_best:=v_score>v_old;
+ v_champion:=v_best and v_score>coalesce(v_top,0);
  insert into public.lifting_season_scores(season_key,player_id,best_score,best_device,best_kit,base_score,boost_bonus,best_boost,last_played_at)
  values(v_season,v_id,v_score,payload->>'device',payload->>'kit',v_base,v_mobile,nullif(payload->>'boost',''),now())
  on conflict(season_key,player_id) do update set
