@@ -47,3 +47,11 @@ test('November reopens only with explicit readiness flag and locks after Novembe
  assert.equal((await (await ended.fetch(req('/api/season/status'),ready)).json()).closed,true);
  assert.equal((await ended.fetch(req('/api/game/start','POST'),ready)).status,423);
 });
+
+test('November season refuses legacy destructive account reset even with an active season',async()=>{
+ const worker=createWorker({now:()=>Date.parse('2026-11-12T10:00:00Z')});
+ const ready={...env,SEASON_02_READY:'true'};
+ const response=await worker.fetch(req('/api/admin/reset','POST'),ready);
+ assert.equal(response.status,403);
+ assert.match((await response.json()).error,/一括削除は禁止/);
+});
